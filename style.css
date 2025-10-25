@@ -177,7 +177,8 @@ main {
     list-style: none;
     padding: 0;
     margin: 0;
-    gap: 20px;
+    /* Увеличен gap для лучшего разделения */
+    gap: 15px 40px; 
     flex-wrap: wrap;
     font-size: 0.9em;
 }
@@ -188,12 +189,33 @@ main {
     margin-right: 5px;
 }
 
+/* СТИЛИ ДЛЯ ВЫРАВНИВАНИЯ ID/FPS */
+
+/* ID (ВВЕРХУ СПРАВА) - занимает минимальную ширину, чтобы FPS мог занять остальное место */
+.detail-id-line {
+    margin-left: auto; /* Сдвигаем ID вправо */
+    order: 1; /* Оставляем ID на первой строке */
+}
+
+/* FPS (ВНИЗУ СЛЕВА) - занимает всю ширину, заставляя ID быть вверху, а остальные детали - внизу */
+.detail-fps-line {
+    order: 2; /* Принудительно ставим FPS на вторую строку */
+    flex-basis: 100%; /* Занимаем всю ширину, чтобы избежать размещения ID рядом */
+    /* Убираем лишний отступ снизу */
+    margin-bottom: 0; 
+}
+
 /* СТИЛИ ДЛЯ ЭКСТРЕМАЛЬНОГО FPS */
 .extreme-fps-value {
-    /* Разрешить браузеру переносить длинные строки внутри, чтобы не ломался макет */
     word-break: break-all;
-    display: block; /* Занять всю доступную ширину, чтобы перенос был виден */
+    display: inline;
 }
+
+/* Остальные детали (FV, Showcase) должны быть внизу, поэтому их order > 2 */
+.level-details li:not(.detail-id-line):not(.detail-fps-line) {
+    order: 3;
+}
+
 
 .showcase-link {
     color: var(--color-success);
