@@ -1,26 +1,58 @@
 document.addEventListener('DOMContentLoaded', () => {
     const listElement = document.getElementById('levelList');
     const jsonPath = 'levels.json'; // Путь к вашему файлу данных
+    const body = document.body;
+    const themeButtons = document.querySelectorAll('.theme-button');
+
+    // ====================================
+    // 1. Логика Смены Тем
+    // ====================================
+
+    // Загрузка сохраненной темы
+    const savedTheme = localStorage.getItem('siteTheme') || 'blue';
+    setTheme(savedTheme);
+
+    themeButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const newTheme = button.dataset.theme;
+            setTheme(newTheme);
+            localStorage.setItem('siteTheme', newTheme);
+        });
+    });
+
+    function setTheme(theme) {
+        // 1. Обновляем класс на <body>
+        body.className = `theme-${theme}`;
+
+        // 2. Обновляем активный статус кнопок
+        themeButtons.forEach(btn => {
+            btn.classList.remove('active-theme');
+            if (btn.dataset.theme === theme) {
+                btn.classList.add('active-theme');
+            }
+        });
+    }
+
+    // ====================================
+    // 2. Логика Загрузки Уровней
+    // ====================================
 
     fetch(jsonPath)
         .then(response => {
-            // Проверка, что файл найден и доступен
             if (!response.ok) {
                 throw new Error(`Ошибка загрузки данных: ${response.statusText}`);
             }
             return response.json();
         })
         .then(levels => {
-            // Создание HTML для каждого уровня
             levels.forEach(level => {
                 const li = document.createElement('li');
                 li.className = 'level-item';
 
-                // Создание содержимого карточки
                 li.innerHTML = `
                     <div class="level-header">
                         <span class="level-number">${level.number}.</span>
-                        <a href="${level.showcase}" class="level-name">${level.name}</a>
+                        <a href="${level.showcase}" target="_blank" class="level-name">${level.name}</a>
                         <span class="level-creator">by ${level.creator}</span>
                     </div>
                     <ul class="level-details">
@@ -35,7 +67,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     </ul>
                 `;
 
-                // Добавление карточки в основной список
                 listElement.appendChild(li);
             });
         })
