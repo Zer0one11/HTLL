@@ -7,8 +7,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // ====================================
     // 1. Логика Смены Тем
     // ====================================
-
-    // Загрузка сохраненной темы
     const savedTheme = localStorage.getItem('siteTheme') || 'blue';
     setTheme(savedTheme);
 
@@ -61,9 +59,10 @@ document.addEventListener('DOMContentLoaded', () => {
                         <span class="level-creator">by ${level.creator}</span>
                     </div>
                     <ul class="level-details">
-                        <li><span class="detail-label">FPS:</span> <span class="${fpsClass}">${level.fps}</span></li>
+                        <li class="detail-id-line"><span class="detail-label">ID:</span> ${level.id};</li>
                         
-                        <li><span class="detail-label">ID:</span> ${level.id};</li>
+                        <li class="detail-fps-line"><span class="detail-label">FPS:</span> <span class="${fpsClass}">${level.fps}</span></li>
+                        
                         <li><span class="detail-label">FV:</span> ${level.fv};</li>
                         <li>
                             <a href="${level.showcase}" target="_blank" class="showcase-link">
