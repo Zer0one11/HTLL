@@ -12,7 +12,7 @@
     --color-accent-light: #74aeff;   /* Светлый акцент */
     --color-success: #4CAF50;   /* Цвет успеха (Showcase) */
     --shadow-color: rgba(74, 144, 226, 0.5); /* Цвет свечения */
-    --color-link: #a0a0a0;      /* Цвет ссылки Канала */
+    --color-link-text: #a0a0a0; /* Цвет второстепенного текста/ссылок */
 }
 
 /* Фиолетовая Тема */
@@ -53,7 +53,7 @@
     --color-accent-light: #f39c12;
     --color-success: #27ae60;
     --shadow-color: rgba(0, 0, 0, 0.1);
-    --color-link: #555;
+    --color-link-text: #555;
 }
 
 
@@ -63,7 +63,7 @@
 
 body {
     font-family: 'Montserrat', sans-serif;
-    background-color: var(--bg-main); /* Используем переменную */
+    background-color: var(--bg-main);
     color: var(--color-text);
     margin: 0;
     padding: 0;
@@ -72,7 +72,7 @@ body {
 }
 
 header {
-    background-color: var(--bg-card); /* Используем переменную */
+    background-color: var(--bg-card);
     padding: 20px 0;
     text-align: center;
     border-bottom: 3px solid var(--color-accent-primary);
@@ -84,22 +84,32 @@ header {
     color: var(--color-text);
     letter-spacing: 5px;
     text-shadow: 0 0 10px var(--shadow-color);
-    margin-bottom: 5px; /* Уменьшаем отступ */
+    margin-bottom: 5px;
 }
 
-/* Стили для ссылки на канал */
+/* Стили для ссылки на канал, стилизованной как кнопка */
 .channel-link {
+    /* Основные стили кнопки */
     display: inline-block;
-    color: var(--color-link);
+    background-color: transparent;
+    color: var(--color-accent-light);
+    border: 2px solid var(--color-accent-primary);
+    padding: 8px 15px;
+    margin-bottom: 20px;
     text-decoration: none;
     font-size: 1em;
-    margin-bottom: 15px;
-    transition: color 0.3s;
+    font-weight: bold;
+    border-radius: 6px;
+    transition: all 0.3s ease; 
+    box-shadow: 0 0 5px var(--shadow-color);
 }
 
 .channel-link:hover {
-    color: var(--color-accent-light);
-    text-decoration: underline;
+    /* Эффект при наведении */
+    background-color: var(--color-accent-primary);
+    color: var(--bg-main);
+    text-decoration: none;
+    box-shadow: 0 0 15px var(--color-accent-primary); 
 }
 
 main {
@@ -117,7 +127,7 @@ main {
 .level-item {
     background-color: var(--bg-card);
     border: 1px solid var(--border-card);
-    border-left: 5px solid var(--color-accent-primary); /* Главный акцентный цвет */
+    border-left: 5px solid var(--color-accent-primary);
     padding: 15px 20px;
     margin-bottom: 15px;
     border-radius: 8px;
@@ -131,11 +141,17 @@ main {
     border-left-color: var(--color-accent-light);
 }
 
-/* Остальные стили для списка уровней (level-header, level-number, level-name и т.д.) */
+.level-header {
+    display: flex;
+    align-items: baseline;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+}
+
 .level-number {
     font-size: 1.8em;
     font-weight: 700;
-    color: var(--color-accent-primary); /* Используем переменную */
+    color: var(--color-accent-primary);
     margin-right: 15px;
     min-width: 30px; 
 }
@@ -154,10 +170,20 @@ main {
 
 .level-creator {
     font-size: 0.9em;
-    color: var(--color-link);
+    color: var(--color-link-text);
 }
 
 /* Детали уровня */
+.level-details {
+    display: flex;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    gap: 20px;
+    flex-wrap: wrap;
+    font-size: 0.9em;
+}
+
 .detail-label {
     font-weight: bold;
     color: var(--color-accent-light);
