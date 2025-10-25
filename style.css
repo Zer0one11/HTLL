@@ -68,7 +68,7 @@ body {
     margin: 0;
     padding: 0;
     line-height: 1.6;
-    transition: background-color 0.3s, color 0.3s; /* Плавное переключение темы */
+    transition: background-color 0.3s, color 0.3s;
 }
 
 header {
@@ -89,7 +89,6 @@ header {
 
 /* Стили для ссылки на канал, стилизованной как кнопка */
 .channel-link {
-    /* Основные стили кнопки */
     display: inline-block;
     background-color: transparent;
     color: var(--color-accent-light);
@@ -105,7 +104,6 @@ header {
 }
 
 .channel-link:hover {
-    /* Эффект при наведении */
     background-color: var(--color-accent-primary);
     color: var(--bg-main);
     text-decoration: none;
@@ -188,6 +186,13 @@ main {
     font-weight: bold;
     color: var(--color-accent-light);
     margin-right: 5px;
+}
+
+/* СТИЛИ ДЛЯ ЭКСТРЕМАЛЬНОГО FPS */
+.extreme-fps-value {
+    /* Разрешить браузеру переносить длинные строки внутри, чтобы не ломался макет */
+    word-break: break-all;
+    display: block; /* Занять всю доступную ширину, чтобы перенос был виден */
 }
 
 .showcase-link {
