@@ -1,0 +1,114 @@
+/* Базовые стили и сброс */
+body {
+    font-family: 'Montserrat', sans-serif;
+    background-color: #121212; /* Очень темный фон */
+    color: #e0e0e0; /* Светлый текст */
+    margin: 0;
+    padding: 0;
+    line-height: 1.6;
+}
+
+header {
+    background-color: #1f1f1f;
+    padding: 20px 0;
+    text-align: center;
+    border-bottom: 3px solid #4a90e2; /* Акцентная линия */
+}
+
+.main-title {
+    font-size: 2.5em;
+    font-weight: 700;
+    color: #e0e0e0;
+    letter-spacing: 5px;
+    text-shadow: 0 0 10px rgba(74, 144, 226, 0.5); /* Неоновое свечение */
+}
+
+main {
+    max-width: 1000px;
+    margin: 20px auto;
+    padding: 0 20px;
+}
+
+/* Стили для списка уровней */
+.level-list {
+    list-style: none;
+    padding: 0;
+}
+
+.level-item {
+    background-color: #1e1e1e;
+    border: 1px solid #333;
+    border-left: 5px solid #4a90e2; /* Главный акцентный цвет */
+    padding: 15px 20px;
+    margin-bottom: 15px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.level-item:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.6);
+    border-left-color: #74aeff; /* Легкое изменение цвета при наведении */
+}
+
+/* Заголовок уровня (Номер, Название, Автор) */
+.level-header {
+    display: flex;
+    align-items: baseline;
+    margin-bottom: 10px;
+    flex-wrap: wrap; /* Для мобильных устройств */
+}
+
+.level-number {
+    font-size: 1.8em;
+    font-weight: 700;
+    color: #4a90e2;
+    margin-right: 15px;
+    min-width: 30px; /* Чтобы номера не "прыгали" */
+}
+
+.level-name {
+    font-size: 1.6em;
+    font-weight: 700;
+    color: #ffffff;
+    text-decoration: none;
+    margin-right: 15px;
+}
+
+.level-name:hover {
+    color: #90d4ff;
+}
+
+.level-creator {
+    font-size: 0.9em;
+    color: #a0a0a0;
+}
+
+/* Детали уровня (FPS, ID, FV, Showcase) */
+.level-details {
+    display: flex;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    gap: 20px; /* Расстояние между деталями */
+    flex-wrap: wrap;
+    font-size: 0.9em;
+}
+
+.detail-label {
+    font-weight: bold;
+    color: #90d4ff; /* Выделение метки */
+    margin-right: 5px;
+}
+
+.showcase-link {
+    color: #4CAF50; /* Зеленый цвет для ссылки Showcase */
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.showcase-link:hover {
+    text-decoration: underline;
+    color: #66bb6a;
+}
