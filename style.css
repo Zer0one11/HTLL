@@ -1,26 +1,105 @@
-/* Базовые стили и сброс */
+/* ==================================== */
+/* 1. CSS Переменные (Цвета)            */
+/* ==================================== */
+
+/* Переменные для темного режима по умолчанию (Синяя тема) */
+:root {
+    --bg-main: #121212;         /* Основной фон */
+    --bg-card: #1e1e1e;         /* Фон карточки */
+    --border-card: #333;        /* Граница карточки */
+    --color-text: #e0e0e0;      /* Основной текст */
+    --color-accent-primary: #4a90e2; /* Главный акцент (Синий) */
+    --color-accent-light: #74aeff;   /* Светлый акцент */
+    --color-success: #4CAF50;   /* Цвет успеха (Showcase) */
+    --shadow-color: rgba(74, 144, 226, 0.5); /* Цвет свечения */
+    --color-link: #a0a0a0;      /* Цвет ссылки Канала */
+}
+
+/* Фиолетовая Тема */
+.theme-purple {
+    --color-accent-primary: #9b59b6; 
+    --color-accent-light: #be90d4;
+    --shadow-color: rgba(155, 89, 182, 0.5);
+}
+
+/* Жёлтая Тема */
+.theme-yellow {
+    --color-accent-primary: #f1c40f; 
+    --color-accent-light: #f7dc6f;
+    --shadow-color: rgba(241, 196, 15, 0.5);
+}
+
+/* Зелёная Тема */
+.theme-green {
+    --color-accent-primary: #2ecc71; 
+    --color-accent-light: #58d68d;
+    --shadow-color: rgba(46, 204, 113, 0.5);
+}
+
+/* Тёмная (Нейтральная) Тема */
+.theme-dark {
+    --color-accent-primary: #7f8c8d; 
+    --color-accent-light: #bdc3c7;
+    --shadow-color: rgba(127, 140, 141, 0.5);
+}
+
+/* Светлая Тема */
+.theme-light {
+    --bg-main: #f0f0f0;
+    --bg-card: #ffffff;
+    --border-card: #ddd;
+    --color-text: #333;
+    --color-accent-primary: #e74c3c; /* Красный акцент для светлой темы */
+    --color-accent-light: #f39c12;
+    --color-success: #27ae60;
+    --shadow-color: rgba(0, 0, 0, 0.1);
+    --color-link: #555;
+}
+
+
+/* ==================================== */
+/* 2. Базовые Стили (Используем переменные) */
+/* ==================================== */
+
 body {
     font-family: 'Montserrat', sans-serif;
-    background-color: #121212; /* Очень темный фон */
-    color: #e0e0e0; /* Светлый текст */
+    background-color: var(--bg-main); /* Используем переменную */
+    color: var(--color-text);
     margin: 0;
     padding: 0;
     line-height: 1.6;
+    transition: background-color 0.3s, color 0.3s; /* Плавное переключение темы */
 }
 
 header {
-    background-color: #1f1f1f;
+    background-color: var(--bg-card); /* Используем переменную */
     padding: 20px 0;
     text-align: center;
-    border-bottom: 3px solid #4a90e2; /* Акцентная линия */
+    border-bottom: 3px solid var(--color-accent-primary);
 }
 
 .main-title {
     font-size: 2.5em;
     font-weight: 700;
-    color: #e0e0e0;
+    color: var(--color-text);
     letter-spacing: 5px;
-    text-shadow: 0 0 10px rgba(74, 144, 226, 0.5); /* Неоновое свечение */
+    text-shadow: 0 0 10px var(--shadow-color);
+    margin-bottom: 5px; /* Уменьшаем отступ */
+}
+
+/* Стили для ссылки на канал */
+.channel-link {
+    display: inline-block;
+    color: var(--color-link);
+    text-decoration: none;
+    font-size: 1em;
+    margin-bottom: 15px;
+    transition: color 0.3s;
+}
+
+.channel-link:hover {
+    color: var(--color-accent-light);
+    text-decoration: underline;
 }
 
 main {
@@ -36,79 +115,90 @@ main {
 }
 
 .level-item {
-    background-color: #1e1e1e;
-    border: 1px solid #333;
-    border-left: 5px solid #4a90e2; /* Главный акцентный цвет */
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-card);
+    border-left: 5px solid var(--color-accent-primary); /* Главный акцентный цвет */
     padding: 15px 20px;
     margin-bottom: 15px;
     border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
-    transition: transform 0.2s, box-shadow 0.2s;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    transition: transform 0.2s, box-shadow 0.2s, border-left-color 0.3s;
 }
 
 .level-item:hover {
     transform: translateY(-3px);
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.6);
-    border-left-color: #74aeff; /* Легкое изменение цвета при наведении */
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
+    border-left-color: var(--color-accent-light);
 }
 
-/* Заголовок уровня (Номер, Название, Автор) */
-.level-header {
-    display: flex;
-    align-items: baseline;
-    margin-bottom: 10px;
-    flex-wrap: wrap; /* Для мобильных устройств */
-}
-
+/* Остальные стили для списка уровней (level-header, level-number, level-name и т.д.) */
 .level-number {
     font-size: 1.8em;
     font-weight: 700;
-    color: #4a90e2;
+    color: var(--color-accent-primary); /* Используем переменную */
     margin-right: 15px;
-    min-width: 30px; /* Чтобы номера не "прыгали" */
+    min-width: 30px; 
 }
 
 .level-name {
     font-size: 1.6em;
     font-weight: 700;
-    color: #ffffff;
+    color: var(--color-text);
     text-decoration: none;
     margin-right: 15px;
 }
 
 .level-name:hover {
-    color: #90d4ff;
+    color: var(--color-accent-light);
 }
 
 .level-creator {
     font-size: 0.9em;
-    color: #a0a0a0;
+    color: var(--color-link);
 }
 
-/* Детали уровня (FPS, ID, FV, Showcase) */
-.level-details {
-    display: flex;
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    gap: 20px; /* Расстояние между деталями */
-    flex-wrap: wrap;
-    font-size: 0.9em;
-}
-
+/* Детали уровня */
 .detail-label {
     font-weight: bold;
-    color: #90d4ff; /* Выделение метки */
+    color: var(--color-accent-light);
     margin-right: 5px;
 }
 
 .showcase-link {
-    color: #4CAF50; /* Зеленый цвет для ссылки Showcase */
+    color: var(--color-success);
     text-decoration: none;
     font-weight: bold;
 }
 
 .showcase-link:hover {
     text-decoration: underline;
-    color: #66bb6a;
+    color: var(--color-accent-light);
+}
+
+/* Стили для переключателя тем */
+.theme-switcher {
+    padding: 10px 0 0;
+}
+
+.theme-button {
+    background-color: var(--bg-card);
+    color: var(--color-text);
+    border: 1px solid var(--color-accent-primary);
+    padding: 5px 10px;
+    margin: 0 5px 5px 5px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+    font-size: 0.8em;
+}
+
+.theme-button:hover {
+    background-color: var(--color-accent-primary);
+    color: var(--bg-main);
+}
+
+.active-theme {
+    background-color: var(--color-accent-primary);
+    color: var(--bg-main) !important;
+    font-weight: bold;
 }
