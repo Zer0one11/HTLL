@@ -1,6 +1,17 @@
 [
   {
     "number": 1,
+    "name": "Megashot",
+    "creator": "Амням Греков",
+    "fps": "
+f_w+8((2^32)^2)",
+    "id": "127450404",
+    "fv": "MufffinZs",
+    "type": "Iterated ackermann",
+    "showcase": "https://vm.tiktok.com/ZMAgMppfV/"
+  },
+  {
+    "number": 2,
     "name": "Trickshot",
     "creator": "Амням Греков",
     "fps": "f_w+5(2^32)",
@@ -10,7 +21,7 @@
     "showcase": "https://vm.tiktok.com/ZMAgRNp3u/"
   },
   {
-    "number": 2,
+    "number": 3,
     "name": "intensity",
     "creator": "Helfzsasal",
     "fps": "100↑⁶⁷(10¹⁰)",
