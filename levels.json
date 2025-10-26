@@ -6,6 +6,7 @@
     "fps": "f_w+5(2^32)",
     "id": "127432651",
     "fv": "MufffinZs",
+    "type": "Iterated ackermann",
     "showcase": "https://vm.tiktok.com/ZMAgRNp3u/"
   },
   {
@@ -15,6 +16,7 @@
     "fps": "100↑⁶⁷(10¹⁰)",
     "id": "119017754",
     "fv": "Helfzsasal",
+    "type": "Collision + Pickup Stack",
     "showcase": "https://vt.tiktok.com/ZSU3TDrR3/"
   }
 ]
