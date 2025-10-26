@@ -3,8 +3,7 @@
     "number": 1,
     "name": "Megashot",
     "creator": "Амням Греков",
-    "fps": "
-f_w+8((2^32)^2)",
+    "fps": "f_w+8((2^32)^2)",
     "id": "127450404",
     "fv": "MufffinZs",
     "type": "Iterated ackermann",
