@@ -1,6 +1,15 @@
 [
   {
     "number": 1,
+    "name": "Trickshot",
+    "creator": "Амням Греков",
+    "fps": "f_w+5(2^32)",
+    "id": "127432651",
+    "fv": "MufffinZs",
+    "showcase": "https://vm.tiktok.com/ZMAgRNp3u/"
+  },
+  {
+    "number": 2,
     "name": "intensity",
     "creator": "Helfzsasal",
     "fps": "100↑⁶⁷(10¹⁰)",
