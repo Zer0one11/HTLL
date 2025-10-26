@@ -20,7 +20,17 @@
     "showcase": "https://vm.tiktok.com/ZMAgRNp3u/"
   },
   {
-    "number": 3,
+   "number": 3,
+   "name": "Shot"
+   "creator": "Амням греков"
+   "fps": "G_64"
+   "id": "127453150"
+   "fv": "MufffinZs"
+   "type": "Iterated ackermann"
+   "showcase": "https://vm.tiktok.com/ZMAghLP35/"
+  },
+  {
+    "number": 4,
     "name": "intensity",
     "creator": "Helfzsasal",
     "fps": "100↑⁶⁷(10¹⁰)",
@@ -30,7 +40,7 @@
     "showcase": "https://vt.tiktok.com/ZSU3TDrR3/"
   },
   {
-    "number": 4,
+    "number": 5,
     "name": "Not this hate",
     "creator": "pizzagdpls",
     "fps": "~2↑↑↑↑6 ",
