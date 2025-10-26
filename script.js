@@ -107,9 +107,11 @@ document.addEventListener('DOMContentLoaded', () => {
                         <ul class="level-details">
                             <li class="detail-line-full"><span class="detail-label">FPS:</span> <span class="${fpsClass}">${level.fps}</span></li>
                             
-                            <li class="detail-line-full"><span class="detail-label">ID:</span> ${level.id};</li>
+                            <li class="detail-line-full"><span class="detail-label">ID:</span> ${level.id}</li>
                             
-                            <li><span class="detail-label">FV:</span> ${level.fv};</li>
+                            <li class="detail-line-full"><span class="detail-label">Type:</span> ${level.type}</li>
+
+                            <li><span class="detail-label">FV:</span> ${level.fv}</li>
                             <li>
                                 <a href="${level.showcase}" target="_blank" class="showcase-link">
                                     Showcase
