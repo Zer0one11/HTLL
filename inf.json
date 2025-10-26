@@ -1,11 +1,21 @@
 [
   {
     "number": 1,
+    "name": "SuperTask",
+    "creator": "necrotikk",
+    "fps": "ω",
+    "id": "103865426",
+    "fv": "Prostoeweewe",
+    "type": "Supertask",
+    "showcase": "https://vm.tiktok.com/ZMAgYe6GU/"
+  },
+ {
+    "number": 2,
     "name": "GOREWORLD",
     "creator": "RNVT",
     "fps": "idk",
     "id": "115429831",
-    "fv": "Helfzsasal",
+    "fv": "RNVT",
     "type": "Random",
     "showcase": "https://vt.tiktok.com/ZSU3TmpgN/"
   },
