@@ -11,6 +11,16 @@
   },
   {
     "number": 2,
+    "name": "endless dog",
+    "creator": "linkuser&yebok228228",
+    "fps": "f_w+7(100)",
+    "id": "127456111",
+    "fv": "",
+    "type": "Iterated ackermann",
+    "showcase": "https://vt.tiktok.com/ZSUo2jCUJ/"
+  },
+  {
+    "number": 3,
     "name": "Trickshot",
     "creator": "Амням Греков",
     "fps": "f_w+5(2^32)",
@@ -20,7 +30,7 @@
     "showcase": "https://vm.tiktok.com/ZMAgRNp3u/"
   },
   {
-   "number": 3,
+   "number": 4,
    "name": "Shot",
    "creator": "Амням греков",
    "fps": "G_64",
@@ -30,7 +40,7 @@
    "showcase": "https://vm.tiktok.com/ZMAghLP35/"
   },
   {
-    "number": 4,
+    "number": 5,
     "name": "f_w(?)",
     "creator": "nojjel",
     "fps": "f_w(1)",
@@ -40,7 +50,7 @@
     "showcase": "https://youtu.be/-NxenS9llEY?si=d0Ci8xqxB4DbH6Ll"
   },
   {
-    "number": 5,
+    "number": 6,
     "name": "howmuchJoH",
     "creator": "dokazatb",
     "fps": "20{38}2^32",
@@ -50,7 +60,7 @@
     "showcase": "https://youtu.be/XDwqd-hIGss?si=nA2pl8ebXKy-Th8W"
   },
   {
-    "number": 6,
+    "number": 7,
     "name": "intensity",
     "creator": "Helfzsasal",
     "fps": "100↑⁶⁷(10¹⁰)",
@@ -60,13 +70,13 @@
     "showcase": "https://vt.tiktok.com/ZSU3TDrR3/"
   },
   {
-    "number": 7,
+    "number": 8,
     "name": "Not this hate",
     "creator": "pizzagdpls",
     "fps": "~2↑↑↑↑6 ",
     "id": "126720005",
     "fv": "pizzagdpls",
     "type": "Cage", 
-    "showcase": "https://workupload.com/file/7dAyyXjA9CQ"
+    "showcase": ""
   }
 ]
