@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
         'levels': { file: 'levels.json', title: 'TPLL LIST' },
         'ppll': { file: 'ppll.json', title: 'PPLL LIST' },
         'sll': { file: 'sll.json', title: 'SLL LIST' },
-        'ill': { file: 'ill.json', title: 'ILL LIST' },  // НОВЫЙ ЛИСТ
+        'ill': { file: 'ill.json', title: 'ILL LIST' },
         'inf': { file: 'inf.json', title: 'INF LIST' }
     };
 
@@ -79,7 +79,8 @@ document.addEventListener('DOMContentLoaded', () => {
         fetch(jsonPath)
             .then(response => {
                 if (!response.ok) {
-                    throw new Error(`Ошибка загрузки данных для ${listId}: ${response.statusText}`);
+                    // Эта ошибка обычно означает "файл не найден" (404)
+                    throw new Error(`Ошибка загрузки данных для ${listId}: Статус ${response.status}`);
                 }
                 return response.json();
             })
@@ -96,8 +97,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     const li = document.createElement('li');
                     li.className = 'level-item';
 
-                    // Проверка на наличие поля "type" (новое задание)
-                    const levelType = level.type ? `<li><span class="detail-label">Type:</span> ${level.type};</li>` : '';
+                    // Проверка на наличие поля "type"
+                    const levelType = level.type ? `<li><span class="detail-label">Type:</span> ${level.type}</li>` : ''; // УБРАНА ;
 
                     const isExtreme = level.fps.length > 15 || level.fps.includes('^') || level.fps.includes('↑') || level.fps === 'idk';
                     const fpsClass = isExtreme ? 'extreme-fps-value' : '';
@@ -111,10 +112,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         <ul class="level-details">
                             <li class="detail-line-full"><span class="detail-label">FPS:</span> <span class="${fpsClass}">${level.fps}</span></li>
                             
-                            <li class="detail-line-full"><span class="detail-label">ID:</span> ${level.id};</li>
-                            
-                            <li><span class="detail-label">FV:</span> ${level.fv};</li>
-                            ${levelType}
+                            <li class="detail-line-full"><span class="detail-label">ID:</span> ${level.id}</li> <li><span class="detail-label">FV:</span> ${level.fv}</li> ${levelType}
                             <li>
                                 <a href="${level.showcase}" target="_blank" class="showcase-link">
                                     Showcase
@@ -128,7 +126,7 @@ document.addEventListener('DOMContentLoaded', () => {
             })
             .catch(error => {
                 console.error('Ошибка при загрузке списка:', error);
-                listElement.innerHTML = `<p style="color: red; text-align: center;">Ошибка загрузки: Проверьте, существует ли файл ${jsonPath}.</p>`;
+                listElement.innerHTML = `<p style="color: red; text-align: center;">Ошибка загрузки: Проверьте консоль для получения подробной информации. (Проблема с файлом ${jsonPath}).</p>`;
             });
     }
 });
