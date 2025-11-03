@@ -10,6 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
         'levels': { file: 'levels.json', title: 'TPLL LIST' },
         'ppll': { file: 'ppll.json', title: 'PPLL LIST' },
         'sll': { file: 'sll.json', title: 'SLL LIST' },
+        'ill': { file: 'ill.json', title: 'ILL LIST' },  // НОВЫЙ ЛИСТ
         'inf': { file: 'inf.json', title: 'INF LIST' }
     };
 
@@ -95,6 +96,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     const li = document.createElement('li');
                     li.className = 'level-item';
 
+                    // Проверка на наличие поля "type" (новое задание)
+                    const levelType = level.type ? `<li><span class="detail-label">Type:</span> ${level.type};</li>` : '';
+
                     const isExtreme = level.fps.length > 15 || level.fps.includes('^') || level.fps.includes('↑') || level.fps === 'idk';
                     const fpsClass = isExtreme ? 'extreme-fps-value' : '';
                     
@@ -107,11 +111,10 @@ document.addEventListener('DOMContentLoaded', () => {
                         <ul class="level-details">
                             <li class="detail-line-full"><span class="detail-label">FPS:</span> <span class="${fpsClass}">${level.fps}</span></li>
                             
-                            <li class="detail-line-full"><span class="detail-label">ID:</span> ${level.id}</li>
+                            <li class="detail-line-full"><span class="detail-label">ID:</span> ${level.id};</li>
                             
-                            <li class="detail-line-full"><span class="detail-label">Type:</span> ${level.type}</li>
-
-                            <li><span class="detail-label">FV:</span> ${level.fv}</li>
+                            <li><span class="detail-label">FV:</span> ${level.fv};</li>
+                            ${levelType}
                             <li>
                                 <a href="${level.showcase}" target="_blank" class="showcase-link">
                                     Showcase
