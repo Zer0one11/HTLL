@@ -1,42 +1,42 @@
 [
-  {
-    "number": 1,
-    "name": "TWO",
-    "creator": "HelfzSasal",
-    "fps": "((2³²)⁴⁵⁰)*50³²",
-    "id": "123377342",
-    "fv": "HelfzSasal",
-    "type": "Collision Stack + Pickup Stack",
-    "showcase": "https://vt.tiktok.com/ZSU33fxEo/"
-  },
-  {
-    "number": 2,
-    "name": "OUTBOUND",
-    "creator": "Helfzsasal",
-    "fps": "(2³²)⁶",
-    "id": "123441213",
-    "fv": "Helfzsasal",
-    "type": "Pickup Stack",
-    "showcase": "https://vt.tiktok.com/ZSU33T6Pt/"
-  },
-  {
-    "number": 3,
-    "name": "Limbo type shi 3",
-    "creator": "Прячти",
-    "fps": "~1.35*10²⁷⁰",
-    "id": "127737834",
-    "fv": "Pizzagdpls",
-    "type": "Pickup Stack",
-    "showcase": "https://vt.tiktok.com/ZSyASkajq/"
-  },
-  {
-    "number": 4,
-    "name": "Unnamed pofik",
-    "creator": "kafeechek234",
-    "fps": "2³²",
-    "id": " 126469925",
-    "fv": "kafeechek234",
-    "type": "Pickup Stack",
-    "showcase": "https://youtu.be/99zABCzYelg?si=PJwSSX5Ri1MxpwvN"
-  }
+  {
+    "number": 1,
+    "name": "TWO",
+    "creator": "HelfzSasal",
+    "fps": "((2³²)⁴⁵⁰)*50³²",
+    "id": "123377342",
+    "fv": "HelfzSasal",
+    "type": "Collision Stack + Pickup Stack",
+    "showcase": "https://vt.tiktok.com/ZSU33fxEo/"
+  },
+  {
+    "number": 2,
+    "name": "OUTBOUND",
+    "creator": "Helfzsasal",
+    "fps": "(2³²)⁶",
+    "id": "123441213",
+    "fv": "Helfzsasal",
+    "type": "Pickup Stack",
+    "showcase": "https://vt.tiktok.com/ZSU33T6Pt/"
+  },
+  {
+    "number": 3,
+    "name": "Limbo type shi 3",
+    "creator": "Прячти",
+    "fps": "~1.35*10²⁷⁰",
+    "id": "127737834",
+    "fv": "Pizzagdpls",
+    "type": "Pickup Stack",
+    "showcase": "https://vt.tiktok.com/ZSyASkajq/"
+  },
+  {
+    "number": 4,
+    "name": "Unnamed pofik",
+    "creator": "kafeechek234",
+    "fps": "2³²",
+    "id": "126469925",
+    "fv": "kafeechek234",
+    "type": "Pickup Stack",
+    "showcase": "https://youtu.be/99zABCzYelg?si=PJwSSX5Ri1MxpwvN"
+  }
 ]
