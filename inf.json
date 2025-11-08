@@ -18,9 +18,19 @@
     "fv": "HELFZz",
     "type": "Infinite Time Terminus + Infinite Time XSS",
     "showcase": "https://vt.tiktok.com/ZSy92LupH/"
-  },
+  }
   {
     "number": "3",
+    "name": "Death Omega",
+    "creator": "Nojjel",
+    "fps": "Ω^2^32",
+    "id": "Gmd File",
+    "fv": "NojjelNojjel",
+    "type": "Iterated XSS",
+    "showcase": "https://youtu.be/Z_J1wlYcJJU?si=N9vYFMnIXhVG6JjI"
+  },
+  {
+    "number": "4",
     "name": "Ballistic Task Manager",
     "creator": "necrotikk",
     "fps": "W(L0[0])",
@@ -30,7 +40,7 @@
     "showcase": "https://vm.tiktok.com/ZMAGVH7xj/"
   },
   {
-    "number": 4,
+    "number": 5,
     "name": "The Gerogerigegege",
     "creator": "Prostoeweewe",
     "fps": "W³",
@@ -40,7 +50,7 @@
     "showcase": "https://vm.tiktok.com/ZMApWuj6W/"
   },
   {
-    "number": 5,
+    "number": 6,
     "name": "UCLL Madness",
     "creator": "necrotikk",
     "fps": "W",
@@ -50,7 +60,7 @@
     "showcase": "https://vm.tiktok.com/ZMAgYBkFc/"
   },
   {
-    "number": 6,
+    "number": 7,
     "name": "SuperTask",
     "creator": "necrotikk",
     "fps": "w",
@@ -60,7 +70,7 @@
     "showcase": "https://vm.tiktok.com/ZMAgYe6GU/"
   },
   {
-    "number": "7",
+    "number": "8",
     "name": "Moonlight 1",
     "creator": "Zipin233",
     "fps": "ε₀",
