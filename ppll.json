@@ -1,72 +1,42 @@
 [
-  {
-    "number": 1,
-    "name": "TWO",
-    "creator": "HelfzSasal",
-    "fps": "((2^32)^450)*50^30",
-    "id": "123377342",
-    "fv": "HelfzSasal",
-    "type": "Collision + Pickup Stack",
-    "showcase": "https://vt.tiktok.com/ZSU33fxEo/"
-  },
-  { 
-    "number": "2",
-    "name": "NO",
-    "creator": "Прячти",
-    "fps": "2↑↑↑10+~4.777*10³⁰⁷",
-    "id": "111510973",
-    "fv": "Pizzagdpls",
-    "type": "Cage + pickup stuck",
-    "showcase": "https://vt.tiktok.com/ZSy9YAWBW/"
-  },
-  {
-    "number": 3,
-    "name": "OUTBOUND",
-    "creator": "Helfzsasal",
-    "fps": "(2³²)⁶",
-    "id": "123441213",
-    "fv": "Helfzsasal",
-    "type": "Collision + Pickup Stack",
-    "showcase": "https://vt.tiktok.com/ZSU33T6Pt/"
-  },
-  {
-    "number": 4,
-    "name": "Limbo type shi 3",
-    "creator": "Прячти",
-    "fps": "~1.35*10²⁷⁰",
-    "id": "127737834",
-    "fv": "Pizzagdpls",
-    "type": "Pickup stuck",
-    "showcase": "https://vt.tiktok.com/ZSyASkajq/"
-  },
-  {
-    "number": 5,
-    "name": "ODNAZDI",
-    "creator": "Прячти",
-    "fps": "~2↑↑↑↑↑10",
-    "id": "127694726",
-    "fv": "Pizzagdpls",
-    "type": "Cage",
-    "showcase": "https://vt.tiktok.com/ZSykktC23/"
-  },
-  {
-    "number": 6,
-    "name": "Unnamed pofik",
-    "creator": "kafeechek234",
-    "fps": "2^32",
-    "id": " 126469925",
-    "fv": "kafeechek234",
-    "type": "pickup stack",
-    "showcase": "https://youtu.be/99zABCzYelg?si=PJwSSX5Ri1MxpwvN"
-  },
-  {
-    "number": 1000,
-    "name": "кидайте реквесты",
-    "creator": "0",
-    "fps": "0",
-    "id": "0",
-    "fv": "0",
-    "type": "0",
-    "showcase": "0"
-  }
+  {
+    "number": 1,
+    "name": "TWO",
+    "creator": "HelfzSasal",
+    "fps": "((2³²)⁴⁵⁰)*50³²",
+    "id": "123377342",
+    "fv": "HelfzSasal",
+    "type": "Collision Stack + Pickup Stack",
+    "showcase": "https://vt.tiktok.com/ZSU33fxEo/"
+  },
+  {
+    "number": 2,
+    "name": "OUTBOUND",
+    "creator": "Helfzsasal",
+    "fps": "(2³²)⁶",
+    "id": "123441213",
+    "fv": "Helfzsasal",
+    "type": "Pickup Stack",
+    "showcase": "https://vt.tiktok.com/ZSU33T6Pt/"
+  },
+  {
+    "number": 3,
+    "name": "Limbo type shi 3",
+    "creator": "Прячти",
+    "fps": "~1.35*10²⁷⁰",
+    "id": "127737834",
+    "fv": "Pizzagdpls",
+    "type": "Pickup Stack",
+    "showcase": "https://vt.tiktok.com/ZSyASkajq/"
+  },
+  {
+    "number": 4,
+    "name": "Unnamed pofik",
+    "creator": "kafeechek234",
+    "fps": "2³²",
+    "id": " 126469925",
+    "fv": "kafeechek234",
+    "type": "Pickup Stack",
+    "showcase": "https://youtu.be/99zABCzYelg?si=PJwSSX5Ri1MxpwvN"
+  }
 ]
