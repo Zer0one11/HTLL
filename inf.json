@@ -1,6 +1,6 @@
 [
   {
-    "number": "1",
+    "number": 1,
     "name": "NEVER",
     "creator": "necrotikk",
     "fps": "???[3]{???[3]}???[3]",
@@ -8,7 +8,7 @@
     "fv": "Prostoeweewe",
     "type": "Encoded cage + ITC",
     "showcase": "https://vm.tiktok.com/ZMA7jtD3h/"
-  }
+  },
   {
     "number": 2,
     "name": "Nightmare of absinf",
