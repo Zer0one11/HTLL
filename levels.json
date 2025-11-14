@@ -31,6 +31,16 @@
   },
   {
     "number": "4",
+    "name": "Recursion Softload",
+    "creator": "Osirissssss",
+    "fps": "f_w2(6969)",
+    "id": "128122210",
+    "fv": "Osirissssss",
+    "type": "Reordered Ackermann",
+    "showcase": "Нету, мне даже ботить лень, но если че там легко заботить довольно"
+},
+  {
+    "number": "5",
     "name": "Browser History",
     "creator": "XANCEL & Амням греков",
     "fps": "f_w2(5500)",
@@ -40,7 +50,7 @@
     "showcase": "Нема"
 },
   {
-    "number": 5,
+    "number": 6,
     "name": "Megashot",
     "creator": "Амням Греков",
     "fps": "f_w+8((2^32)^2)",
@@ -50,7 +60,7 @@
     "showcase": "https://vm.tiktok.com/ZMAgMppfV/"
   },
   {
-    "number": 6,
+    "number": 7,
     "name": "endless dog",
     "creator": "linkuser&yebok228228",
     "fps": "f_w+7(100)",
@@ -60,7 +70,7 @@
     "showcase": "https://vt.tiktok.com/ZSUo2jCUJ/"
   },
   {
-    "number": 7,
+    "number": 8,
     "name": "Trickshot",
     "creator": "Амням Греков",
     "fps": "f_w+5(2^32)",
@@ -70,7 +80,7 @@
     "showcase": "https://vm.tiktok.com/ZMAgRNp3u/"
   },
   {
-   "number": 8,
+   "number": 9,
    "name": "Shot",
    "creator": "Амням греков",
    "fps": "G_64",
@@ -80,7 +90,7 @@
    "showcase": "https://vm.tiktok.com/ZMAghLP35/"
   },
   {
-    "number": 9,
+    "number": 10,
     "name": "6e8d",
     "creator": "dokazatb",
     "fps": "f_w(2^32*10000)",
@@ -90,7 +100,7 @@
     "showcase": "https://youtu.be/O93JdiHFYis"
   },
   {
-    "number": 10,
+    "number": 11,
     "name": "howmuchJoH",
     "creator": "dokazatb",
     "fps": "20{38}2^32",
@@ -100,7 +110,7 @@
     "showcase": "https://youtu.be/XDwqd-hIGss?si=nA2pl8ebXKy-Th8W"
   },
   {
-    "number": 11,
+    "number": 12,
     "name": "Not this hate",
     "creator": "pizzagdpls",
     "fps": "~2^^^^6",
@@ -110,7 +120,7 @@
     "showcase": ""
   },
   {
-    "number": 12,
+    "number": 13,
     "name": "f_w(?)",
     "creator": "nojjel",
     "fps": "f_w(1)",
