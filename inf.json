@@ -70,6 +70,16 @@
     "showcase": "https://vm.tiktok.com/ZMAgYBkFc/"
   },
   {
+    "number": 8,
+    "name": "Moonlight 1",
+    "creator": "Zipin233",
+    "fps": "e₀",
+    "id": "127194899",
+    "fv": "Zipin233",
+    "type": "RwSS",
+    "showcase": "нит"
+  },
+  {
     "number": 9,
     "name": "SuperTask",
     "creator": "necrotikk",
@@ -78,15 +88,5 @@
     "fv": "Prostoeweewe",
     "type": "Supertask",
     "showcase": "https://vm.tiktok.com/ZMAgYe6GU/"
-  },
-  {
-    "number": 8,
-    "name": "Moonlight 1",
-    "creator": "Zipin233",
-    "fps": "ε₀",
-    "id": "127194899",
-    "fv": "Zipin233",
-    "type": "RwSS",
-    "showcase": "нит"
   }
 ]
