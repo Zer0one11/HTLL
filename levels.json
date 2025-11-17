@@ -1,6 +1,16 @@
 [
  {
     "number": "1",
+    "name": "Eta Hell",
+    "creator": "Zipin",
+    "fps": "f_η₀(10)",
+    "id": "128250639",
+    "fv": "Zipin233",
+    "type": "LPrSS (Weak)",
+    "showcase": "нету"
+},
+ {
+    "number": "2",
     "name": "Ultrashot",
     "creator": "Амням Греков",
     "fps": "f_e_0(G_1)",
@@ -10,7 +20,7 @@
     "showcase": "Але пошёл нахуй"
 },
  {
-    "number": "2",
+    "number": "3",
     "name": "TYPEPPLL",
     "creator": "Osirissssss",
     "fps": "1 cps for f_e_0(2281) seconds",
@@ -20,7 +30,7 @@
     "showcase": "Кину в лс"
 },
  {
-    "number": 3,
+    "number": 4,
     "name": "Show red",
     "creator": "Zipin233",
     "fps": "f_w^w(9999)",
@@ -30,7 +40,7 @@
     "showcase": "https://vt.tiktok.com/ZSy9eQ86T/"
  },
  {
-    "number": 4,
+    "number": 5,
     "name": "Recursion Overload",
     "creator": "yebok228228",
     "fps": "f_w^2(6969)",
@@ -40,7 +50,7 @@
     "showcase": "https://vt.tiktok.com/ZSyRSsSfP/"
   },
   {
-    "number": "5",
+    "number": "6",
     "name": "Recursion Softload",
     "creator": "Osirissssss",
     "fps": "f_w2(6969)",
@@ -50,7 +60,7 @@
     "showcase": "Нету, мне даже ботить лень, но если че там легко заботить довольно"
 },
   {
-    "number": "6",
+    "number": "7",
     "name": "Browser History",
     "creator": "XAHCEL & Амням Греков",
     "fps": "f_w2(5500)",
@@ -60,7 +70,7 @@
     "showcase": "Нема"
 },
   {
-    "number": 7,
+    "number": 8,
     "name": "Megashot",
     "creator": "Амням Греков",
     "fps": "f_w+8((2^32)^2)",
@@ -70,7 +80,7 @@
     "showcase": "https://vm.tiktok.com/ZMAgMppfV/"
   },
   {
-    "number": 8,
+    "number": 9,
     "name": "endless dog",
     "creator": "linkuser&yebok228228",
     "fps": "f_w+7(100)",
@@ -80,7 +90,7 @@
     "showcase": "https://vt.tiktok.com/ZSUo2jCUJ/"
   },
   {
-    "number": 9,
+    "number": 10,
     "name": "Trickshot",
     "creator": "Амням Греков",
     "fps": "f_w+5(2^32)",
@@ -90,7 +100,7 @@
     "showcase": "https://vm.tiktok.com/ZMAgRNp3u/"
   },
   {
-   "number": 10,
+   "number": 11,
    "name": "Shot",
    "creator": "Амням Греков",
    "fps": "G_64",
@@ -100,7 +110,7 @@
    "showcase": "https://vm.tiktok.com/ZMAghLP35/"
   },
   {
-    "number": 11,
+    "number": 12,
     "name": "6e8d",
     "creator": "dokazatb",
     "fps": "f_w(2^32*10000)",
@@ -110,7 +120,7 @@
     "showcase": "https://youtu.be/O93JdiHFYis"
   },
   {
-    "number": "12",
+    "number": "13",
     "name": "The final",
     "creator": "Zipin",
     "fps": "10⁴{10⁴}10⁴",
@@ -120,7 +130,7 @@
     "showcase": "сделайте шоукейси"
 },
   {
-    "number": 13,
+    "number": 14,
     "name": "howmuchJoH",
     "creator": "dokazatb",
     "fps": "20{38}2^32",
@@ -130,7 +140,7 @@
     "showcase": "https://youtu.be/XDwqd-hIGss?si=nA2pl8ebXKy-Th8W"
   },
   {
-    "number": 14,
+    "number": 15,
     "name": "Not this hate",
     "creator": "pizzagdpls",
     "fps": "~2^^^^6",
@@ -140,7 +150,7 @@
     "showcase": ""
   },
   {
-    "number": 15,
+    "number": 16,
     "name": "f_w(?)",
     "creator": "nojjel",
     "fps": "f_w(1)",
