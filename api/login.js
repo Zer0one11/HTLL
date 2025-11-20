@@ -1,6 +1,6 @@
 // api/login.js
 
-import { getAdminPassword } from './db_kv_utils';
+import { getAdminPassword } from './db_kv_utils.js'; // <-- ИСПРАВЛЕНО: .js
 
 export default async function handler(req, res) {
     if (req.method !== 'POST') {
@@ -14,21 +14,14 @@ export default async function handler(req, res) {
             return res.status(400).json({ success: false, message: 'Логин и пароль обязательны.' });
         }
         
-        // 1. Приводим логин к нижнему регистру (на всякий случай, если пользователь ввел 'Admin')
         const lowercaseLogin = login.toLowerCase(); 
 
-        // 2. Получаем пароль из Redis
         const storedPassword = await getAdminPassword(lowercaseLogin); 
 
-        // 3. Проверка: Пароль должен быть найден И СОВПАДАТЬ
-        // Убедитесь, что пароль в Redis - это СТРОКА "123"
         if (!storedPassword || storedPassword !== password) {
-            
-            // Если пароль не совпадает или не найден, возвращаем 401
             return res.status(401).json({ success: false, message: 'Неверный логин или пароль.' });
         }
         
-        // Успешная авторизация
         return res.status(200).json({ success: true, message: 'Авторизация прошла успешно!' });
 
     } catch (error) {
