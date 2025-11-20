@@ -1,32 +1,30 @@
-// api/login.js
-const { sql } = require('./db_utils');
+const { redis } = require('./db_kv_utils');
 
 module.exports = async (req, res) => {
     if (req.method !== 'POST') {
         return res.status(405).json({ success: false, message: 'Метод не разрешен.' });
     }
 
-    const { login, password } = req.body;
-
-    if (!login || !password) {
-        return res.status(400).json({ success: false, message: 'Отсутствует логин или пароль.' });
-    }
-
     try {
-        // Запрос к таблице admins
-        const result = await sql`
-            SELECT login FROM admins
-            WHERE login = ${login} AND password = ${password}
-        `;
+        const { login, password } = req.body;
 
-        if (result.rows.length > 0) {
-            res.status(200).json({ success: true, message: 'Авторизация успешна.' });
-        } else {
-            res.status(401).json({ success: false, message: 'Неверный логин или пароль.' });
+        if (!login || !password) {
+            return res.status(400).json({ success: false, message: 'Отсутствует логин или пароль.' });
         }
+
+        // Ключ администратора: admins:логин
+        const adminKey = `admins:${login}`;
+        const adminData = await redis.hgetall(adminKey);
+        
+        if (adminData && adminData.password === password) {
+            return res.status(200).json({ success: true, message: 'Вход успешен.' });
+        } else {
+            return res.status(401).json({ success: false, message: 'Неверный логин или пароль.' });
+        }
+
     } catch (error) {
-        console.error('Ошибка авторизации DB:', error);
-        res.status(500).json({ success: false, message: 'Ошибка сервера при авторизации.' });
+        console.error('Ошибка входа:', error.message);
+        return res.status(500).json({ success: false, message: 'Ошибка сервера при попытке входа.' });
    
     }
 };
