@@ -2,14 +2,12 @@
 // ========================== ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ ====================
 // ====================================================================
 
-// --- ЭЛЕМЕНТЫ DOM ---
-// ВАЖНО: Получаем только те элементы, которые существуют в index.html при загрузке
-const listElement = document.getElementById('levelList'); // ИСПРАВЛЕНО: 'levelList' из index.html
-const mainTitle = document.querySelector('.main-title'); // ИСПРАВЛЕНО: класс 'main-title'
+// --- ЭЛЕМЕНТЫ DOM (из index.html) ---
+const listElement = document.getElementById('levelList'); 
+const mainTitle = document.querySelector('.main-title');
 const listButtons = document.querySelectorAll('.list-button');
 const adminPanelButton = document.getElementById('adminPanelButton'); // Кнопка "Админ Панель"
-const adminPanelContainer = document.getElementById('adminPanelContainer'); // Контейнер для всех форм
-const listContainer = document.querySelector('main'); // Используем main как контейнер списка для простоты
+const adminPanelContainer = document.getElementById('adminPanelContainer'); 
 
 // --- ГЛОБАЛЬНОЕ СОСТОЯНИЕ ---
 let adminAuth = {
@@ -27,36 +25,37 @@ const listMap = {
 };
 
 // ====================================================================
-// ======================= УПРАВЛЕНИЕ ТЕМАМИ И СПИСКАМИ =================
+// ======================== ИНИЦИАЛИЗАЦИЯ И ПРИВЯЗКИ =====================
 // ====================================================================
 
-// Инициализация: Загрузка списка по умолчанию
 document.addEventListener('DOMContentLoaded', () => {
-    // Проверяем, есть ли сохраненный логин в сессии
+    // 1. Проверяем сохраненный логин и сразу открываем инструменты, если есть
     const savedLogin = sessionStorage.getItem('admin_login');
     const savedPassword = sessionStorage.getItem('admin_password');
 
     if (savedLogin && savedPassword) {
         adminAuth.login = savedLogin;
         adminAuth.password = savedPassword;
-        showAdminPanel(true); // Открываем сразу в режиме инструментов
+        showAdminPanel(true); 
     } else {
-        loadList('levels'); // Загружаем список по умолчанию
+        loadList('levels'); 
     }
     
-    // ПРИВЯЗКА: Кнопка "Админ Панель"
-    adminPanelButton.addEventListener('click', () => {
-        showAdminPanel();
-    });
+    // 2. ПРИВЯЗКА: Кнопка "Админ Панель"
+    if (adminPanelButton) {
+        adminPanelButton.addEventListener('click', () => {
+            showAdminPanel();
+        });
+    }
     
-    // ПРИВЯЗКА: Кнопки переключения списков
+    // 3. ПРИВЯЗКА: Кнопки переключения списков
     listButtons.forEach(button => {
         button.addEventListener('click', (e) => {
             loadList(e.target.dataset.list);
         });
     });
     
-    // ПРИВЯЗКА: Кнопки переключения тем (если они есть)
+    // 4. ПРИВЯЗКА: Кнопки переключения тем
     document.querySelectorAll('.theme-button').forEach(button => {
         button.addEventListener('click', (e) => {
             const theme = e.target.dataset.theme;
@@ -68,13 +67,15 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
+// ====================================================================
+// ======================== УПРАВЛЕНИЕ СПИСКАМИ (ФРОНТ) =================
+// ====================================================================
 
 /**
  * Загружает и отображает данные списка из API.
- * @param {string} listId - Идентификатор списка.
  */
 function loadList(listId) {
-    if (adminPanelContainer.style.display === 'block') return;
+    if (adminPanelContainer && adminPanelContainer.style.display === 'block') return;
 
     const listData = listMap[listId];
     if (mainTitle) mainTitle.textContent = listData.title;
@@ -91,13 +92,12 @@ function loadList(listId) {
     fetch(`/api/load?list=${listId}`) 
         .then(response => {
             if (!response.ok) {
-                // Если API-функция возвращает ошибку, она будет обработана ниже
                 throw new Error(`Ошибка загрузки данных: Статус ${response.status}`);
             }
             return response.json(); 
         })
         .then(data => {
-            const levels = data.list || []; // Убедимся, что получаем список
+            const levels = data.list || []; 
             if (listElement) listElement.innerHTML = '';
             
             if (levels.length === 0 && listElement) {
@@ -109,7 +109,6 @@ function loadList(listId) {
                 const li = document.createElement('li');
                 li.className = 'level-item';
                 
-                // Используем level.gd_id в качестве ID
                 const levelID = level.gd_id || 'N/A';
                 const levelType = level.type ? `<li><span class="detail-label">Type:</span> ${level.type}</li>` : '';
                 const isExtreme = level.fps && (level.fps.length > 15 || level.fps.includes('^') || level.fps.includes('↑') || level.fps === 'idk');
@@ -144,7 +143,7 @@ function loadList(listId) {
 }
 
 // ====================================================================
-// ======================== ГЕНЕРАЦИЯ HTML =============================
+// ======================== ГЕНЕРАЦИЯ HTML АДМИН-ПАНЕЛИ ================
 // ====================================================================
 
 function generateLoginFormHTML(message = '') {
@@ -155,7 +154,7 @@ function generateLoginFormHTML(message = '') {
             <form id="loginForm">
                 <input type="text" name="login" placeholder="Логин" required>
                 <input type="password" name="password" placeholder="Пароль" required>
-                <button type="submit">Войти</button>
+                <button type="submit" class="admin-button">Войти</button>
             </form>
             <button id="backToListBtn" class="admin-button">← Назад к списку</button>
         </div>
@@ -174,7 +173,7 @@ function generateAdminToolsHTML() {
                 <button data-list="levels" class="admin-edit-button">TPLL</button>
                 <button data-list="ppll" class="admin-edit-button">PPLL</button>
                 <button data-list="sll" class="admin-edit-button">SLL</button>
-                </div>
+            </div>
             
             <button id="backToListBtn" class="admin-button">← Назад к списку</button>
             <button id="logoutBtn" class="admin-button logout-button">Выйти</button>
@@ -201,24 +200,24 @@ function generateAdminToolsHTML() {
     `;
 }
 
-
 // ====================================================================
-// ======================= АДМИН-АВТОРИЗАЦИЯ И ИНТЕРФЕЙС =================
+// ======================= АДМИН-АВТОРИЗАЦИЯ И УПРАВЛЕНИЕ =================
 // ====================================================================
 
 /**
  * Переключает отображение между списком и панелью администратора.
- * @param {boolean} forceTools - Если true, сразу показывает инструменты (для перезагрузки сессии).
  */
-function showAdminPanel(forceTools = false) {
-    if (listContainer) listContainer.style.display = 'none';
+function showAdminPanel(forceTools = false, message = '') {
+    // Скрываем список, показываем контейнер админ-панели
+    const mainContainer = document.querySelector('main');
+    if (mainContainer) mainContainer.style.display = 'none';
     if (adminPanelContainer) adminPanelContainer.style.display = 'block';
 
     if (adminAuth.login || forceTools) {
         // --- РЕЖИМ ИНСТРУМЕНТОВ ---
         adminPanelContainer.innerHTML = generateAdminToolsHTML();
         
-        // ПРИВЯЗКА: Кнопки внутри сгенерированного HTML
+        // **ПРИВЯЗКА ОБРАБОТЧИКОВ ИНСТРУМЕНТОВ** (после генерации HTML!)
         document.getElementById('logoutBtn').addEventListener('click', handleLogout);
         document.getElementById('backToListBtn').addEventListener('click', handleBackToList);
         document.getElementById('addLevelForm').addEventListener('submit', handleAddLevelSubmit);
@@ -232,9 +231,9 @@ function showAdminPanel(forceTools = false) {
 
     } else {
         // --- РЕЖИМ ВХОДА ---
-        adminPanelContainer.innerHTML = generateLoginFormHTML();
+        adminPanelContainer.innerHTML = generateLoginFormHTML(message);
 
-        // ПРИВЯЗКА: Кнопки внутри сгенерированного HTML
+        // **ПРИВЯЗКА ОБРАБОТЧИКОВ ВХОДА** (после генерации HTML!)
         document.getElementById('loginForm').addEventListener('submit', handleLoginSubmit);
         document.getElementById('backToListBtn').addEventListener('click', handleBackToList);
     }
@@ -244,19 +243,16 @@ function startAdminEdit(listId) {
     currentAdminList = listId;
     const listTitle = listMap[listId] ? listMap[listId].title : listId.toUpperCase();
     const adminCurrentListTitle = document.getElementById('adminCurrentListTitle');
-    
-    if (adminCurrentListTitle) {
-        adminCurrentListTitle.textContent = `Редактирование списка: ${listTitle}`;
-    }
     const adminMessage = document.getElementById('adminMessage');
-    if (adminMessage) {
-        adminMessage.textContent = `Выбран список для редактирования: ${listId.toUpperCase()}`;
-    }
+    
+    if (adminCurrentListTitle) adminCurrentListTitle.textContent = `Редактирование списка: ${listTitle}`;
+    if (adminMessage) adminMessage.textContent = `Выбран список для редактирования: ${listId.toUpperCase()}`;
 }
 
 function handleBackToList() {
     if (adminPanelContainer) adminPanelContainer.style.display = 'none';
-    if (listContainer) listContainer.style.display = 'block';
+    const mainContainer = document.querySelector('main');
+    if (mainContainer) mainContainer.style.display = 'block';
     loadList('levels'); 
 }
 
@@ -296,15 +292,14 @@ async function handleLoginSubmit(e) {
             adminAuth.password = password;
             sessionStorage.setItem('admin_login', login);
             sessionStorage.setItem('admin_password', password); 
-            showAdminPanel(true); // Переходим к инструментам
+            showAdminPanel(true); // Успех, показываем инструменты
         } else {
-            showAdminPanel(false); // Пересоздаем форму, чтобы обновить сообщение
             const errorMessage = result.message || 'Неверный логин или пароль.';
-            document.getElementById('adminMessage').textContent = `Ошибка: ${errorMessage}`;
+            showAdminPanel(false, `Ошибка: ${errorMessage}`); // Повторная генерация с ошибкой
         }
     } catch (error) {
         console.error('Ошибка сети/сервера при входе:', error);
-        if (adminMessage) adminMessage.textContent = 'Ошибка сервера при входе. Проверьте логи Vercel.';
+        showAdminPanel(false, 'Ошибка сервера при входе. Проверьте логи Vercel.');
     }
 }
 
@@ -326,7 +321,7 @@ async function handleAddLevelSubmit(e) {
         creator: e.target.add_creator.value,
         fps: e.target.add_fps.value,
         fv: e.target.add_fv.value,
-        gd_id: e.target.add_id.value, // Имя поля в HTML 'add_id', в API 'gd_id'
+        gd_id: e.target.add_id.value, 
         type: e.target.add_type.value || '',
         showcase: e.target.add_showcase.value
     };
@@ -339,7 +334,7 @@ async function handleAddLevelSubmit(e) {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ 
                 listName: currentAdminList, 
-                ...levelData, // Отправляем все поля напрямую
+                ...levelData, 
                 auth: adminAuth 
             })
         });
@@ -348,7 +343,7 @@ async function handleAddLevelSubmit(e) {
 
         if (response.ok && result.success) {
             if (adminMessage) adminMessage.textContent = result.message;
-            e.target.reset(); // Очистка формы
+            e.target.reset();
         } else {
             if (adminMessage) adminMessage.textContent = `Ошибка сервера: ${result.message || 'Неизвестная ошибка.'}`;
         }
@@ -370,7 +365,7 @@ async function handleDeleteLevelSubmit(e) {
         return;
     }
 
-    const number = e.target.delete_number.value; // Получаем только номер
+    const number = e.target.delete_number.value; 
     
     if (adminMessage) adminMessage.textContent = `Попытка удалить уровень №${number}...`;
 
@@ -380,7 +375,7 @@ async function handleDeleteLevelSubmit(e) {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ 
                 listName: currentAdminList, 
-                number: parseInt(number), // Отправляем как число
+                number: parseInt(number), 
                 auth: adminAuth 
             })
         });
