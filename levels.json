@@ -11,16 +11,6 @@
 },
  {
     "number": "2",
-    "name": "Ultrashot",
-    "creator": "Амням Греков",
-    "fps": "f_e_0(G_1)",
-    "id": "128174519",
-    "fv": "MufffinZs",
-    "type": "PrSS",
-    "showcase": "Але пошёл нахуй"
-},
- {
-    "number": "3",
     "name": "TYPEPPLL",
     "creator": "Osirissssss",
     "fps": "1 cps for f_e_0(2281) seconds",
@@ -30,7 +20,7 @@
     "showcase": "Кину в лс"
 },
  {
-    "number": 4,
+    "number": 3,
     "name": "Show red",
     "creator": "Zipin",
     "fps": "f_w^w(9999)",
@@ -40,7 +30,7 @@
     "showcase": "https://vt.tiktok.com/ZSy9eQ86T/"
  },
  {
-    "number": 5,
+    "number": 4,
     "name": "Recursion Overload",
     "creator": "yebok228228",
     "fps": "f_w^2(6969)",
@@ -50,7 +40,7 @@
     "showcase": "https://vt.tiktok.com/ZSyRSsSfP/"
   },
   {
-    "number": "6",
+    "number": "5",
     "name": "Recursion Softload",
     "creator": "Osirissssss",
     "fps": "f_w2(6969)",
@@ -60,57 +50,17 @@
     "showcase": "Нету, мне даже ботить лень, но если че там легко заботить довольно"
 },
   {
-    "number": "7",
-    "name": "Browser History",
-    "creator": "XAHCEL & Амням Греков",
-    "fps": "f_w2(5500)",
-    "id": "127950775",
-    "fv": "MufffinZs",
-    "type": "Layered ackermann",
-    "showcase": "Нема"
-},
-  {
-    "number": 8,
-    "name": "Megashot",
-    "creator": "Амням Греков",
-    "fps": "f_w+8((2^32)^2)",
-    "id": "127450404",
-    "fv": "MufffinZs",
-    "type": "Iterated ackermann",
-    "showcase": "https://vm.tiktok.com/ZMAgMppfV/"
-  },
-  {
-    "number": 9,
+    "number": 6,
     "name": "endless dog",
     "creator": "linkuser&yebok228228",
     "fps": "f_w+7(100)",
     "id": "127456111",
     "fv": "",
     "type": "Iterated ackermann",
-    "showcase": "https://vt.tiktok.com/ZSUo2jCUJ/"
-  },
+    "showcase": "хз"
+},
   {
-    "number": 10,
-    "name": "Trickshot",
-    "creator": "Амням Греков",
-    "fps": "f_w+5(2^32)",
-    "id": "127432651",
-    "fv": "MufffinZs",
-    "type": "Iterated ackermann",
-    "showcase": "https://vm.tiktok.com/ZMAgRNp3u/"
-  },
-  {
-   "number": 11,
-   "name": "Shot",
-   "creator": "Амням Греков",
-   "fps": "G_64",
-   "id": "127453150",
-   "fv": "MufffinZs",
-   "type": "Iterated ackermann",
-   "showcase": "https://vm.tiktok.com/ZMAghLP35/"
-  },
-  {
-    "number": 12,
+    "number": 7,
     "name": "6e8d",
     "creator": "dokazatb",
     "fps": "f_w(2^32*10000)",
@@ -120,7 +70,7 @@
     "showcase": "https://youtu.be/O93JdiHFYis"
   },
   {
-    "number": "13",
+    "number": "8",
     "name": "The final",
     "creator": "Zipin",
     "fps": "10⁴{10⁴}10⁴",
@@ -130,7 +80,7 @@
     "showcase": "сделайте шоукейси"
 },
   {
-    "number": 14,
+    "number": 9,
     "name": "howmuchJoH",
     "creator": "dokazatb",
     "fps": "20{38}2^32",
@@ -140,7 +90,7 @@
     "showcase": "https://youtu.be/XDwqd-hIGss?si=nA2pl8ebXKy-Th8W"
   },
   {
-    "number": "15",
+    "number": "10",
     "name": "Dry out so easy",
     "creator": "Прячти",
     "fps": "2{32}22",
@@ -150,7 +100,7 @@
     "showcase": "https://vt.tiktok.com/ZSfNxFqWq/"
 },
   {
-    "number": 16,
+    "number": 11,
     "name": "Not this hate",
     "creator": "Прячти",
     "fps": "~2^^^^6",
@@ -160,7 +110,7 @@
     "showcase": ""
   },
   {
-    "number": 17,
+    "number": 12,
     "name": "f_w(?)",
     "creator": "nojjel",
     "fps": "f_w(1)",
