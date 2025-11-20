@@ -6,8 +6,9 @@
 const listElement = document.getElementById('levelList'); 
 const mainTitle = document.querySelector('.main-title');
 const listButtons = document.querySelectorAll('.list-button');
-const adminPanelButton = document.getElementById('adminPanelButton'); // Кнопка "Админ Панель"
+const adminPanelButton = document.getElementById('adminPanelButton'); 
 const adminPanelContainer = document.getElementById('adminPanelContainer'); 
+const mainContainer = document.querySelector('main'); // Контейнер для списка
 
 // --- ГЛОБАЛЬНОЕ СОСТОЯНИЕ ---
 let adminAuth = {
@@ -29,7 +30,7 @@ const listMap = {
 // ====================================================================
 
 document.addEventListener('DOMContentLoaded', () => {
-    // 1. Проверяем сохраненный логин и сразу открываем инструменты, если есть
+    // 1. Проверяем сохраненный логин
     const savedLogin = sessionStorage.getItem('admin_login');
     const savedPassword = sessionStorage.getItem('admin_password');
 
@@ -41,21 +42,17 @@ document.addEventListener('DOMContentLoaded', () => {
         loadList('levels'); 
     }
     
-    // 2. ПРИВЯЗКА: Кнопка "Админ Панель"
-    if (adminPanelButton) {
-        adminPanelButton.addEventListener('click', () => {
-            showAdminPanel();
-        });
-    }
+    // ВАЖНО: Кнопка "Админ Панель" привязывается через onclick в index.html,
+    // чтобы избежать конфликтов. Здесь мы привязываем только остальные кнопки:
     
-    // 3. ПРИВЯЗКА: Кнопки переключения списков
+    // 2. ПРИВЯЗКА: Кнопки переключения списков
     listButtons.forEach(button => {
         button.addEventListener('click', (e) => {
             loadList(e.target.dataset.list);
         });
     });
     
-    // 4. ПРИВЯЗКА: Кнопки переключения тем
+    // 3. ПРИВЯЗКА: Кнопки переключения тем
     document.querySelectorAll('.theme-button').forEach(button => {
         button.addEventListener('click', (e) => {
             const theme = e.target.dataset.theme;
@@ -173,7 +170,7 @@ function generateAdminToolsHTML() {
                 <button data-list="levels" class="admin-edit-button">TPLL</button>
                 <button data-list="ppll" class="admin-edit-button">PPLL</button>
                 <button data-list="sll" class="admin-edit-button">SLL</button>
-            </div>
+                </div>
             
             <button id="backToListBtn" class="admin-button">← Назад к списку</button>
             <button id="logoutBtn" class="admin-button logout-button">Выйти</button>
@@ -206,22 +203,27 @@ function generateAdminToolsHTML() {
 
 /**
  * Переключает отображение между списком и панелью администратора.
+ * Запускается через onclick="showAdminPanel()" в index.html
  */
 function showAdminPanel(forceTools = false, message = '') {
     // Скрываем список, показываем контейнер админ-панели
-    const mainContainer = document.querySelector('main');
     if (mainContainer) mainContainer.style.display = 'none';
     if (adminPanelContainer) adminPanelContainer.style.display = 'block';
 
     if (adminAuth.login || forceTools) {
         // --- РЕЖИМ ИНСТРУМЕНТОВ ---
-        adminPanelContainer.innerHTML = generateAdminToolsHTML();
+        if (adminPanelContainer) adminPanelContainer.innerHTML = generateAdminToolsHTML();
         
         // **ПРИВЯЗКА ОБРАБОТЧИКОВ ИНСТРУМЕНТОВ** (после генерации HTML!)
-        document.getElementById('logoutBtn').addEventListener('click', handleLogout);
-        document.getElementById('backToListBtn').addEventListener('click', handleBackToList);
-        document.getElementById('addLevelForm').addEventListener('submit', handleAddLevelSubmit);
-        document.getElementById('deleteLevelForm').addEventListener('submit', handleDeleteLevelSubmit);
+        const logoutBtn = document.getElementById('logoutBtn');
+        const backToListBtnTools = document.getElementById('backToListBtn');
+        const addLevelForm = document.getElementById('addLevelForm');
+        const deleteLevelForm = document.getElementById('deleteLevelForm');
+
+        if (logoutBtn) logoutBtn.addEventListener('click', handleLogout);
+        if (backToListBtnTools) backToListBtnTools.addEventListener('click', handleBackToList);
+        if (addLevelForm) addLevelForm.addEventListener('submit', handleAddLevelSubmit);
+        if (deleteLevelForm) deleteLevelForm.addEventListener('submit', handleDeleteLevelSubmit);
         
         document.querySelectorAll('.admin-edit-button').forEach(button => {
             button.addEventListener('click', (e) => {
@@ -231,11 +233,18 @@ function showAdminPanel(forceTools = false, message = '') {
 
     } else {
         // --- РЕЖИМ ВХОДА ---
-        adminPanelContainer.innerHTML = generateLoginFormHTML(message);
+        if (adminPanelContainer) adminPanelContainer.innerHTML = generateLoginFormHTML(message);
 
         // **ПРИВЯЗКА ОБРАБОТЧИКОВ ВХОДА** (после генерации HTML!)
-        document.getElementById('loginForm').addEventListener('submit', handleLoginSubmit);
-        document.getElementById('backToListBtn').addEventListener('click', handleBackToList);
+        const loginForm = document.getElementById('loginForm');
+        const backToListBtnLogin = document.getElementById('backToListBtn');
+        
+        if (loginForm) {
+            loginForm.addEventListener('submit', handleLoginSubmit);
+        }
+        if (backToListBtnLogin) {
+            backToListBtnLogin.addEventListener('click', handleBackToList);
+        }
     }
 }
 
@@ -251,7 +260,6 @@ function startAdminEdit(listId) {
 
 function handleBackToList() {
     if (adminPanelContainer) adminPanelContainer.style.display = 'none';
-    const mainContainer = document.querySelector('main');
     if (mainContainer) mainContainer.style.display = 'block';
     loadList('levels'); 
 }
