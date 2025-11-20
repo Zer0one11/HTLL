@@ -120,10 +120,9 @@ header {
     background-color: var(--header-bg);
     padding: 20px 5%;
     display: flex;
-    flex-direction: column;
+    flex-direction: column; /* Элементы идут сверху вниз */
     align-items: center;
     border-bottom: 2px solid var(--accent-color);
-    position: relative; /* Для позиционирования кнопок */
 }
 
 .main-title {
@@ -143,21 +142,25 @@ header {
     border-radius: 5px;
 }
 
-/* --- Кнопка Админ Панели (с фиксом z-index) --- */
+/* --- Кнопка Админ Панели: Исправленные стили для кликабельности --- */
 #adminPanelButton {
-    position: absolute;
-    top: 20px;
-    left: 5%;
+    /* Удалены position: absolute и top/left! */
+    position: relative; 
+    z-index: 99999; /* Максимальный приоритет */
+    
     background-color: var(--button-bg);
     color: white;
-    padding: 8px 15px;
+    padding: 12px 20px; 
     border: none;
-    border-radius: 5px;
+    border-radius: 8px;
     cursor: pointer;
     font-weight: 700;
     transition: background-color 0.2s;
-    /* ФИКС Z-INDEX: Выводим на передний план, чтобы ее ничего не перекрывало */
-    z-index: 1000; 
+    
+    /* ГАРАНТИРОВАННЫЕ ОТСТУПЫ */
+    margin: 15px auto 0 auto; /* Центрируем и даем отступ сверху */
+    width: 90%; 
+    max-width: 300px;
 }
 
 #adminPanelButton:hover {
@@ -267,7 +270,7 @@ main {
 }
 
 .extreme-fps-value {
-    color: var(--link-color); /* Выделение для "экстремальных" FPS */
+    color: var(--link-color); 
     font-weight: bold;
 }
 
@@ -292,7 +295,7 @@ main {
 .admin-panel-container {
     padding: 20px 5%;
     background-color: var(--bg-color);
-    min-height: calc(100vh - 70px); /* Чтобы занимал почти весь экран */
+    min-height: calc(100vh - 70px); 
 }
 
 .auth-container, .admin-tools {
@@ -394,22 +397,5 @@ input[type="text"], input[type="password"], input[type="number"] {
 
     .level-details li {
         width: 100%;
-    }
-    
-    #adminPanelButton {
-        position: static; /* Убираем абсолютное позиционирование на мобильных */
-        margin-bottom: 15px;
-    }
-    
-    header {
-        text-align: center;
-    }
-    
-    /* Перемещаем кнопку админ-панели под заголовок */
-    #adminPanelButton {
-        order: 1;
-    }
-    .main-title {
-        order: 2;
     }
 }
