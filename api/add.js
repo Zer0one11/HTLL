@@ -1,56 +1,48 @@
-const { redis } = require('./db_kv_utils');
+// api/add.js
 
-module.exports = async (req, res) => {
+import { loadList, saveList, checkAuth } from './db_kv_utils.js'; // <-- ИСПРАВЛЕНО: .js
+
+export default async function handler(req, res) {
     if (req.method !== 'POST') {
         return res.status(405).json({ success: false, message: 'Метод не разрешен.' });
     }
 
-    const { listName, number, name, creator, fps, fv, gd_id, type, showcase } = req.body;
-
-    if (!listName || !number || !name || !creator) {
-        return res.status(400).json({ success: false, message: 'Отсутствуют обязательные поля.' });
-    }
-
     try {
-        const key = `list:${listName}`;
-        const rawData = await redis.get(key);
-        let levels = rawData ? JSON.parse(rawData) : [];
+        const { listName, number, auth, ...levelData } = req.body;
 
-        const newLevel = {
-            listName,
-            number: parseInt(number),
-            name,
-            creator,
-            fps: fps || '',
-            fv: fv || '',
-            gd_id: gd_id || '',
-            type: type || '',
-            showcase: showcase || ''
-        };
+        if (!await checkAuth(auth)) {
+            return res.status(401).json({ success: false, message: 'Неавторизованный доступ.' });
+        }
 
-        // --- Логика сдвига уровней (Redis) ---
-        // 1. Увеличиваем номер на 1 для всех уровней с номером >= newLevel.number
-        levels = levels.map(level => {
-            if (level.number >= newLevel.number) {
-                return { ...level, number: level.number + 1 };
-            }
-            return level;
-        });
-
-        // 2. Вставляем новый уровень
-        levels.push(newLevel);
+        if (!listName || !number || !levelData.name || !levelData.gd_id) {
+            return res.status(400).json({ success: false, message: 'Отсутствуют обязательные поля (listName, number, name, gd_id).' });
+        }
         
-        // 3. Сортируем массив по номеру (чтобы новый уровень занял свое место)
-        levels.sort((a, b) => a.number - b.number);
+        const list = await loadList(listName);
+        if (list === null) {
+            return res.status(404).json({ success: false, message: `Список ${listName} не найден.` });
+        }
         
-        // 4. Сохраняем обратно в Redis
-        await redis.set(key, JSON.stringify(levels));
+        const newNumber = parseInt(number);
+        const newLevel = { number: newNumber, ...levelData };
 
-        return res.status(200).json({ success: true, message: 'Уровень успешно добавлен.' });
+        list.splice(newNumber - 1, 0, newLevel); 
+
+        for (let i = newNumber; i < list.length; i++) {
+            list[i].number = i + 1;
+        }
+
+        const success = await saveList(listName, list);
+
+        if (success) {
+            return res.status(200).json({ success: true, message: `Уровень ${levelData.name} успешно добавлен в позицию ${newNumber}.` });
+        } else {
+            return res.status(500).json({ success: false, message: 'Ошибка сохранения в базу данных.' });
+        }
 
     } catch (error) {
-        console.error('Ошибка добавления уровня:', error.message);
-        return res.status(500).json({ success: false, message: 'Ошибка сервера при добавлении уровня.' });
-        
+        console.error('Ошибка при добавлении уровня:', error);
+        return res.status(500).json({ success: false, message: 'Внутренняя ошибка сервера.' }
+                                   );
     }
-};
+}
