@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "TPTL List project on Vercel",
   "main": "index.js",
-  "type": "module",  <-- !!! ДОБАВИТЬ ЭТУ СТРОКУ !!!
+  "type": "module",
   "scripts": {
     "start": "vercel dev"
   },
