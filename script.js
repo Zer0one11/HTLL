@@ -13,6 +13,10 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentAdminStep = 0;
     let newLevelData = {};
     let selectedList = '';
+    
+    // Переменные для хранения учетных данных после входа
+    let adminLogin = '';
+    let adminPassword = '';
 
     // Массив шагов ввода данных для добавления
     const inputSteps = [
@@ -68,7 +72,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // ====================================
     
     adminPanelButton.addEventListener('click', () => {
-        // Скрываем список уровней
         listElement.style.display = 'none';
         adminPanelContainer.style.display = 'block';
         
@@ -85,8 +88,8 @@ document.addEventListener('DOMContentLoaded', () => {
             ${message ? `<p style="color: red;">${message}</p>` : ''}
             <div class="admin-input-group">
                 <p>Введите логин и пароль:</p>
-                <input type="text" id="adminLogin" placeholder="Логин">
-                <input type="password" id="adminPassword" placeholder="Пароль">
+                <input type="text" id="inputLogin" placeholder="Логин">
+                <input type="password" id="inputPassword" placeholder="Пароль">
                 <button id="loginSubmit">Войти</button>
                 <button id="loginCancel">Назад к спискам</button>
             </div>
@@ -95,43 +98,35 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('loginCancel').addEventListener('click', hideAdminPanel);
     }
     
-    // Функция авторизации (без изменений)
+    // НОВАЯ ФУНКЦИЯ: Отправляет запрос на сервер для авторизации
     async function attemptLogin() {
-        const login = document.getElementById('adminLogin').value;
-        const password = document.getElementById('adminPassword').value;
+        const login = document.getElementById('inputLogin').value;
+        const password = document.getElementById('inputPassword').value;
         
         try {
-            const response = await fetch('admins.json');
-            if (!response.ok) {
-                 if (login === 'admin' && password === '123') {
-                    isAdminLoggedIn = true;
-                    renderAdminPanelHome();
-                    return;
-                }
-                throw new Error('Ошибка загрузки файла admins.json');
-            }
-            const admins = await response.json();
-            
-            const user = admins.find(a => a.login === login && a.password === password);
+            const response = await fetch('/api/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ login, password })
+            });
 
-            if (user) {
+            const result = await response.json();
+
+            if (result.success) {
                 isAdminLoggedIn = true;
+                adminLogin = login;
+                adminPassword = password;
                 renderAdminPanelHome();
             } else {
-                renderLoginScreen('Неверный логин или пароль.');
+                renderLoginScreen(result.message || 'Неверный логин или пароль.');
             }
         } catch (error) {
-             if (login === 'admin' && password === '123') {
-                isAdminLoggedIn = true;
-                renderAdminPanelHome();
-                return;
-            }
             console.error('Ошибка авторизации:', error);
-            renderLoginScreen('Ошибка авторизации. Проверьте консоль.');
+            renderLoginScreen('Ошибка соединения с сервером.');
         }
     }
 
-    // Главный экран админ-панели
+    // Главный экран админ-панели (Без изменений)
     function renderAdminPanelHome() {
         adminPanelContainer.innerHTML = `
             <h2>Админ Панель</h2>
@@ -146,15 +141,17 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('showDeleteForm').addEventListener('click', renderDeleteListSelection);
         document.getElementById('adminLogout').addEventListener('click', () => {
             isAdminLoggedIn = false;
+            adminLogin = '';
+            adminPassword = '';
             hideAdminPanel();
-            renderLoginScreen();
+            renderLoginScreen(); 
         });
     }
 
     function hideAdminPanel() {
         adminPanelContainer.style.display = 'none';
         listElement.style.display = 'block';
-        loadList(currentListId); // Перезагружаем текущий список
+        loadList(currentListId); 
     }
 
     // ====================================
@@ -188,7 +185,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     function renderInputStep() {
-        // ... (логика пошагового ввода для добавления уровня) ...
         if (currentAdminStep >= inputSteps.length) {
             renderSummaryScreen();
             return;
@@ -209,7 +205,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         document.getElementById('stepBack').addEventListener('click', () => {
             if (currentAdminStep === 0) {
-                renderAddListSelection(); // Изменено: назад к выбору листа
+                renderAddListSelection(); 
             } else {
                 currentAdminStep--;
                 renderInputStep();
@@ -232,7 +228,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function renderSummaryScreen() {
-        // ... (логика подтверждения добавления уровня) ...
         let summaryHTML = '<h3>Проверьте введенные данные:</h3><ul>';
         for (const [key, value] of Object.entries(newLevelData)) {
             summaryHTML += `<li><strong>${key.toUpperCase()}:</strong> ${value}</li>`;
@@ -242,7 +237,7 @@ document.addEventListener('DOMContentLoaded', () => {
         adminPanelContainer.innerHTML = `
             <h2>Подтверждение добавления в ${selectedList.toUpperCase()}</h2>
             ${summaryHTML}
-            <button id="finalizeAdd">Добавить уровень (требуется сервер)</button>
+            <button id="finalizeAdd">Добавить уровень</button>
             <button id="finalizeBack">Назад к редактированию</button>
         `;
 
@@ -254,13 +249,30 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('finalizeAdd').addEventListener('click', attemptAddLevel);
     }
     
-    function attemptAddLevel() {
-        console.log(`--- ПОПЫТКА ДОБАВЛЕНИЯ УРОВНЯ ---`);
-        console.log(`Лист назначения: ${selectedList.toUpperCase()}`);
-        console.log('Данные:', newLevelData);
-        alert(`Уровень собран. Для реальной записи в ${selectedList.toUpperCase()} требуется серверный код.`);
+    // НОВАЯ ФУНКЦИЯ: Отправляет данные на сервер для добавления уровня
+    async function attemptAddLevel() {
+        try {
+            const response = await fetch('/api/add', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    listName: selectedList,
+                    levelData: newLevelData,
+                    auth: { login: adminLogin, password: adminPassword }
+                })
+            });
 
-        renderAdminPanelHome();
+            const result = await response.json();
+            alert(result.message);
+            
+            if (result.success) {
+                renderAdminPanelHome();
+            }
+
+        } catch (error) {
+            console.error('Ошибка добавления уровня:', error);
+            alert('Ошибка: Не удалось соединиться с сервером.');
+        }
     }
 
     // ====================================
@@ -306,11 +318,13 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('deleteBack').addEventListener('click', renderDeleteListSelection);
         document.getElementById('deleteConfirmCheck').addEventListener('click', () => {
             const levelNumber = document.getElementById('deleteNumberInput').value.trim();
-            if (!levelNumber || isNaN(parseInt(levelNumber))) {
+            const number = parseInt(levelNumber);
+            
+            if (!levelNumber || isNaN(number) || number < 1) {
                 renderDeleteInput('Пожалуйста, введите корректный номер уровня.');
                 return;
             }
-            renderDeletionConfirmation(parseInt(levelNumber));
+            renderDeletionConfirmation(number);
         });
     }
 
@@ -318,7 +332,7 @@ document.addEventListener('DOMContentLoaded', () => {
         adminPanelContainer.innerHTML = `
             <h2>Подтверждение удаления</h2>
             <p style="font-weight: bold; color: orange;">ВНИМАНИЕ! Вы собираетесь удалить уровень №${levelNumber} из списка ${selectedList.toUpperCase()}.</p>
-            <p>Вы уверены, что хотите продолжить? Это действие необратимо (на сервере).</p>
+            <p>Вы уверены, что хотите продолжить?</p>
             <button id="finalDelete" style="background-color: #e74c3c;">Удалить</button>
             <button id="finalDeleteBack">Отмена</button>
         `;
@@ -326,13 +340,30 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('finalDelete').addEventListener('click', () => attemptDeleteLevel(levelNumber));
     }
 
-    function attemptDeleteLevel(levelNumber) {
-        console.log(`--- ПОПЫТКА УДАЛЕНИЯ УРОВНЯ ---`);
-        console.log(`Лист: ${selectedList.toUpperCase()}`);
-        console.log(`Номер уровня (позиция): ${levelNumber}`);
-        alert(`Уровень №${levelNumber} собран для удаления из ${selectedList.toUpperCase()}. Для реального удаления требуется серверный код.`);
+    // НОВАЯ ФУНКЦИЯ: Отправляет запрос на сервер для удаления уровня
+    async function attemptDeleteLevel(levelNumber) {
+        try {
+            const response = await fetch('/api/delete', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    listName: selectedList,
+                    levelNumber: levelNumber,
+                    auth: { login: adminLogin, password: adminPassword }
+                })
+            });
 
-        renderAdminPanelHome();
+            const result = await response.json();
+            alert(result.message);
+            
+            if (result.success) {
+                renderAdminPanelHome();
+            }
+            
+        } catch (error) {
+            console.error('Ошибка удаления уровня:', error);
+            alert('Ошибка: Не удалось соединиться с сервером.');
+        }
     }
 
 
