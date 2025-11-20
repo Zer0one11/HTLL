@@ -1,6 +1,6 @@
 // api/load.js
 
-import { loadList } from './db_kv_utils';
+import { loadList } from './db_kv_utils.js'; // <-- ИСПРАВЛЕНО: .js
 
 export default async function handler(req, res) {
     if (req.method !== 'GET') {
@@ -13,7 +13,6 @@ export default async function handler(req, res) {
         const listData = await loadList(listName);
 
         if (listData === null) {
-            // Возвращаем пустой список, если данные не найдены
             return res.status(200).json({ success: true, list: [] });
         }
         
