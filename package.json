@@ -1,7 +1,13 @@
 {
+  "name": "htll-project",
+  "version": "1.0.0",
+  "description": "Project for hosting HTLL list on Vercel.",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
   "dependencies": {
+    "express": "^4.19.2",
     "@vercel/postgres": "^0.9.0" 
-    // Убедитесь, что здесь указана последняя стабильная версия, 
-    // или установите ее через npm install @vercel/postgres
   }
 }
