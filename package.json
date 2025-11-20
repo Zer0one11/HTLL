@@ -1,5 +1,6 @@
 {
   "dependencies": {
-    "@vercel/postgres": "latest"
+    "express": "^4.19.2",
+    "@upstash/redis": "^1.31.3" 
   }
 }
