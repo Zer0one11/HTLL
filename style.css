@@ -2,7 +2,6 @@
 /* 1. CSS Переменные (Цвета)            */
 /* ==================================== */
 
-/* Переменные для темного режима по умолчанию (Синяя тема) */
 :root {
     --bg-main: #121212;         /* Основной фон */
     --bg-card: #1e1e1e;         /* Фон карточки */
@@ -49,7 +48,7 @@
     --bg-card: #ffffff;
     --border-card: #ddd;
     --color-text: #333;
-    --color-accent-primary: #e74c3c; /* Красный акцент для светлой темы */
+    --color-accent-primary: #e74c3c;
     --color-accent-light: #f39c12;
     --color-success: #27ae60;
     --shadow-color: rgba(0, 0, 0, 0.1);
@@ -76,10 +75,33 @@ header {
     padding: 20px 0;
     text-align: center;
     border-bottom: 3px solid var(--color-accent-primary);
-    /* Flexbox для размещения переключателей */
+    
+    position: relative; 
+    
     display: flex;
     flex-direction: column;
     align-items: center;
+}
+
+/* Стили для кнопки Админ Панели (слева) */
+.header-button {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    background-color: var(--color-accent-primary);
+    color: var(--bg-card);
+    border: none;
+    padding: 8px 15px;
+    cursor: pointer;
+    border-radius: 6px;
+    font-size: 1em;
+    font-weight: bold;
+    transition: background-color 0.2s;
+    z-index: 10;
+}
+
+.header-button:hover {
+    background-color: var(--color-accent-light);
 }
 
 .main-title {
@@ -91,7 +113,6 @@ header {
     margin-bottom: 5px;
 }
 
-/* Стили для кнопки Канала Листа */
 .channel-link {
     display: inline-block;
     background-color: transparent;
@@ -114,22 +135,21 @@ header {
     box-shadow: 0 0 15px var(--color-accent-primary); 
 }
 
-/* Стили для переключателя листов (TPLL, PPLL, SLL, INF) */
+/* Стили для переключателя листов */
 .list-switcher {
     padding: 10px 0 15px;
     width: 100%;
-    max-width: 600px;
+    max-width: 800px;
     display: flex;
     justify-content: center;
     flex-wrap: wrap;
-    margin-bottom: 10px; 
+    margin-bottom: 10px;
 }
 
 /* Стили для переключателя тем (Смещен в правый угол) */
 .theme-switcher {
     padding: 10px 0 10px;
     width: 100%;
-    /* Сместить содержимое вправо */
     display: flex;
     justify-content: flex-end; 
     flex-wrap: wrap;
@@ -138,7 +158,7 @@ header {
     box-sizing: border-box;
 }
 
-/* Общие стили для кнопок */
+/* Общие стили для кнопок (и листов, и тем) */
 .list-button, .theme-button {
     background-color: var(--bg-card);
     color: var(--color-text);
@@ -164,7 +184,56 @@ header {
 }
 
 /* ==================================== */
-/* 3. Стили для Карточек Уровней        */
+/* 3. Стили Админ-Панели */
+/* ==================================== */
+
+.admin-panel-container {
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-card);
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.admin-panel-container h2 {
+    color: var(--color-accent-primary);
+    margin-top: 0;
+    border-bottom: 1px solid var(--border-card);
+    padding-bottom: 10px;
+}
+
+.admin-panel-container button {
+    background-color: var(--color-accent-light);
+    color: var(--bg-card);
+    border: none;
+    padding: 10px 15px;
+    margin: 5px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+}
+
+.admin-panel-container button:hover {
+    background-color: var(--color-accent-primary);
+}
+
+.admin-input-group input[type="text"],
+.admin-input-group input[type="password"] {
+    width: calc(100% - 20px);
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid var(--border-card);
+    background-color: var(--bg-main);
+    color: var(--color-text);
+    border-radius: 4px;
+}
+
+/* ==================================== */
+/* 4. Стили Списка Уровней */
 /* ==================================== */
 
 main {
@@ -227,15 +296,13 @@ main {
     color: var(--color-link-text);
 }
 
-/* Детали уровня */
 .level-details {
     display: flex;
     list-style: none;
     padding: 0;
     margin: 0;
-    /* Уменьшил gap, так как элементы идут в столбец */
     gap: 5px 40px; 
-    flex-direction: column; /* Элементы идут строго друг за другом */
+    flex-direction: column;
     font-size: 0.9em;
 }
 
@@ -245,12 +312,10 @@ main {
     margin-right: 5px;
 }
 
-/* Принудительно ставим FPS и ID на полную ширину */
 .detail-line-full {
     flex-basis: 100%; 
 }
 
-/* СТИЛИ ДЛЯ ЭКСТРЕМАЛЬНОГО FPS */
 .extreme-fps-value {
     word-break: break-all;
     display: inline;
