@@ -1,333 +1,415 @@
-/* ==================================== */
-/* 1. CSS Переменные (Цвета)            */
-/* ==================================== */
-
-:root {
-    --bg-main: #121212;         /* Основной фон */
-    --bg-card: #1e1e1e;         /* Фон карточки */
-    --border-card: #333;        /* Граница карточки */
-    --color-text: #e0e0e0;      /* Основной текст */
-    --color-accent-primary: #4a90e2; /* Главный акцент (Синий) */
-    --color-accent-light: #74aeff;   /* Светлый акцент */
-    --color-success: #4CAF50;   /* Цвет успеха (Showcase) */
-    --shadow-color: rgba(74, 144, 226, 0.5); /* Цвет свечения */
-    --color-link-text: #a0a0a0; /* Цвет второстепенного текста/ссылок */
+/* ====================================================================
+   ОБЩИЕ СТИЛИ И СБРОС (RESET)
+   ==================================================================== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
 }
-
-/* Фиолетовая Тема */
-.theme-purple {
-    --color-accent-primary: #9b59b6; 
-    --color-accent-light: #be90d4;
-    --shadow-color: rgba(155, 89, 182, 0.5);
-}
-
-/* Жёлтая Тема */
-.theme-yellow {
-    --color-accent-primary: #f1c40f; 
-    --color-accent-light: #f7dc6f;
-    --shadow-color: rgba(241, 196, 15, 0.5);
-}
-
-/* Зелёная Тема */
-.theme-green {
-    --color-accent-primary: #2ecc71; 
-    --color-accent-light: #58d68d;
-    --shadow-color: rgba(46, 204, 113, 0.5);
-}
-
-/* Тёмная (Нейтральная) Тема */
-.theme-dark {
-    --color-accent-primary: #7f8c8d; 
-    --color-accent-light: #bdc3c7;
-    --shadow-color: rgba(127, 140, 141, 0.5);
-}
-
-/* Светлая Тема */
-.theme-light {
-    --bg-main: #f0f0f0;
-    --bg-card: #ffffff;
-    --border-card: #ddd;
-    --color-text: #333;
-    --color-accent-primary: #e74c3c;
-    --color-accent-light: #f39c12;
-    --color-success: #27ae60;
-    --shadow-color: rgba(0, 0, 0, 0.1);
-    --color-link-text: #555;
-}
-
-
-/* ==================================== */
-/* 2. Базовые Стили и Разметка Header   */
-/* ==================================== */
 
 body {
     font-family: 'Montserrat', sans-serif;
-    background-color: var(--bg-main);
-    color: var(--color-text);
-    margin: 0;
-    padding: 0;
-    line-height: 1.6;
+    color: var(--text-color);
+    min-height: 100vh;
     transition: background-color 0.3s, color 0.3s;
 }
 
+a {
+    color: var(--link-color);
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+a:hover {
+    color: var(--link-hover-color);
+}
+
+/* ====================================================================
+   ПЕРЕМЕННЫЕ ЦВЕТОВ (ТЕМЫ)
+   ==================================================================== */
+
+/* --- СИНЯЯ (Blue - Default) --- */
+.theme-blue {
+    --bg-color: #1a1a2e;
+    --header-bg: #16213e;
+    --accent-color: #0f3460;
+    --text-color: #e5e5e5;
+    --link-color: #e94560;
+    --link-hover-color: #ff607d;
+    --button-bg: #e94560;
+    --button-hover: #ff607d;
+    --list-item-bg: #1f364d;
+    --border-color: #0f3460;
+}
+
+/* --- ФИОЛЕТОВАЯ (Purple) --- */
+.theme-purple {
+    --bg-color: #2b1f3c;
+    --header-bg: #3c2a4f;
+    --accent-color: #5d4277;
+    --text-color: #f0f0f0;
+    --link-color: #d1baf4;
+    --link-hover-color: #e0d0ff;
+    --button-bg: #a37df7;
+    --button-hover: #b499ff;
+    --list-item-bg: #382c50;
+    --border-color: #5d4277;
+}
+
+/* --- ЖЁЛТАЯ (Yellow) --- */
+.theme-yellow {
+    --bg-color: #3d3b24;
+    --header-bg: #4f4c33;
+    --accent-color: #f7d73e;
+    --text-color: #f8f8f8;
+    --link-color: #f7d73e;
+    --link-hover-color: #ffe066;
+    --button-bg: #f7d73e;
+    --button-hover: #ffe066;
+    --list-item-bg: #4a4831;
+    --border-color: #f7d73e;
+}
+
+/* --- ЗЕЛЁНАЯ (Green) --- */
+.theme-green {
+    --bg-color: #23372f;
+    --header-bg: #2d473d;
+    --accent-color: #3cb878;
+    --text-color: #f0f0f0;
+    --link-color: #64dd17;
+    --link-hover-color: #8cff4a;
+    --button-bg: #3cb878;
+    --button-hover: #5cd094;
+    --list-item-bg: #2d453b;
+    --border-color: #3cb878;
+}
+
+/* --- ТЁМНАЯ (Dark) --- */
+.theme-dark {
+    --bg-color: #121212;
+    --header-bg: #1f1f1f;
+    --accent-color: #333333;
+    --text-color: #eeeeee;
+    --link-color: #bb86fc;
+    --link-hover-color: #e0b0ff;
+    --button-bg: #bb86fc;
+    --button-hover: #e0b0ff;
+    --list-item-bg: #282828;
+    --border-color: #333333;
+}
+
+/* --- СВЕТЛАЯ (Light) --- */
+.theme-light {
+    --bg-color: #f9f9f9;
+    --header-bg: #ffffff;
+    --accent-color: #cccccc;
+    --text-color: #1a1a1a;
+    --link-color: #007bff;
+    --link-hover-color: #0056b3;
+    --button-bg: #007bff;
+    --button-hover: #0056b3;
+    --list-item-bg: #ffffff;
+    --border-color: #e0e0e0;
+}
+
+
+/* ====================================================================
+   HEADER И КНОПКИ УПРАВЛЕНИЯ
+   ==================================================================== */
 header {
-    background-color: var(--bg-card);
-    padding: 20px 0;
-    text-align: center;
-    border-bottom: 3px solid var(--color-accent-primary);
-    
-    position: relative; 
-    
+    background-color: var(--header-bg);
+    padding: 20px 5%;
     display: flex;
     flex-direction: column;
     align-items: center;
-}
-
-/* Стили для кнопки Админ Панели (слева) */
-.header-button {
-    position: absolute;
-    top: 20px;
-    left: 20px;
-    background-color: var(--color-accent-primary);
-    color: var(--bg-card);
-    border: none;
-    padding: 8px 15px;
-    cursor: pointer;
-    border-radius: 6px;
-    font-size: 1em;
-    font-weight: bold;
-    transition: background-color 0.2s;
-    z-index: 10;
-}
-
-.header-button:hover {
-    background-color: var(--color-accent-light);
+    border-bottom: 2px solid var(--accent-color);
+    position: relative; /* Для позиционирования кнопок */
 }
 
 .main-title {
     font-size: 2.5em;
     font-weight: 700;
-    color: var(--color-text);
-    letter-spacing: 5px;
-    text-shadow: 0 0 10px var(--shadow-color);
-    margin-bottom: 5px;
+    color: var(--accent-color);
+    margin-bottom: 15px;
+    text-align: center;
 }
 
 .channel-link {
-    display: inline-block;
-    background-color: transparent;
-    color: var(--color-accent-light);
-    border: 2px solid var(--color-accent-primary);
-    padding: 8px 15px;
-    margin-bottom: 20px;
-    text-decoration: none;
     font-size: 1em;
-    font-weight: bold;
-    border-radius: 6px;
-    transition: all 0.3s ease; 
-    box-shadow: 0 0 5px var(--shadow-color);
-}
-
-.channel-link:hover {
-    background-color: var(--color-accent-primary);
-    color: var(--bg-main);
-    text-decoration: none;
-    box-shadow: 0 0 15px var(--color-accent-primary); 
-}
-
-/* Стили для переключателя листов */
-.list-switcher {
-    padding: 10px 0 15px;
-    width: 100%;
-    max-width: 800px;
-    display: flex;
-    justify-content: center;
-    flex-wrap: wrap;
-    margin-bottom: 10px;
-}
-
-/* Стили для переключателя тем (Смещен в правый угол) */
-.theme-switcher {
-    padding: 10px 0 10px;
-    width: 100%;
-    display: flex;
-    justify-content: flex-end; 
-    flex-wrap: wrap;
-    max-width: 1000px;
-    padding-right: 20px;
-    box-sizing: border-box;
-}
-
-/* Общие стили для кнопок (и листов, и тем) */
-.list-button, .theme-button {
-    background-color: var(--bg-card);
-    color: var(--color-text);
-    border: 1px solid var(--color-accent-primary);
+    margin-bottom: 15px;
+    color: var(--text-color);
+    border: 1px solid var(--accent-color);
     padding: 5px 10px;
-    margin: 0 5px 5px 5px;
-    cursor: pointer;
-    border-radius: 4px;
-    transition: background-color 0.2s, color 0.2s, border-color 0.2s;
-    font-size: 0.8em;
+    border-radius: 5px;
 }
 
-/* Активные кнопки */
-.active-list, .active-theme {
-    background-color: var(--color-accent-primary);
-    color: var(--bg-main) !important;
-    font-weight: bold;
+/* --- Кнопка Админ Панели (с фиксом z-index) --- */
+#adminPanelButton {
+    position: absolute;
+    top: 20px;
+    left: 5%;
+    background-color: var(--button-bg);
+    color: white;
+    padding: 8px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: 700;
+    transition: background-color 0.2s;
+    /* ФИКС Z-INDEX: Выводим на передний план, чтобы ее ничего не перекрывало */
+    z-index: 1000; 
+}
+
+#adminPanelButton:hover {
+    background-color: var(--button-hover);
+}
+
+/* --- Контейнеры переключателей --- */
+.list-switcher, .theme-switcher {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 15px;
+}
+
+.list-button, .theme-button {
+    background-color: var(--accent-color);
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
+    padding: 8px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.2s, border-color 0.2s;
 }
 
 .list-button:hover, .theme-button:hover {
-    background-color: var(--color-accent-primary);
-    color: var(--bg-main);
+    background-color: var(--button-hover);
+    color: white;
 }
 
-/* ==================================== */
-/* 3. Стили Админ-Панели */
-/* ==================================== */
-
-.admin-panel-container {
-    background-color: var(--bg-card);
-    border: 1px solid var(--border-card);
-    padding: 20px;
-    border-radius: 8px;
-    margin-bottom: 20px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
-    max-width: 600px;
-    margin-left: auto;
-    margin-right: auto;
+.active-list, .active-theme {
+    background-color: var(--button-bg) !important;
+    border-color: var(--button-bg) !important;
+    color: white;
 }
 
-.admin-panel-container h2 {
-    color: var(--color-accent-primary);
-    margin-top: 0;
-    border-bottom: 1px solid var(--border-card);
-    padding-bottom: 10px;
-}
-
-.admin-panel-container button {
-    background-color: var(--color-accent-light);
-    color: var(--bg-card);
-    border: none;
-    padding: 10px 15px;
-    margin: 5px;
-    cursor: pointer;
-    border-radius: 4px;
-    transition: background-color 0.2s;
-}
-
-.admin-panel-container button:hover {
-    background-color: var(--color-accent-primary);
-}
-
-.admin-input-group input[type="text"],
-.admin-input-group input[type="password"] {
-    width: calc(100% - 20px);
-    padding: 10px;
-    margin-bottom: 10px;
-    border: 1px solid var(--border-card);
-    background-color: var(--bg-main);
-    color: var(--color-text);
-    border-radius: 4px;
-}
-
-/* ==================================== */
-/* 4. Стили Списка Уровней */
-/* ==================================== */
-
+/* ====================================================================
+   СПИСОК УРОВНЕЙ (MAIN)
+   ==================================================================== */
 main {
-    max-width: 1000px;
-    margin: 20px auto;
-    padding: 0 20px;
+    padding: 20px 5%;
+    background-color: var(--bg-color);
 }
 
 .level-list {
     list-style: none;
-    padding: 0;
+    max-width: 900px;
+    margin: 0 auto;
 }
 
 .level-item {
-    background-color: var(--bg-card);
-    border: 1px solid var(--border-card);
-    border-left: 5px solid var(--color-accent-primary);
-    padding: 15px 20px;
-    margin-bottom: 15px;
+    background-color: var(--list-item-bg);
+    border: 1px solid var(--border-color);
     border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    transition: transform 0.2s, box-shadow 0.2s, border-left-color 0.3s;
-}
-
-.level-item:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
-    border-left-color: var(--color-accent-light);
+    margin-bottom: 15px;
+    padding: 15px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .level-header {
     display: flex;
-    align-items: baseline;
+    justify-content: space-between;
+    align-items: center;
     margin-bottom: 10px;
     flex-wrap: wrap;
 }
 
 .level-number {
-    font-size: 1.8em;
+    font-size: 1.5em;
     font-weight: 700;
-    color: var(--color-accent-primary);
-    margin-right: 15px;
-    min-width: 30px; 
+    color: var(--accent-color);
 }
 
 .level-name {
-    font-size: 1.6em;
+    font-size: 1.3em;
     font-weight: 700;
-    color: var(--color-text);
-    text-decoration: none;
-    margin-right: 15px;
-}
-
-.level-name:hover {
-    color: var(--color-accent-light);
+    flex-grow: 1;
+    margin: 0 10px;
+    color: var(--text-color);
 }
 
 .level-creator {
     font-size: 0.9em;
-    color: var(--color-link-text);
+    color: var(--text-color);
+    opacity: 0.7;
 }
 
 .level-details {
-    display: flex;
     list-style: none;
-    padding: 0;
-    margin: 0;
-    gap: 5px 40px; 
-    flex-direction: column;
+    padding-left: 0;
+    border-top: 1px dashed var(--border-color);
+    padding-top: 10px;
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.level-details li {
     font-size: 0.9em;
+    width: 50%;
+    margin-bottom: 5px;
 }
 
 .detail-label {
-    font-weight: bold;
-    color: var(--color-accent-light);
+    font-weight: 700;
+    color: var(--accent-color);
     margin-right: 5px;
 }
 
-.detail-line-full {
-    flex-basis: 100%; 
-}
-
 .extreme-fps-value {
-    word-break: break-all;
-    display: inline;
-}
-
-.showcase-link {
-    color: var(--color-success);
-    text-decoration: none;
+    color: var(--link-color); /* Выделение для "экстремальных" FPS */
     font-weight: bold;
 }
 
+.showcase-link {
+    display: inline-block;
+    background-color: var(--accent-color);
+    color: white;
+    padding: 5px 10px;
+    border-radius: 4px;
+    margin-top: 5px;
+}
+
 .showcase-link:hover {
-    text-decoration: underline;
-    color: var(--color-accent-light);
+    background-color: var(--link-hover-color);
+}
+
+
+/* ====================================================================
+   АДМИН-ПАНЕЛЬ И ФОРМЫ
+   ==================================================================== */
+
+.admin-panel-container {
+    padding: 20px 5%;
+    background-color: var(--bg-color);
+    min-height: calc(100vh - 70px); /* Чтобы занимал почти весь экран */
+}
+
+.auth-container, .admin-tools {
+    max-width: 500px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: var(--list-item-bg);
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.auth-container h2, .admin-tools h2, .admin-tools h3 {
+    color: var(--accent-color);
+    text-align: center;
+    margin-bottom: 15px;
+}
+
+.admin-form, #loginForm {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+input[type="text"], input[type="password"], input[type="number"] {
+    padding: 10px;
+    border: 1px solid var(--border-color);
+    border-radius: 5px;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    font-size: 1em;
+}
+
+.admin-button {
+    background-color: var(--button-bg);
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: 700;
+    transition: background-color 0.2s;
+}
+
+.admin-button:hover {
+    background-color: var(--button-hover);
+}
+
+.admin-controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 20px;
+    justify-content: center;
+}
+
+.admin-edit-button {
+    background-color: var(--accent-color);
+    color: var(--text-color);
+    padding: 8px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.admin-edit-button:hover {
+    background-color: var(--link-color);
+}
+
+.logout-button {
+    background-color: #8b0000;
+}
+
+.logout-button:hover {
+    background-color: #a52a2a;
+}
+
+.admin-status {
+    text-align: center;
+    margin-bottom: 15px;
+    font-weight: 700;
+}
+
+/* ====================================================================
+   МЕДИА ЗАПРОСЫ (Адаптивность)
+   ==================================================================== */
+
+@media (max-width: 600px) {
+    .level-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .level-name {
+        margin: 5px 0;
+        font-size: 1.2em;
+    }
+
+    .level-details li {
+        width: 100%;
+    }
+    
+    #adminPanelButton {
+        position: static; /* Убираем абсолютное позиционирование на мобильных */
+        margin-bottom: 15px;
+    }
+    
+    header {
+        text-align: center;
+    }
+    
+    /* Перемещаем кнопку админ-панели под заголовок */
+    #adminPanelButton {
+        order: 1;
+    }
+    .main-title {
+        order: 2;
+    }
 }
