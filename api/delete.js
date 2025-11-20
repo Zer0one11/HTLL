@@ -1,47 +1,51 @@
-const { redis } = require('./db_kv_utils');
+// api/delete.js
 
-module.exports = async (req, res) => {
+import { loadList, saveList, checkAuth } from './db_kv_utils.js'; // <-- ИСПРАВЛЕНО: .js
+
+export default async function handler(req, res) {
     if (req.method !== 'POST') {
         return res.status(405).json({ success: false, message: 'Метод не разрешен.' });
     }
 
-    const { listName, number } = req.body;
-    const numberToDelete = parseInt(number);
-
-    if (!listName || !numberToDelete) {
-        return res.status(400).json({ success: false, message: 'Отсутствуют обязательные параметры.' });
-    }
-
     try {
-        const key = `list:${listName}`;
-        const rawData = await redis.get(key);
-        let levels = rawData ? JSON.parse(rawData) : [];
+        const { listName, number, auth } = req.body;
 
-        // 1. Фильтруем массив: удаляем уровень с заданным номером
-        const initialLength = levels.length;
-        levels = levels.filter(level => level.number !== numberToDelete);
-        
-        if (levels.length === initialLength) {
-             return res.status(404).json({ success: false, message: 'Уровень не найден.' });
+        if (!await checkAuth(auth)) {
+            return res.status(401).json({ success: false, message: 'Неавторизованный доступ.' });
         }
 
-        // 2. --- Логика сдвига вверх (Redis) ---
-        // Уменьшаем номер на 1 для всех уровней, которые были ниже удаленного
-        levels = levels.map(level => {
-            if (level.number > numberToDelete) {
-                return { ...level, number: level.number - 1 };
-            }
-            return level;
-        });
+        const deleteNumber = parseInt(number);
+        if (!listName || isNaN(deleteNumber) || deleteNumber <= 0) {
+            return res.status(400).json({ success: false, message: 'Отсутствует listName или неверный номер уровня.' });
+        }
         
-        // 3. Сохраняем обратно в Redis
-        await redis.set(key, JSON.stringify(levels));
+        const list = await loadList(listName);
+        if (list === null) {
+            return res.status(404).json({ success: false, message: `Список ${listName} не найден.` });
+        }
+        
+        if (deleteNumber > list.length) {
+            return res.status(404).json({ success: false, message: `Уровень №${deleteNumber} не существует в списке.` });
+        }
+        
+        const deletedLevel = list.splice(deleteNumber - 1, 1); 
 
-        return res.status(200).json({ success: true, message: 'Уровень успешно удален.' });
+        for (let i = deleteNumber - 1; i < list.length; i++) {
+            list[i].number = i + 1;
+        }
+
+        const success = await saveList(listName, list);
+
+        if (success) {
+            const deletedName = deletedLevel[0] ? deletedLevel[0].name : 'Уровень';
+            return res.status(200).json({ success: true, message: `${deletedName} (№${deleteNumber}) успешно удален.` });
+        } else {
+            return res.status(500).json({ success: false, message: 'Ошибка сохранения в базу данных.' });
+        }
 
     } catch (error) {
-        console.error('Ошибка удаления уровня:', error.message);
-        return res.status(500).json({ success: false, message: 'Ошибка сервера при удалении уровня.' });
-
+        console.error('Ошибка при удалении уровня:', error);
+        return res.status(500).json({ success: false, message: 'Внутренняя ошибка сервера.' })
+            ;
     }
-};
+}
