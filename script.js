@@ -2,28 +2,22 @@
 // ========================== ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ ====================
 // ====================================================================
 
-const listElement = document.getElementById('level-list');
-const mainTitle = document.getElementById('main-title');
+// --- ЭЛЕМЕНТЫ DOM ---
+// ВАЖНО: Получаем только те элементы, которые существуют в index.html при загрузке
+const listElement = document.getElementById('levelList'); // ИСПРАВЛЕНО: 'levelList' из index.html
+const mainTitle = document.querySelector('.main-title'); // ИСПРАВЛЕНО: класс 'main-title'
 const listButtons = document.querySelectorAll('.list-button');
-const listContainer = document.getElementById('list-container');
-const adminPanelContainer = document.getElementById('admin-panel-container');
-const authContainer = document.getElementById('auth-container');
-const loginForm = document.getElementById('login-form');
-const addLevelForm = document.getElementById('add-level-form');
-const deleteLevelForm = document.getElementById('delete-level-form');
-const adminMessage = document.getElementById('admin-message');
-const adminCurrentListTitle = document.getElementById('admin-current-list-title');
+const adminPanelButton = document.getElementById('adminPanelButton'); // Кнопка "Админ Панель"
+const adminPanelContainer = document.getElementById('adminPanelContainer'); // Контейнер для всех форм
+const listContainer = document.querySelector('main'); // Используем main как контейнер списка для простоты
 
-// Хранит текущие учетные данные администратора после успешного входа
+// --- ГЛОБАЛЬНОЕ СОСТОЯНИЕ ---
 let adminAuth = {
     login: '',
     password: ''
 };
+let currentAdminList = 'levels'; // Список по умолчанию для редактирования
 
-// Хранит текущий список, который редактируется в админ-панели
-let currentAdminList = '';
-
-// Карта для сопоставления ID списка с названием заголовка
 const listMap = {
     'levels': { title: 'TPLL LIST' },
     'ppll': { title: 'PPLL LIST' },
@@ -33,7 +27,7 @@ const listMap = {
 };
 
 // ====================================================================
-// ======================== УПРАВЛЕНИЕ СПИСКАМИ =======================
+// ======================= УПРАВЛЕНИЕ ТЕМАМИ И СПИСКАМИ =================
 // ====================================================================
 
 // Инициализация: Загрузка списка по умолчанию
@@ -45,25 +39,46 @@ document.addEventListener('DOMContentLoaded', () => {
     if (savedLogin && savedPassword) {
         adminAuth.login = savedLogin;
         adminAuth.password = savedPassword;
-        showAdminPanel();
+        showAdminPanel(true); // Открываем сразу в режиме инструментов
     } else {
         loadList('levels'); // Загружаем список по умолчанию
     }
+    
+    // ПРИВЯЗКА: Кнопка "Админ Панель"
+    adminPanelButton.addEventListener('click', () => {
+        showAdminPanel();
+    });
+    
+    // ПРИВЯЗКА: Кнопки переключения списков
+    listButtons.forEach(button => {
+        button.addEventListener('click', (e) => {
+            loadList(e.target.dataset.list);
+        });
+    });
+    
+    // ПРИВЯЗКА: Кнопки переключения тем (если они есть)
+    document.querySelectorAll('.theme-button').forEach(button => {
+        button.addEventListener('click', (e) => {
+            const theme = e.target.dataset.theme;
+            document.body.className = `theme-${theme}`;
+            
+            document.querySelectorAll('.theme-button').forEach(btn => btn.classList.remove('active-theme'));
+            e.target.classList.add('active-theme');
+        });
+    });
 });
 
 
 /**
  * Загружает и отображает данные списка из API.
- * @param {string} listId - Идентификатор списка ('levels', 'ppll', и т.д.).
+ * @param {string} listId - Идентификатор списка.
  */
 function loadList(listId) {
-    // Предотвращаем загрузку, если открыта админ-панель
     if (adminPanelContainer.style.display === 'block') return;
 
     const listData = listMap[listId];
-    mainTitle.textContent = listData.title;
+    if (mainTitle) mainTitle.textContent = listData.title;
 
-    // Обновление активной кнопки
     listButtons.forEach(btn => {
         btn.classList.remove('active-list');
         if (btn.dataset.list === listId) {
@@ -71,20 +86,21 @@ function loadList(listId) {
         }
     });
     
-    listElement.innerHTML = `<p class="loading-text">Загрузка списка...</p>`;
+    if (listElement) listElement.innerHTML = `<p class="loading-text">Загрузка списка...</p>`;
 
-    // --- Новый API-маршрут для загрузки из DB ---
     fetch(`/api/load?list=${listId}`) 
         .then(response => {
             if (!response.ok) {
-                throw new Error(`Ошибка загрузки данных для ${listId}: Статус ${response.status}`);
+                // Если API-функция возвращает ошибку, она будет обработана ниже
+                throw new Error(`Ошибка загрузки данных: Статус ${response.status}`);
             }
             return response.json(); 
         })
-        .then(levels => {
-            listElement.innerHTML = '';
+        .then(data => {
+            const levels = data.list || []; // Убедимся, что получаем список
+            if (listElement) listElement.innerHTML = '';
             
-            if (levels.length === 0) {
+            if (levels.length === 0 && listElement) {
                 listElement.innerHTML = `<p style="text-align: center;">Список пуст.</p>`;
                 return;
             }
@@ -92,12 +108,11 @@ function loadList(listId) {
             levels.forEach(level => {
                 const li = document.createElement('li');
                 li.className = 'level-item';
-
-                // gd_id из базы данных мы выбираем как ID
                 
+                // Используем level.gd_id в качестве ID
+                const levelID = level.gd_id || 'N/A';
                 const levelType = level.type ? `<li><span class="detail-label">Type:</span> ${level.type}</li>` : '';
-                // Проверка на "экстремальный" FPS (например, формулы или очень длинная строка)
-                const isExtreme = level.fps.length > 15 || level.fps.includes('^') || level.fps.includes('↑') || level.fps === 'idk';
+                const isExtreme = level.fps && (level.fps.length > 15 || level.fps.includes('^') || level.fps.includes('↑') || level.fps === 'idk');
                 const fpsClass = isExtreme ? 'extreme-fps-value' : '';
                 
                 li.innerHTML = `
@@ -108,7 +123,7 @@ function loadList(listId) {
                     </div>
                     <ul class="level-details">
                         <li class="detail-line-full"><span class="detail-label">FPS:</span> <span class="${fpsClass}">${level.fps}</span></li>
-                        <li class="detail-line-full"><span class="detail-label">ID:</span> ${level.id}</li>
+                        <li class="detail-line-full"><span class="detail-label">ID:</span> ${levelID}</li>
                         <li><span class="detail-label">FV:</span> ${level.fv}</li>
                         ${levelType}
                         <li>
@@ -119,126 +134,189 @@ function loadList(listId) {
                     </ul>
                 `;
 
-                listElement.appendChild(li);
+                if (listElement) listElement.appendChild(li);
             });
         })
         .catch(error => {
             console.error('Ошибка при загрузке списка:', error);
-            listElement.innerHTML = `<p style="color: red; text-align: center;">Ошибка загрузки: Проблема с DB или API.</p>`;
+            if (listElement) listElement.innerHTML = `<p style="color: red; text-align: center;">Ошибка загрузки: Проблема с DB или API.</p>`;
         });
 }
 
-// Назначаем обработчик для всех кнопок списка
-listButtons.forEach(button => {
-    button.addEventListener('click', (e) => {
-        loadList(e.target.dataset.list);
-    });
-});
+// ====================================================================
+// ======================== ГЕНЕРАЦИЯ HTML =============================
+// ====================================================================
+
+function generateLoginFormHTML(message = '') {
+    return `
+        <div id="authContainer" class="auth-container">
+            <h2>Вход в Админ-панель</h2>
+            <p id="adminMessage" style="color: ${message.includes('Ошибка') ? 'red' : 'green'};">${message || 'Введите учетные данные.'}</p>
+            <form id="loginForm">
+                <input type="text" name="login" placeholder="Логин" required>
+                <input type="password" name="password" placeholder="Пароль" required>
+                <button type="submit">Войти</button>
+            </form>
+            <button id="backToListBtn" class="admin-button">← Назад к списку</button>
+        </div>
+    `;
+}
+
+function generateAdminToolsHTML() {
+    const listTitle = listMap[currentAdminList] ? listMap[currentAdminList].title : currentAdminList.toUpperCase();
+    
+    return `
+        <div id="adminTools" class="admin-tools">
+            <h2 id="adminCurrentListTitle">Редактирование списка: ${listTitle}</h2>
+            <p id="adminMessage" class="admin-status">Добро пожаловать, ${adminAuth.login}!</p>
+            
+            <div class="admin-controls">
+                <button data-list="levels" class="admin-edit-button">TPLL</button>
+                <button data-list="ppll" class="admin-edit-button">PPLL</button>
+                <button data-list="sll" class="admin-edit-button">SLL</button>
+                </div>
+            
+            <button id="backToListBtn" class="admin-button">← Назад к списку</button>
+            <button id="logoutBtn" class="admin-button logout-button">Выйти</button>
+            
+            <h3>Добавить уровень</h3>
+            <form id="addLevelForm" class="admin-form">
+                <input type="number" name="add_number" placeholder="Номер (сдвинет последующие)" required>
+                <input type="text" name="add_name" placeholder="Название" required>
+                <input type="text" name="add_creator" placeholder="Создатель" required>
+                <input type="text" name="add_fps" placeholder="FPS (720, idk, etc.)">
+                <input type="text" name="add_fv" placeholder="FV (Final Victor)">
+                <input type="text" name="add_id" placeholder="GD ID" required>
+                <input type="text" name="add_type" placeholder="Type (2p, Old Version, etc.)">
+                <input type="text" name="add_showcase" placeholder="Ссылка на Showcase" required>
+                <button type="submit" class="add-button">Добавить уровень</button>
+            </form>
+
+            <h3>Удалить уровень</h3>
+            <form id="deleteLevelForm" class="admin-form">
+                <input type="number" name="delete_number" placeholder="Номер уровня для удаления" required>
+                <button type="submit" class="delete-button">Удалить уровень</button>
+            </form>
+        </div>
+    `;
+}
+
 
 // ====================================================================
-// ======================= АДМИН-АВТОРИЗАЦИЯ ==========================
+// ======================= АДМИН-АВТОРИЗАЦИЯ И ИНТЕРФЕЙС =================
 // ====================================================================
 
 /**
  * Переключает отображение между списком и панелью администратора.
+ * @param {boolean} forceTools - Если true, сразу показывает инструменты (для перезагрузки сессии).
  */
-function showAdminPanel() {
-    // Скрываем список, показываем админ-панель
-    listContainer.style.display = 'none';
-    adminPanelContainer.style.display = 'block';
+function showAdminPanel(forceTools = false) {
+    if (listContainer) listContainer.style.display = 'none';
+    if (adminPanelContainer) adminPanelContainer.style.display = 'block';
 
-    // Скрываем/показываем формы входа
-    if (adminAuth.login) {
-        authContainer.style.display = 'none';
-        document.getElementById('admin-tools').style.display = 'block';
-        adminMessage.textContent = `Добро пожаловать, ${adminAuth.login}!`;
-        // Запускаем режим редактирования для списка по умолчанию
-        startAdminEdit('levels'); 
+    if (adminAuth.login || forceTools) {
+        // --- РЕЖИМ ИНСТРУМЕНТОВ ---
+        adminPanelContainer.innerHTML = generateAdminToolsHTML();
+        
+        // ПРИВЯЗКА: Кнопки внутри сгенерированного HTML
+        document.getElementById('logoutBtn').addEventListener('click', handleLogout);
+        document.getElementById('backToListBtn').addEventListener('click', handleBackToList);
+        document.getElementById('addLevelForm').addEventListener('submit', handleAddLevelSubmit);
+        document.getElementById('deleteLevelForm').addEventListener('submit', handleDeleteLevelSubmit);
+        
+        document.querySelectorAll('.admin-edit-button').forEach(button => {
+            button.addEventListener('click', (e) => {
+                startAdminEdit(e.target.dataset.list);
+            });
+        });
+
     } else {
-        authContainer.style.display = 'block';
-        document.getElementById('admin-tools').style.display = 'none';
+        // --- РЕЖИМ ВХОДА ---
+        adminPanelContainer.innerHTML = generateLoginFormHTML();
+
+        // ПРИВЯЗКА: Кнопки внутри сгенерированного HTML
+        document.getElementById('loginForm').addEventListener('submit', handleLoginSubmit);
+        document.getElementById('backToListBtn').addEventListener('click', handleBackToList);
     }
 }
+
+function startAdminEdit(listId) {
+    currentAdminList = listId;
+    const listTitle = listMap[listId] ? listMap[listId].title : listId.toUpperCase();
+    const adminCurrentListTitle = document.getElementById('adminCurrentListTitle');
+    
+    if (adminCurrentListTitle) {
+        adminCurrentListTitle.textContent = `Редактирование списка: ${listTitle}`;
+    }
+    const adminMessage = document.getElementById('adminMessage');
+    if (adminMessage) {
+        adminMessage.textContent = `Выбран список для редактирования: ${listId.toUpperCase()}`;
+    }
+}
+
+function handleBackToList() {
+    if (adminPanelContainer) adminPanelContainer.style.display = 'none';
+    if (listContainer) listContainer.style.display = 'block';
+    loadList('levels'); 
+}
+
+function handleLogout() {
+    adminAuth = { login: '', password: '' };
+    sessionStorage.removeItem('admin_login');
+    sessionStorage.removeItem('admin_password');
+    showAdminPanel(); // Переходим в режим входа
+}
+
+// ====================================================================
+// ======================= АДМИН-ФУНКЦИИ (ОБРАБОТЧИКИ) =================
+// ====================================================================
 
 /**
  * Обрабатывает отправку формы входа.
  */
-loginForm.addEventListener('submit', async (e) => {
+async function handleLoginSubmit(e) {
     e.preventDefault();
     const login = e.target.login.value;
     const password = e.target.password.value;
     
-    adminMessage.textContent = 'Попытка входа...';
+    const adminMessage = document.getElementById('adminMessage');
+    if (adminMessage) adminMessage.textContent = 'Попытка входа...';
 
     try {
         const response = await fetch('/api/login', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ login, password })
         });
 
         const result = await response.json();
 
         if (response.ok && result.success) {
-            adminMessage.textContent = `Успешный вход!`;
             adminAuth.login = login;
             adminAuth.password = password;
-            // Сохраняем в сессии, чтобы не вводить пароль при перезагрузке
             sessionStorage.setItem('admin_login', login);
             sessionStorage.setItem('admin_password', password); 
-            showAdminPanel();
+            showAdminPanel(true); // Переходим к инструментам
         } else {
-            adminMessage.textContent = `Ошибка: ${result.message || 'Неверный логин или пароль.'}`;
+            showAdminPanel(false); // Пересоздаем форму, чтобы обновить сообщение
+            const errorMessage = result.message || 'Неверный логин или пароль.';
+            document.getElementById('adminMessage').textContent = `Ошибка: ${errorMessage}`;
         }
     } catch (error) {
-        console.error('Ошибка сети/сервера:', error);
-        adminMessage.textContent = 'Ошибка сервера при входе.';
+        console.error('Ошибка сети/сервера при входе:', error);
+        if (adminMessage) adminMessage.textContent = 'Ошибка сервера при входе. Проверьте логи Vercel.';
     }
-});
-
-// Нажатие на кнопку "Админ Панель"
-document.getElementById('admin-btn').addEventListener('click', () => {
-    showAdminPanel();
-});
-
-// Нажатие на кнопку "Назад к списку"
-document.getElementById('back-to-list-btn').addEventListener('click', () => {
-    adminPanelContainer.style.display = 'none';
-    listContainer.style.display = 'block';
-    loadList('levels'); 
-});
-
-// ====================================================================
-// ======================= АДМИН-ФУНКЦИИ ==============================
-// ====================================================================
-
-/**
- * Запускает режим редактирования для выбранного списка.
- * @param {string} listId - Идентификатор списка.
- */
-function startAdminEdit(listId) {
-    currentAdminList = listId;
-    const listTitle = listMap[listId] ? listMap[listId].title : listId.toUpperCase();
-    adminCurrentListTitle.textContent = `Редактирование списка: ${listTitle}`;
-    adminMessage.textContent = `Выбран список для редактирования: ${listId.toUpperCase()}`;
 }
-
-// Назначаем обработчик для кнопок редактирования списка в админ-панели
-document.querySelectorAll('.admin-edit-button').forEach(button => {
-    button.addEventListener('click', (e) => {
-        startAdminEdit(e.target.dataset.list);
-    });
-});
 
 /**
  * Обрабатывает отправку формы добавления уровня.
  */
-addLevelForm.addEventListener('submit', async (e) => {
+async function handleAddLevelSubmit(e) {
     e.preventDefault();
+    const adminMessage = document.getElementById('adminMessage');
+
     if (!currentAdminList) {
-        adminMessage.textContent = 'Ошибка: Сначала выберите список для редактирования!';
+        if (adminMessage) adminMessage.textContent = 'Ошибка: Сначала выберите список для редактирования!';
         return;
     }
 
@@ -248,22 +326,20 @@ addLevelForm.addEventListener('submit', async (e) => {
         creator: e.target.add_creator.value,
         fps: e.target.add_fps.value,
         fv: e.target.add_fv.value,
-        id: e.target.add_id.value,
-        type: e.target.add_type.value || '', // Может быть пустым
+        gd_id: e.target.add_id.value, // Имя поля в HTML 'add_id', в API 'gd_id'
+        type: e.target.add_type.value || '',
         showcase: e.target.add_showcase.value
     };
     
-    adminMessage.textContent = `Попытка добавить уровень ${levelData.number}. ${levelData.name} в ${currentAdminList.toUpperCase()}...`;
+    if (adminMessage) adminMessage.textContent = `Попытка добавить уровень ${levelData.number}. ${levelData.name}...`;
 
     try {
         const response = await fetch('/api/add', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ 
                 listName: currentAdminList, 
-                levelData, 
+                ...levelData, // Отправляем все поля напрямую
                 auth: adminAuth 
             })
         });
@@ -271,41 +347,40 @@ addLevelForm.addEventListener('submit', async (e) => {
         const result = await response.json();
 
         if (response.ok && result.success) {
-            adminMessage.textContent = result.message;
-            addLevelForm.reset(); 
+            if (adminMessage) adminMessage.textContent = result.message;
+            e.target.reset(); // Очистка формы
         } else {
-            // Отображаем сообщение об ошибке, полученное от сервера (например, "Ошибка авторизации")
-            adminMessage.textContent = `Ошибка сервера: ${result.message || 'Неизвестная ошибка.'}`;
+            if (adminMessage) adminMessage.textContent = `Ошибка сервера: ${result.message || 'Неизвестная ошибка.'}`;
         }
     } catch (error) {
-        console.error('Ошибка сети/сервера:', error);
-        adminMessage.textContent = 'Ошибка сети или внутренней службы при добавлении уровня.';
+        console.error('Ошибка сети/сервера при добавлении:', error);
+        if (adminMessage) adminMessage.textContent = 'Ошибка сети или внутренней службы при добавлении уровня.';
     }
-});
+}
 
 /**
  * Обрабатывает отправку формы удаления уровня.
  */
-deleteLevelForm.addEventListener('submit', async (e) => {
+async function handleDeleteLevelSubmit(e) {
     e.preventDefault();
+    const adminMessage = document.getElementById('adminMessage');
+    
     if (!currentAdminList) {
-        adminMessage.textContent = 'Ошибка: Сначала выберите список для редактирования!';
+        if (adminMessage) adminMessage.textContent = 'Ошибка: Сначала выберите список для редактирования!';
         return;
     }
 
-    const levelNumber = e.target.delete_number.value;
+    const number = e.target.delete_number.value; // Получаем только номер
     
-    adminMessage.textContent = `Попытка удалить уровень №${levelNumber} из ${currentAdminList.toUpperCase()}...`;
+    if (adminMessage) adminMessage.textContent = `Попытка удалить уровень №${number}...`;
 
     try {
         const response = await fetch('/api/delete', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ 
                 listName: currentAdminList, 
-                levelNumber, 
+                number: parseInt(number), // Отправляем как число
                 auth: adminAuth 
             })
         });
@@ -313,14 +388,13 @@ deleteLevelForm.addEventListener('submit', async (e) => {
         const result = await response.json();
 
         if (response.ok && result.success) {
-            adminMessage.textContent = result.message;
-            deleteLevelForm.reset(); 
+            if (adminMessage) adminMessage.textContent = result.message;
+            e.target.reset(); 
         } else {
-            adminMessage.textContent = `Ошибка удаления: ${result.message || 'Неизвестная ошибка.'}`;
+            if (adminMessage) adminMessage.textContent = `Ошибка удаления: ${result.message || 'Неизвестная ошибка.'}`;
         }
     } catch (error) {
-        console.error('Ошибка сети/сервера:', error);
-        adminMessage.textContent = 'Ошибка сети или внутренней службы при удалении уровня.';
+        console.error('Ошибка сети/сервера при удалении:', error);
+        if (adminMessage) adminMessage.textContent = 'Ошибка сети или внутренней службы при удалении уровня.';
     }
-});
-
+}
