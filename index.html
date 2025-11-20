@@ -7,7 +7,10 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
-<body class="theme-blue"> <header>
+<body class="theme-blue">
+    <header>
+        <button id="adminPanelButton" class="header-button">Админ Панель</button>
+
         <h1 class="main-title">TPLL LIST</h1>
         <a href="https://t.me/HardestTiktokLevelList" target="_blank" class="channel-link">Канал Листа</a>
         
@@ -15,7 +18,8 @@
             <button data-list="levels" class="list-button active-list">TPLL</button>
             <button data-list="ppll" class="list-button">PPLL</button>
             <button data-list="sll" class="list-button">SLL</button>
-            <button data-list="ill" class="list-button">ILL</button> <button data-list="inf" class="list-button">INF</button>
+            <button data-list="ill" class="list-button">ILL</button>
+            <button data-list="inf" class="list-button">INF</button>
         </div>
         
         <div class="theme-switcher">
@@ -29,6 +33,9 @@
     </header>
 
     <main>
+        <div id="adminPanelContainer" class="admin-panel-container" style="display: none;">
+            </div>
+
         <ol id="levelList" class="level-list"></ol>
     </main>
 
