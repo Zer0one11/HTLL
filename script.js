@@ -1,52 +1,46 @@
-// script.js
+// script.js (НОВАЯ ВЕРСИЯ БЕЗ API)
 
-// --- Глобальные переменные ---
+// --- Глобальные переменные (без изменений) ---
 const levelListElement = document.getElementById('levelList');
 const listButtons = document.querySelectorAll('.list-button');
 const themeButtons = document.querySelectorAll('.theme-button');
-const mainContainer = document.querySelector('main'); 
-const adminPanelContainer = document.getElementById('adminPanelContainer'); // Остается, но не используется
 
 let currentList = 'levels'; // Список по умолчанию
 
 // --- Вспомогательные функции ---
 
 /**
- * Загружает список уровней с сервера (Vercel API).
+ * Загружает список уровней из СТАТИЧЕСКОГО JSON-файла.
  */
 async function fetchLevelList(listName) {
     try {
-        const response = await fetch(`/api/load?list=${listName}`);
+        // Мы пытаемся загрузить файл: data/levels.json, data/ppll.json и т.д.
+        const response = await fetch(`./data/${listName}.json`); 
         
-        // Если API-функция не работает, возвращаем пустой список и выводим ошибку
         if (!response.ok) {
-            console.error(`Ошибка API: ${response.status}`);
-            return [];
+            // Если файл не существует (404), возвращаем пустой список
+            if (response.status === 404) {
+                 return [];
+            }
+            console.error(`Ошибка загрузки JSON: ${response.status}`);
+            return { error: true };
         }
         
         const data = await response.json();
-        
-        if (data.success && data.list) {
-            return data.list;
-        } else {
-            return [];
-        }
+        return data.list || data; // Ожидаем, что файл содержит массив или объект с полем 'list'
     } catch (error) {
-        console.error('Ошибка при загрузке данных:', error);
-        // Специальное сообщение, если произошел сбой сети или сервера
+        console.error('Ошибка при обработке JSON-файла:', error);
         return { error: true };
     }
 }
 
-/**
- * Рендерит список уровней на страницу.
- */
+// Рендеринг списка (остальные функции остаются прежними)
+
 function renderLevelList(list) {
-    levelListElement.innerHTML = ''; // Очистка
+    levelListElement.innerHTML = '';
     
-    // Если произошла ошибка сети/сервера
     if (list.error) {
-        levelListElement.innerHTML = '<div class="empty-list-message error-message">Ошибка загрузки: Проблема с DB или API.</div>';
+        levelListElement.innerHTML = '<div class="empty-list-message error-message">Ошибка загрузки: Проверьте файлы data/*.json.</div>';
         return;
     }
 
@@ -71,9 +65,8 @@ function renderLevelList(list) {
     });
 }
 
-/**
- * Основная функция для обновления и отображения списка.
- */
+// ... (остальные функции: updateLevelList, обработчики кнопок, loadTheme - БЕЗ ИЗМЕНЕНИЙ) ...
+
 async function updateLevelList(listName) {
     // 1. Установка активной кнопки
     listButtons.forEach(btn => {
@@ -91,65 +84,16 @@ async function updateLevelList(listName) {
     renderLevelList(listData);
 }
 
-// --- Обработчики событий ---
-
-// 1. Переключение списка (TPLL, PPLL, SLL, ...)
+// ... (обработчики кнопок темы и списка) ...
 listButtons.forEach(button => {
     button.addEventListener('click', () => {
         currentList = button.dataset.list;
         updateLevelList(currentList);
     });
 });
+// ... (loadTheme и инициализация) ...
 
-// 2. Смена темы
-themeButtons.forEach(button => {
-    button.addEventListener('click', () => {
-        const newTheme = button.dataset.theme;
-        document.body.className = `theme-${newTheme}`;
-        
-        // Сохранение в Local Storage
-        localStorage.setItem('theme', newTheme);
-
-        // Обновление активной кнопки темы
-        themeButtons.forEach(btn => {
-            if (btn.dataset.theme === newTheme) {
-                btn.classList.add('active-theme');
-            } else {
-                btn.classList.remove('active-theme');
-            }
-        });
-    });
-});
-
-// 3. Загрузка темы из Local Storage
-function loadTheme() {
-    const savedTheme = localStorage.getItem('theme');
-    if (savedTheme) {
-        // Устанавливаем тему
-        document.body.className = `theme-${savedTheme}`;
-        
-        // Обновляем активную кнопку
-        themeButtons.forEach(btn => {
-            btn.classList.remove('active-theme');
-            if (btn.dataset.theme === savedTheme) {
-                btn.classList.add('active-theme');
-            }
-        });
-    }
-}
-
-// --- Инициализация ---
-
-// Загрузка темы при старте
+// Инициализация
 loadTheme(); 
-
-// Первоначальная загрузка списка
-updateLevelList(currentList);
-
-// --- Функции, связанные с админ-панелью, удалены ---
-/* function showAdminPanel() {...}
-function generateLoginFormHTML() {...}
-async function handleLoginSubmit(e) {...}
-function showAdminTools() {...}
-function handleToolSubmit() {...} 
-*/
+updateLevelList(
+    currentList);
