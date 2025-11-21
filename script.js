@@ -1,99 +1,132 @@
-// script.js (НОВАЯ ВЕРСИЯ БЕЗ API)
+document.addEventListener('DOMContentLoaded', () => {
+    const listElement = document.getElementById('levelList');
+    const body = document.body;
+    const mainTitle = document.querySelector('.main-title');
+    const themeButtons = document.querySelectorAll('.theme-button');
+    const listButtons = document.querySelectorAll('.list-button');
 
-// --- Глобальные переменные (без изменений) ---
-const levelListElement = document.getElementById('levelList');
-const listButtons = document.querySelectorAll('.list-button');
-const themeButtons = document.querySelectorAll('.theme-button');
+    // Карта для сопоставления ID списка с именем файла и названием заголовка
+    const listMap = {
+        'levels': { file: 'levels.json', title: 'TPLL LIST' },
+        'ppll': { file: 'ppll.json', title: 'PPLL LIST' },
+        'sll': { file: 'sll.json', title: 'SLL LIST' },
+        'ill': { file: 'ill.json', title: 'ILL LIST' },
+        'inf': { file: 'inf.json', title: 'INF LIST' }
+    };
 
-let currentList = 'levels'; // Список по умолчанию
+    let currentListId = localStorage.getItem('currentListId') || 'levels';
 
-// --- Вспомогательные функции ---
+    // ====================================
+    // 1. Инициализация и Логика Смены Тем
+    // ====================================
+    const savedTheme = localStorage.getItem('siteTheme') || 'blue';
+    setTheme(savedTheme);
 
-/**
- * Загружает список уровней из СТАТИЧЕСКОГО JSON-файла.
- */
-async function fetchLevelList(listName) {
-    try {
-        // Мы пытаемся загрузить файл: data/levels.json, data/ppll.json и т.д.
-        const response = await fetch(`./data/${listName}.json`); 
-        
-        if (!response.ok) {
-            // Если файл не существует (404), возвращаем пустой список
-            if (response.status === 404) {
-                 return [];
+    themeButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const newTheme = button.dataset.theme;
+            setTheme(newTheme);
+            localStorage.setItem('siteTheme', newTheme);
+        });
+    });
+
+    function setTheme(theme) {
+        body.className = body.className.split(' ').filter(c => !c.startsWith('theme-')).join(' ');
+        body.classList.add(`theme-${theme}`);
+        themeButtons.forEach(btn => {
+            btn.classList.remove('active-theme');
+            if (btn.dataset.theme === theme) {
+                btn.classList.add('active-theme');
             }
-            console.error(`Ошибка загрузки JSON: ${response.status}`);
-            return { error: true };
-        }
-        
-        const data = await response.json();
-        return data.list || data; // Ожидаем, что файл содержит массив или объект с полем 'list'
-    } catch (error) {
-        console.error('Ошибка при обработке JSON-файла:', error);
-        return { error: true };
+        });
     }
-}
 
-// Рендеринг списка (остальные функции остаются прежними)
-
-function renderLevelList(list) {
-    levelListElement.innerHTML = '';
+    // ====================================
+    // 2. Логика Переключения Листов
+    // ====================================
     
-    if (list.error) {
-        levelListElement.innerHTML = '<div class="empty-list-message error-message">Ошибка загрузки: Проверьте файлы data/*.json.</div>';
-        return;
-    }
-
-    if (list.length === 0) {
-        levelListElement.innerHTML = '<div class="empty-list-message">Список пуст.</div>';
-        return;
-    }
-
-    list.forEach(level => {
-        const item = document.createElement('li');
-        item.className = 'level-item';
-        item.innerHTML = `
-            <span class="level-number">${level.number}</span>
-            <div class="level-info">
-                <h3>${level.name}</h3>
-                <p>Creator: ${level.creator}</p>
-                <p>Verifier: ${level.verifier}</p>
-            </div>
-            <a href="https://gdbrowser.com/${level.gd_id}" target="_blank" class="level-link">Смотреть GD</a>
-        `;
-        levelListElement.appendChild(item);
+    listButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const newListId = button.dataset.list;
+            if (newListId !== currentListId) {
+                currentListId = newListId;
+                localStorage.setItem('currentListId', currentListId);
+                loadList(currentListId);
+            }
+        });
     });
-}
+    
+    // Загрузка списка при старте
+    loadList(currentListId);
 
-// ... (остальные функции: updateLevelList, обработчики кнопок, loadTheme - БЕЗ ИЗМЕНЕНИЙ) ...
 
-async function updateLevelList(listName) {
-    // 1. Установка активной кнопки
-    listButtons.forEach(btn => {
-        if (btn.dataset.list === listName) {
-            btn.classList.add('active-list');
-        } else {
+    function loadList(listId) {
+        const listData = listMap[listId];
+        const jsonPath = listData.file;
+        mainTitle.textContent = listData.title;
+
+        // Обновляем активную кнопку
+        listButtons.forEach(btn => {
             btn.classList.remove('active-list');
-        }
-    });
+            if (btn.dataset.list === listId) {
+                btn.classList.add('active-list');
+            }
+        });
+        
+        // Очистка предыдущего списка
+        listElement.innerHTML = `<p class="loading-text">Загрузка списка...</p>`;
 
-    // 2. Загрузка данных
-    const listData = await fetchLevelList(listName);
-    
-    // 3. Отображение
-    renderLevelList(listData);
-}
+        fetch(jsonPath)
+            .then(response => {
+                if (!response.ok) {
+                    // Эта ошибка обычно означает "файл не найден" (404)
+                    throw new Error(`Ошибка загрузки данных для ${listId}: Статус ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(levels => {
+                // Очищаем "Загрузка..." и начинаем рендеринг
+                listElement.innerHTML = '';
+                
+                if (levels.length === 0) {
+                    listElement.innerHTML = `<p style="text-align: center;">Список пуст или не содержит уровней.</p>`;
+                    return;
+                }
+                
+                levels.forEach(level => {
+                    const li = document.createElement('li');
+                    li.className = 'level-item';
 
-// ... (обработчики кнопок темы и списка) ...
-listButtons.forEach(button => {
-    button.addEventListener('click', () => {
-        currentList = button.dataset.list;
-        updateLevelList(currentList);
-    });
+                    // Проверка на наличие поля "type"
+                    const levelType = level.type ? `<li><span class="detail-label">Type:</span> ${level.type}</li>` : ''; // УБРАНА ;
+
+                    const isExtreme = level.fps.length > 15 || level.fps.includes('^') || level.fps.includes('↑') || level.fps === 'idk';
+                    const fpsClass = isExtreme ? 'extreme-fps-value' : '';
+                    
+                    li.innerHTML = `
+                        <div class="level-header">
+                            <span class="level-number">${level.number}.</span>
+                            <a href="${level.showcase}" target="_blank" class="level-name">${level.name}</a>
+                            <span class="level-creator">by ${level.creator}</span>
+                        </div>
+                        <ul class="level-details">
+                            <li class="detail-line-full"><span class="detail-label">FPS:</span> <span class="${fpsClass}">${level.fps}</span></li>
+                            
+                            <li class="detail-line-full"><span class="detail-label">ID:</span> ${level.id}</li> <li><span class="detail-label">FV:</span> ${level.fv}</li> ${levelType}
+                            <li>
+                                <a href="${level.showcase}" target="_blank" class="showcase-link">
+                                    Showcase
+                                </a>
+                            </li>
+                        </ul>
+                    `;
+
+                    listElement.appendChild(li);
+                });
+            })
+            .catch(error => {
+                console.error('Ошибка при загрузке списка:', error);
+                listElement.innerHTML = `<p style="color: red; text-align: center;">Ошибка загрузки: Проверьте консоль для получения подробной информации. (Проблема с файлом ${jsonPath}).</p>`;
+            });
+    }
 });
-// ... (loadTheme и инициализация) ...
-
-// Инициализация
-loadTheme(); 
-updateLevelList(
-    currentList);
