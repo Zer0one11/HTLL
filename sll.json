@@ -12,7 +12,7 @@
   {
     "number": "2",
     "name": "sll moment",
-    "creator": "mo",
+    "creator": "Mo",
     "fps": "100000",
     "id": "128402122",
     "fv": "oqosisiwso11",
@@ -20,9 +20,19 @@
     "showcase": "https://vt.tiktok.com/ZSfrJkemU/"
 },
   {
+    "number": "3",
+    "name": "TUNDRA",
+    "creator": "XAHCEL",
+    "fps": "54000",
+    "id": "127688481",
+    "fv": "Gdomeshka",
+    "type": "none",
+    "showcase": "https://vm.tiktok.com/ZMAGrcbtQ/"
+},
+  {
     "number": 4,
     "name": "DOY1RK CENZURA",
-    "creator": "Прятчи",
+    "creator": "Прячти",
     "fps": "5000",
     "id": "127682409",
     "fv": "Pizzagdpls",
@@ -39,14 +49,4 @@
     "type": "none",
     "showcase": "https://youtu.be/wYBN0MfubUA"
   },
-  {
-    "number": "3",
-    "name": "TUNDRA",
-    "creator": "XAHCEL",
-    "fps": "54000",
-    "id": "127688481",
-    "fv": "Gdomeshka",
-    "type": "none",
-    "showcase": "https://vm.tiktok.com/ZMAGrcbtQ/"
-  }
 ]
