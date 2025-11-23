@@ -1,6 +1,16 @@
 [
- {
+  {
     "number": 1,
+    "name": "Sequence Shiver",
+    "creator": "HELFZz",
+    "fps": "2 cps for 10^(10^9.011364151338173)",
+    "id": "GMD",
+    "fv": "HELFZz",
+    "type": "Sequence Stack",
+    "showcase": "https://youtu.be/DvZfDaw3dqc?si=1IN3yxZjcB4xw8A0"
+ }
+ {
+    "number": 2,
     "name": "SWAM96",
     "creator": "HELFZz",
     "fps": "7.108*10⁹⁶³³¹",
@@ -10,7 +20,7 @@
     "showcase": "https://vt.tiktok.com/ZSfR3RUVq/"
  },
  {
-    "number": 2,
+    "number": 3,
     "name": "SadPPLL",
     "creator": "HELFZz and nojjel",
     "fps": "3cps for 9*10⁸⁰⁴",
@@ -20,7 +30,7 @@
     "showcase": "https://youtu.be/Yfyc54jKrrY?si=rdgwtndS1MQkLaE-"
   },
   {
-    "number": 3,
+    "number": 4,
     "name": "TWO",
     "creator": "HELFZz",
     "fps": "((2³²)⁴⁵⁰)*50³²",
@@ -30,7 +40,7 @@
     "showcase": "https://vt.tiktok.com/ZSU33fxEo/"
   },
   {
-    "number": 4,
+    "number": 5,
     "name": "iron pickup",
     "creator": "Прячти",
     "fps": "5.188*10³⁵³",
@@ -40,7 +50,7 @@
     "showcase": "https://vt.tiktok.com/ZSy4FKBMA/"
   },
   {
-    "number": 5,
+    "number": 6,
     "name": "OUTBOUND",
     "creator": "HELFZz",
     "fps": "2²⁵*30",
@@ -50,7 +60,7 @@
     "showcase": "https://vt.tiktok.com/ZSU33T6Pt/"
   },
   {
-    "number": 6,
+    "number": 7,
     "name": "Limbo type shi 3",
     "creator": "Прячти",
     "fps": "~1.35*10²⁷⁰",
@@ -60,7 +70,7 @@
     "showcase": "https://vt.tiktok.com/ZSyASkajq/"
   },
   {
-    "number": 7,
+    "number": 8,
     "name": "Unnamed pofik",
     "creator": "kafeechek234",
     "fps": "2³²",
