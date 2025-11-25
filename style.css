@@ -62,16 +62,16 @@
     --color-link-text: #666666;
 }
 
-/* Theme Vanta (Ванта-Тёмная) - С ФИОЛЕТОВЫМ АКЦЕНТОМ */
+/* Theme Vanta (Ванта-Тёмная) - ВСЕ АКЦЕНТЫ РАДУЖНЫЕ */
 .theme-vanta {
     --bg-main: #000000; 
     --bg-card: #0c0c0c; 
     --border-card: #222222;
     --color-text: #f0f0f0;
-    --color-accent-primary: #8e44ad; /* ОСНОВНОЙ ФИОЛЕТОВЫЙ */
-    --color-accent-light: #c39bd3; /* СВЕТЛЫЙ ФИОЛЕТОВЫЙ */
-    --shadow-color: rgba(142, 68, 173, 0.4);
-    --color-link-text: #a0a0a0;
+    /* В этой теме accent-primary и accent-light будут управляться градиентами */
+    --color-accent-primary: #8e44ad; /* Оставляем как запасной, хотя он будет переопределен */
+    --color-accent-light: #c39bd3; /* Оставляем как запасной, хотя он будет переопределен */
+    --shadow-color: rgba(142, 68, 173, 0.4); /* Также будет переопределен */
 }
 
 /* ==================================== */
@@ -212,39 +212,6 @@ main {
     border-left-color: var(--color-accent-light);
 }
 
-.theme-vanta .level-item {
-    border-left: none; 
-    padding: 15px 20px 15px 25px; 
-}
-
-.theme-vanta .level-item::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 5px; 
-    height: 100%;
-    border-radius: 8px 0 0 8px;
-    background: linear-gradient(
-        to bottom, 
-        #ff0000 0%,     
-        #ff7f00 14%,    
-        #ffff00 28%,    
-        #00ff00 42%,    
-        #0000ff 56%,    
-        #4b0082 70%,    
-        #9400d3 84%,    
-        #ff0000 100%    
-    );
-    background-size: 100% 700%; 
-    animation: rainbow-shift 25s linear infinite; 
-}
-
-.theme-vanta .level-item:hover {
-    border-left-color: transparent; 
-}
-
-
 .level-header {
     display: flex;
     align-items: baseline;
@@ -311,4 +278,210 @@ main {
 .showcase-link:hover {
     text-decoration: underline;
     color: var(--color-accent-light);
+}
+
+
+/* ==================================== */
+/* 4. СПЕЦИАЛЬНЫЕ СТИЛИ ДЛЯ THEME-VANTA (РАДУЖНЫЕ АКЦЕНТЫ) */
+/* ==================================== */
+
+.theme-vanta header {
+    border-bottom: 3px solid transparent; /* Убираем статическую границу */
+    position: relative;
+    overflow: hidden; /* Обрезаем градиент за пределами header */
+}
+
+.theme-vanta header::before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 3px; /* Высота радужной полоски */
+    background: linear-gradient(to right, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #9400d3, #ff0000);
+    background-size: 200% 100%; /* Увеличиваем размер для анимации */
+    animation: rainbow-horizontal-shift 15s linear infinite; /* Анимация по горизонтали */
+}
+
+/* Новая анимация для горизонтального радужного смещения */
+@keyframes rainbow-horizontal-shift {
+    0% { background-position: 0% 0%; }
+    100% { background-position: 200% 0%; }
+}
+
+.theme-vanta .main-title {
+    background: linear-gradient(to right, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #9400d3);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-fill-color: transparent;
+    background-size: 200% auto;
+    animation: rainbow-horizontal-shift 10s linear infinite;
+    text-shadow: none; /* Убираем статичную тень, будет градиентная */
+}
+
+.theme-vanta .main-title::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to right, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #9400d3);
+    background-size: 200% auto;
+    animation: rainbow-horizontal-shift 10s linear infinite;
+    filter: blur(10px); /* Эффект свечения */
+    opacity: 0.5;
+    z-index: -1; /* Помещаем под текст */
+}
+
+.theme-vanta .channel-link {
+    color: transparent; /* Делаем текст прозрачным, чтобы видеть градиент */
+    background: linear-gradient(to right, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #9400d3);
+    background-size: 200% 100%;
+    animation: rainbow-horizontal-shift 12s linear infinite;
+    -webkit-background-clip: text; /* Для текста */
+    background-clip: text;
+    -webkit-text-fill-color: transparent; /* Для текста */
+    text-fill-color: transparent;
+    border: 2px solid transparent; /* Убираем статичный бордер */
+    position: relative;
+    overflow: hidden;
+    box-shadow: none;
+}
+
+.theme-vanta .channel-link::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 6px;
+    padding: 2px; /* Ширина обводки */
+    background: linear-gradient(to right, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #9400d3);
+    background-size: 200% 100%;
+    animation: rainbow-horizontal-shift 12s linear infinite;
+    -webkit-mask: 
+        linear-gradient(#fff 0 0) content-box, 
+        linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+}
+
+.theme-vanta .list-button,
+.theme-vanta .theme-button {
+    color: transparent;
+    background: linear-gradient(to right, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #9400d3);
+    background-size: 200% 100%;
+    animation: rainbow-horizontal-shift 10s linear infinite;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-fill-color: transparent;
+    border: 1px solid transparent; /* Убираем статичный бордер */
+    position: relative;
+    overflow: hidden;
+}
+
+.theme-vanta .list-button::before,
+.theme-vanta .theme-button::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 4px;
+    padding: 1px; /* Ширина обводки */
+    background: linear-gradient(to right, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #9400d3);
+    background-size: 200% 100%;
+    animation: rainbow-horizontal-shift 10s linear infinite;
+    -webkit-mask: 
+        linear-gradient(#fff 0 0) content-box, 
+        linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+}
+
+
+.theme-vanta .active-list, 
+.theme-vanta .active-theme {
+    background-color: transparent !important; /* Отключаем фоновый цвет */
+    color: transparent !important; /* Отключаем статичный цвет текста */
+    position: relative; /* Чтобы псевдоэлементы работали */
+}
+
+.theme-vanta .active-list::after,
+.theme-vanta .active-theme::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 4px; /* Такой же, как у кнопки */
+    background: linear-gradient(to right, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #9400d3);
+    background-size: 200% 100%;
+    animation: rainbow-horizontal-shift 10s linear infinite;
+    z-index: -1; /* Помещаем под текст */
+}
+
+.theme-vanta .list-button:hover,
+.theme-vanta .theme-button:hover {
+    background-color: transparent; /* Отключаем статичный hover */
+    color: transparent; /* Отключаем статичный hover */
+}
+
+.theme-vanta .level-item {
+    border-left: none; 
+    padding: 15px 20px 15px 25px; 
+}
+
+.theme-vanta .level-item::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 5px; 
+    height: 100%;
+    border-radius: 8px 0 0 8px;
+    background: linear-gradient(
+        to bottom, 
+        #ff0000 0%,     
+        #ff7f00 14%,    
+        #ffff00 28%,    
+        #00ff00 42%,    
+        #0000ff 56%,    
+        #4b0082 70%,    
+        #9400d3 84%,    
+        #ff0000 100%    
+    );
+    background-size: 100% 700%; 
+    animation: rainbow-shift 25s linear infinite; 
+}
+
+.theme-vanta .level-item:hover {
+    border-left-color: transparent; 
+}
+
+.theme-vanta .level-number {
+    color: transparent;
+    background: linear-gradient(to right, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #9400d3);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-fill-color: transparent;
+    background-size: 200% 100%;
+    animation: rainbow-horizontal-shift 10s linear infinite;
+}
+
+.theme-vanta .level-name:hover {
+    color: transparent;
+    background: linear-gradient(to right, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #9400d3);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-fill-color: transparent;
+    background-size: 200% 100%;
+    animation: rainbow-horizontal-shift 10s linear infinite;
+}
+
+.theme-vanta .detail-label {
+    color: transparent;
+    background: linear-gradient(to right, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #9400d3);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-fill-color: transparent;
+    background-size: 200% 100%;
+    animation: rainbow-horizontal-shift 10s linear infinite;
 }
