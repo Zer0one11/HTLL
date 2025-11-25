@@ -11,7 +11,8 @@ document.addEventListener('DOMContentLoaded', () => {
         'ppll': { file: 'ppll.json', title: 'PPLL LIST' },
         'sll': { file: 'sll.json', title: 'SLL LIST' },
         'ill': { file: 'ill.json', title: 'ILL LIST' },
-        'inf': { file: 'inf.json', title: 'INF LIST' }
+        'inf': { file: 'inf.json', title: 'INF LIST' },
+        'scl': { file: 'scl.json', title: 'SCL LIST' } // ДОБАВЛЕНА НОВАЯ СЕКЦИЯ
     };
 
     let currentListId = localStorage.getItem('currentListId') || 'levels';
@@ -31,6 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     function setTheme(theme) {
+        // Удаляем старый класс темы и добавляем новый
         body.className = body.className.split(' ').filter(c => !c.startsWith('theme-')).join(' ');
         body.classList.add(`theme-${theme}`);
         themeButtons.forEach(btn => {
@@ -98,7 +100,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     li.className = 'level-item';
 
                     // Проверка на наличие поля "type"
-                    const levelType = level.type ? `<li><span class="detail-label">Type:</span> ${level.type}</li>` : ''; // УБРАНА ;
+                    const levelType = level.type ? `<li><span class="detail-label">Type:</span> ${level.type}</li>` : ''; 
 
                     const isExtreme = level.fps.length > 15 || level.fps.includes('^') || level.fps.includes('↑') || level.fps === 'idk';
                     const fpsClass = isExtreme ? 'extreme-fps-value' : '';
