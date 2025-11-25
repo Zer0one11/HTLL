@@ -2,25 +2,85 @@
 /* 1. CSS Переменные (Цвета)            */
 /* ==================================== */
 
-/* ... (Переменные тем остаются без изменений) ... */
-
 :root {
+    /* Базовые цвета для темной схемы (если класс темы не применен) */
     --bg-main: #121212;
     --bg-card: #1e1e1e;
     --border-card: #333;
     --color-text: #e0e0e0;
+    --color-success: #4CAF50;
+    --color-link-text: #a0a0a0;
+    
+    /* Акцентные цвета по умолчанию (Blue) */
     --color-accent-primary: #4a90e2; 
     --color-accent-light: #74aeff;
-    --color-success: #4CAF50;
     --shadow-color: rgba(74, 144, 226, 0.5);
+}
+
+/* Theme Blue (Синяя) - Ваши исходные акценты */
+.theme-blue {
+    --color-accent-primary: #4a90e2;
+    --color-accent-light: #74aeff;
+    --shadow-color: rgba(74, 144, 226, 0.5);
+}
+
+/* Theme Purple (Фиолетовая) - Пример */
+.theme-purple {
+    --color-accent-primary: #9b59b6; 
+    --color-accent-light: #c39bd3;
+    --shadow-color: rgba(155, 89, 182, 0.5);
+}
+
+/* Theme Yellow (Жёлтая) - Пример */
+.theme-yellow {
+    --color-accent-primary: #f1c40f; 
+    --color-accent-light: #f7dc6f;
+    --shadow-color: rgba(241, 196, 15, 0.5);
+}
+
+/* Theme Green (Зелёная) - Пример */
+.theme-green {
+    --color-accent-primary: #2ecc71; 
+    --color-accent-light: #58d68d;
+    --shadow-color: rgba(46, 204, 113, 0.5);
+}
+
+/* Theme Dark (Тёмная) - Более нейтральный темный акцент */
+.theme-dark {
+    --color-accent-primary: #e74c3c;
+    --color-accent-light: #f5b7b1;
+    --shadow-color: rgba(231, 76, 60, 0.5);
+}
+
+/* Theme Light (Светлая) - Инвертированные основные цвета */
+.theme-light {
+    --bg-main: #ffffff;
+    --bg-card: #f8f8f8;
+    --border-card: #dddddd;
+    --color-text: #333333;
+    --color-accent-primary: #3498db; 
+    --color-accent-light: #5dade2;
+    --shadow-color: rgba(52, 152, 219, 0.5);
+    --color-link-text: #666666;
+}
+
+/* Theme Vanta (Ванта-Тёмная) - НОВАЯ, ОЧЕНЬ ТЁМНАЯ ТЕМА */
+.theme-vanta {
+    --bg-main: #000000; 
+    --bg-card: #0c0c0c; 
+    --border-card: #222222;
+    --color-text: #f0f0f0;
+    --color-accent-primary: #e8a049; /* Золотистый/Оранжевый акцент */
+    --color-accent-light: #f5c48b;
+    --shadow-color: rgba(232, 160, 73, 0.4);
     --color-link-text: #a0a0a0;
 }
-/* ... (Остальные темы theme-purple, theme-yellow, и т.д. остаются без изменений) ... */
-
 
 /* ==================================== */
 /* 2. Базовые Стили и Новая Разметка Header */
 /* ==================================== */
+
+/* ... (Остальные базовые стили остаются без изменений) ... */
 
 body {
     font-family: 'Montserrat', sans-serif;
@@ -74,25 +134,23 @@ header {
     box-shadow: 0 0 15px var(--color-accent-primary); 
 }
 
-/* Стили для переключателя листов (TPLL, PPLL, SLL, INF) */
+/* Стили для переключателя листов */
 .list-switcher {
     padding: 10px 0 15px;
-    /* Размещение блока согласно макету (под ссылкой на канал) */
     width: 100%;
-    max-width: 600px; /* Ограничиваем ширину для лучшего вида */
+    max-width: 750px; /* Увеличена ширина для новой кнопки SCL */
     display: flex;
     justify-content: center;
     flex-wrap: wrap;
-    margin-bottom: 10px; /* Отступ от темы */
+    margin-bottom: 10px;
 }
 
-/* Стили для переключателя тем (Смещен в правый угол) */
+/* Стили для переключателя тем */
 .theme-switcher {
     padding: 10px 0 10px;
     width: 100%;
-    /* Используем Flexbox для размещения кнопок тем вправо */
     display: flex;
-    justify-content: flex-end; /* Сместить содержимое вправо */
+    justify-content: flex-end; 
     flex-wrap: wrap;
     max-width: 1000px;
     padding-right: 20px;
@@ -124,8 +182,16 @@ header {
     color: var(--bg-main);
 }
 
-/* Стили для списка уровней (level-item, level-details и т.д. остаются без изменений) */
-/* ... (Остальной CSS, связанный с карточками уровней, остается без изменений) ... */
+
+/* ==================================== */
+/* 3. Стили Карточек Уровней и РАДУЖНАЯ ГРАНЬ */
+/* ==================================== */
+
+/* Keyframes для плавной анимации радужного градиента */
+@keyframes rainbow-shift {
+    0% { background-position: 0% 0%; }
+    100% { background-position: 0% 100%; } 
+}
 
 main {
     max-width: 1000px;
@@ -141,18 +207,46 @@ main {
 .level-item {
     background-color: var(--bg-card);
     border: 1px solid var(--border-card);
-    border-left: 5px solid var(--color-accent-primary);
-    padding: 15px 20px;
+    border-left: none; /* Удаляем старую границу для псевдоэлемента */
+    position: relative;
+    padding: 15px 20px 15px 25px; /* Увеличиваем левый отступ для границы */
     margin-bottom: 15px;
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    transition: transform 0.2s, box-shadow 0.2s, border-left-color 0.3s;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+/* Реализация радужной грани с помощью псевдоэлемента ::before */
+.level-item::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 5px; /* Ширина грани */
+    height: 100%;
+    border-radius: 8px 0 0 8px;
+    /* Создаем длинный вертикальный радужный градиент */
+    background: linear-gradient(
+        to bottom, 
+        #ff0000 0%,     /* Красный */
+        #ff7f00 14%,    /* Оранжевый */
+        #ffff00 28%,    /* Желтый */
+        #00ff00 42%,    /* Зеленый */
+        #0000ff 56%,    /* Синий */
+        #4b0082 70%,    /* Индиго */
+        #9400d3 84%,    /* Фиолетовый */
+        #ff0000 100%    /* Снова Красный для плавного зацикливания */
+    );
+    /* Растягиваем градиент по вертикали, чтобы получить плавный переход */
+    background-size: 100% 700%; 
+    /* Анимируем градиент со скоростью 25 секунд */
+    animation: rainbow-shift 25s linear infinite; 
 }
 
 .level-item:hover {
     transform: translateY(-3px);
     box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
-    border-left-color: var(--color-accent-light);
+    /* border-left-color больше не нужен, т.к. используется анимация */
 }
 
 .level-header {
