@@ -17,7 +17,7 @@
     --shadow-color: rgba(74, 144, 226, 0.5);
 }
 
-/* Theme Blue (Синяя) - Ваши исходные акценты */
+/* Theme Blue (Синяя) */
 .theme-blue {
     --color-accent-primary: #4a90e2;
     --color-accent-light: #74aeff;
@@ -64,14 +64,14 @@
     --color-link-text: #666666;
 }
 
-/* Theme Vanta (Ванта-Тёмная) - НОВАЯ, ОЧЕНЬ ТЁМНАЯ ТЕМА */
+/* Theme Vanta (Ванта-Тёмная) - ОЧЕНЬ ТЁМНАЯ ТЕМА С ФИОЛЕТОВЫМ АКЦЕНТОМ */
 .theme-vanta {
     --bg-main: #000000; 
     --bg-card: #0c0c0c; 
     --border-card: #222222;
     --color-text: #f0f0f0;
     --color-accent-primary: #e8a049; /* Золотистый/Оранжевый акцент */
-    --color-accent-light: #f5c48b;
+    --color-accent-light: #8e44ad; /* Фиолетовый акцент */
     --shadow-color: rgba(232, 160, 73, 0.4);
     --color-link-text: #a0a0a0;
 }
@@ -79,8 +79,6 @@
 /* ==================================== */
 /* 2. Базовые Стили и Новая Разметка Header */
 /* ==================================== */
-
-/* ... (Остальные базовые стили остаются без изменений) ... */
 
 body {
     font-family: 'Montserrat', sans-serif;
@@ -97,7 +95,6 @@ header {
     padding: 20px 0;
     text-align: center;
     border-bottom: 3px solid var(--color-accent-primary);
-    /* Используем Flexbox для размещения переключателей */
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -138,7 +135,7 @@ header {
 .list-switcher {
     padding: 10px 0 15px;
     width: 100%;
-    max-width: 750px; /* Увеличена ширина для новой кнопки SCL */
+    max-width: 750px; 
     display: flex;
     justify-content: center;
     flex-wrap: wrap;
@@ -184,7 +181,7 @@ header {
 
 
 /* ==================================== */
-/* 3. Стили Карточек Уровней и РАДУЖНАЯ ГРАНЬ */
+/* 3. Стили Карточек Уровней и ГРАНИ */
 /* ==================================== */
 
 /* Keyframes для плавной анимации радужного градиента */
@@ -204,28 +201,40 @@ main {
     padding: 0;
 }
 
+/* Стили по умолчанию для всех карточек (статичная граница) */
 .level-item {
     background-color: var(--bg-card);
     border: 1px solid var(--border-card);
-    border-left: none; /* Удаляем старую границу для псевдоэлемента */
+    border-left: 5px solid var(--color-accent-primary); /* Статичная граница */
     position: relative;
-    padding: 15px 20px 15px 25px; /* Увеличиваем левый отступ для границы */
+    padding: 15px 20px; 
     margin-bottom: 15px;
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    transition: transform 0.2s, box-shadow 0.2s;
+    transition: transform 0.2s, box-shadow 0.2s, border-left-color 0.3s;
 }
 
-/* Реализация радужной грани с помощью псевдоэлемента ::before */
-.level-item::before {
+/* Hover эффект для статических границ */
+.level-item:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
+    border-left-color: var(--color-accent-light);
+}
+
+/* Стили для РАДУЖНОЙ ГРАНИ (только в Vanta-теме) */
+.theme-vanta .level-item {
+    border-left: none; /* Отключаем статичную границу */
+    padding: 15px 20px 15px 25px; /* Увеличиваем левый отступ для радуги */
+}
+
+.theme-vanta .level-item::before {
     content: '';
     position: absolute;
     top: 0;
     left: 0;
-    width: 5px; /* Ширина грани */
+    width: 5px; 
     height: 100%;
     border-radius: 8px 0 0 8px;
-    /* Создаем длинный вертикальный радужный градиент */
     background: linear-gradient(
         to bottom, 
         #ff0000 0%,     /* Красный */
@@ -237,17 +246,15 @@ main {
         #9400d3 84%,    /* Фиолетовый */
         #ff0000 100%    /* Снова Красный для плавного зацикливания */
     );
-    /* Растягиваем градиент по вертикали, чтобы получить плавный переход */
     background-size: 100% 700%; 
-    /* Анимируем градиент со скоростью 25 секунд */
     animation: rainbow-shift 25s linear infinite; 
 }
 
-.level-item:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
-    /* border-left-color больше не нужен, т.к. используется анимация */
+/* Отключаем изменение цвета границы при наведении для Vanta-темы, так как радуга уже есть */
+.theme-vanta .level-item:hover {
+    border-left-color: transparent; 
 }
+
 
 .level-header {
     display: flex;
