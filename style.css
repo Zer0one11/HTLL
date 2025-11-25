@@ -3,7 +3,6 @@
 /* ==================================== */
 
 :root {
-    /* Базовые цвета для темной схемы (если класс темы не применен) */
     --bg-main: #121212;
     --bg-card: #1e1e1e;
     --border-card: #333;
@@ -11,7 +10,6 @@
     --color-success: #4CAF50;
     --color-link-text: #a0a0a0;
     
-    /* Акцентные цвета по умолчанию (Blue) */
     --color-accent-primary: #4a90e2; 
     --color-accent-light: #74aeff;
     --shadow-color: rgba(74, 144, 226, 0.5);
@@ -64,15 +62,15 @@
     --color-link-text: #666666;
 }
 
-/* Theme Vanta (Ванта-Тёмная) - ОЧЕНЬ ТЁМНАЯ ТЕМА С ФИОЛЕТОВЫМ АКЦЕНТОМ */
+/* Theme Vanta (Ванта-Тёмная) - С ФИОЛЕТОВЫМ АКЦЕНТОМ */
 .theme-vanta {
     --bg-main: #000000; 
     --bg-card: #0c0c0c; 
     --border-card: #222222;
     --color-text: #f0f0f0;
-    --color-accent-primary: #e8a049; /* Золотистый/Оранжевый акцент */
-    --color-accent-light: #8e44ad; /* Фиолетовый акцент */
-    --shadow-color: rgba(232, 160, 73, 0.4);
+    --color-accent-primary: #8e44ad; /* ОСНОВНОЙ ФИОЛЕТОВЫЙ */
+    --color-accent-light: #c39bd3; /* СВЕТЛЫЙ ФИОЛЕТОВЫЙ */
+    --shadow-color: rgba(142, 68, 173, 0.4);
     --color-link-text: #a0a0a0;
 }
 
@@ -131,7 +129,6 @@ header {
     box-shadow: 0 0 15px var(--color-accent-primary); 
 }
 
-/* Стили для переключателя листов */
 .list-switcher {
     padding: 10px 0 15px;
     width: 100%;
@@ -142,7 +139,6 @@ header {
     margin-bottom: 10px;
 }
 
-/* Стили для переключателя тем */
 .theme-switcher {
     padding: 10px 0 10px;
     width: 100%;
@@ -154,7 +150,6 @@ header {
     box-sizing: border-box;
 }
 
-/* Общие стили для кнопок (и листов, и тем) */
 .list-button, .theme-button {
     background-color: var(--bg-card);
     color: var(--color-text);
@@ -167,7 +162,6 @@ header {
     font-size: 0.8em;
 }
 
-/* Активные кнопки */
 .active-list, .active-theme {
     background-color: var(--color-accent-primary);
     color: var(--bg-main) !important;
@@ -184,7 +178,6 @@ header {
 /* 3. Стили Карточек Уровней и ГРАНИ */
 /* ==================================== */
 
-/* Keyframes для плавной анимации радужного градиента */
 @keyframes rainbow-shift {
     0% { background-position: 0% 0%; }
     100% { background-position: 0% 100%; } 
@@ -201,11 +194,10 @@ main {
     padding: 0;
 }
 
-/* Стили по умолчанию для всех карточек (статичная граница) */
 .level-item {
     background-color: var(--bg-card);
     border: 1px solid var(--border-card);
-    border-left: 5px solid var(--color-accent-primary); /* Статичная граница */
+    border-left: 5px solid var(--color-accent-primary); 
     position: relative;
     padding: 15px 20px; 
     margin-bottom: 15px;
@@ -214,17 +206,15 @@ main {
     transition: transform 0.2s, box-shadow 0.2s, border-left-color 0.3s;
 }
 
-/* Hover эффект для статических границ */
 .level-item:hover {
     transform: translateY(-3px);
     box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
     border-left-color: var(--color-accent-light);
 }
 
-/* Стили для РАДУЖНОЙ ГРАНИ (только в Vanta-теме) */
 .theme-vanta .level-item {
-    border-left: none; /* Отключаем статичную границу */
-    padding: 15px 20px 15px 25px; /* Увеличиваем левый отступ для радуги */
+    border-left: none; 
+    padding: 15px 20px 15px 25px; 
 }
 
 .theme-vanta .level-item::before {
@@ -237,20 +227,19 @@ main {
     border-radius: 8px 0 0 8px;
     background: linear-gradient(
         to bottom, 
-        #ff0000 0%,     /* Красный */
-        #ff7f00 14%,    /* Оранжевый */
-        #ffff00 28%,    /* Желтый */
-        #00ff00 42%,    /* Зеленый */
-        #0000ff 56%,    /* Синий */
-        #4b0082 70%,    /* Индиго */
-        #9400d3 84%,    /* Фиолетовый */
-        #ff0000 100%    /* Снова Красный для плавного зацикливания */
+        #ff0000 0%,     
+        #ff7f00 14%,    
+        #ffff00 28%,    
+        #00ff00 42%,    
+        #0000ff 56%,    
+        #4b0082 70%,    
+        #9400d3 84%,    
+        #ff0000 100%    
     );
     background-size: 100% 700%; 
     animation: rainbow-shift 25s linear infinite; 
 }
 
-/* Отключаем изменение цвета границы при наведении для Vanta-темы, так как радуга уже есть */
 .theme-vanta .level-item:hover {
     border-left-color: transparent; 
 }
