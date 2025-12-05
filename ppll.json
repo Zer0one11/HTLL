@@ -40,7 +40,17 @@
     "showcase": "https://vt.tiktok.com/ZSU33fxEo/"
   },
   {
-    "number": 5,
+    "number": "5",
+    "name": "OUTBOUND 2",
+    "creator": "Fluristpl",
+    "fps": "0.9905*10⁵⁰⁰",
+    "id": "129017300",
+    "fv": "Fluristpl",
+    "type": "Pickup stack",
+    "showcase": "Нет"
+  },
+  {
+    "number": 6,
     "name": "iron pickup",
     "creator": "Прячти",
     "fps": "5.188*10³⁵³",
@@ -50,7 +60,7 @@
     "showcase": "https://vt.tiktok.com/ZSy4FKBMA/"
   },
   {
-    "number": 6,
+    "number": 7,
     "name": "OUTBOUND",
     "creator": "HELFZz",
     "fps": "2²⁵*30",
@@ -60,7 +70,7 @@
     "showcase": "https://vt.tiktok.com/ZSU33T6Pt/"
   },
   {
-    "number": 7,
+    "number": 8,
     "name": "Limbo type shi 3",
     "creator": "Прячти",
     "fps": "~1.35*10²⁷⁰",
@@ -70,7 +80,7 @@
     "showcase": "https://vt.tiktok.com/ZSyASkajq/"
   },
   {
-    "number": 8,
+    "number": 9,
     "name": "Unnamed pofik",
     "creator": "kafeechek234",
     "fps": "2³²",
