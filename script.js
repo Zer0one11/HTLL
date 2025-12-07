@@ -12,7 +12,8 @@ document.addEventListener('DOMContentLoaded', () => {
         'sll': { file: 'sll.json', title: 'SLL LIST' },
         'ill': { file: 'ill.json', title: 'ILL LIST' },
         'inf': { file: 'inf.json', title: 'INF LIST' },
-        'scl': { file: 'scl.json', title: 'SCL LIST' } // ДОБАВЛЕНА НОВАЯ СЕКЦИЯ
+        'scl': { file: 'scl.json', title: 'SCL LIST' },
+        'icl': { file: 'icl.json', title: 'ICL LIST' } // ДОБАВЛЕНО
     };
 
     let currentListId = localStorage.getItem('currentListId') || 'levels';
