@@ -110,7 +110,17 @@
     "showcase": "https://vt.tiktok.com/ZSyASkajq/"
   },
   {
-    "number": 12,
+    "number": "12",
+    "name": "Extra",
+    "creator": "Osirissssss",
+    "fps": "Длина: 1,71396*10^19 секунд, фпс хз меньше 60",
+    "id": "129872342",
+    "fv": "none",
+    "type": "Simulated Unary",
+    "showcase": "https://youtu.be/3lnj7zTl4LI?si=RIVVvUDC2Fl2XnBA"
+  },
+  {
+    "number": 13,
     "name": "Unnamed pofik",
     "creator": "kafeechek234",
     "fps": "2³²",
