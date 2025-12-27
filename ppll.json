@@ -1,16 +1,6 @@
 [
  {
-    "number": "1",
-    "name": "NEBOTbDOMBY",
-    "creator": "dm4k",
-    "fps": "10^(10^14.59492832632675)",
-    "id": "129386306",
-    "fv": "dm4k",
-    "type": "WESB",
-    "showcase": "https://youtu.be/nzyAScabY80?si=nXdme_pl0lBqko5G"
- },
- {
-    "number": 2,
+    "number": 1,
     "name": "Sequence Shiver",
     "creator": "HELFZz",
     "fps": "2 cps for 10^(10^9.011364151338173)",
@@ -18,6 +8,16 @@
     "fv": "HELFZz",
     "type": "Sequence Stack",
     "showcase": "https://youtu.be/DvZfDaw3dqc?si=1IN3yxZjcB4xw8A0"
+ },
+ {
+    "number": "2",
+    "name": "Slow Coming",
+    "creator": "HELFZz and Osirissssss",
+    "fps": "10^10^9.0000",
+    "id": "gmd",
+    "fv": "gmd",
+    "type": "WESB",
+    "showcase": "https://youtu.be/LmnMr9nOt7I?si=RH3Dz2-CA_tYvh9D"
  },
  {
     "number": "3",
