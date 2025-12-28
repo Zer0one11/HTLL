@@ -91,16 +91,6 @@
   },
   {
     "number": 10,
-    "name": "OUTBOUND",
-    "creator": "HELFZz",
-    "fps": "2²⁵*30",
-    "id": "123441213",
-    "fv": "Helfzsasal",
-    "type": "Collision Stack",
-    "showcase": "https://vt.tiktok.com/ZSU33T6Pt/"
-  },
-  {
-    "number": 11,
     "name": "Limbo type shi 3",
     "creator": "Прячти",
     "fps": "~1.35*10²⁷⁰",
@@ -110,17 +100,17 @@
     "showcase": "https://vt.tiktok.com/ZSyASkajq/"
   },
   {
-    "number": "12",
+    "number": "11",
     "name": "Extra",
     "creator": "Osirissssss",
-    "fps": "1,71396*10^19 seconds",
+    "fps": "1,71396*10¹⁹ seconds",
     "id": "129872342",
     "fv": "none",
     "type": "Simulated Unary",
     "showcase": "https://youtu.be/3lnj7zTl4LI?si=RIVVvUDC2Fl2XnBA"
   },
   {
-    "number": 13,
+    "number": 12,
     "name": "Unnamed pofik",
     "creator": "kafeechek234",
     "fps": "2³²",
@@ -128,5 +118,15 @@
     "fv": "kafeechek234",
     "type": "Pickup Stack",
     "showcase": "https://youtu.be/99zABCzYelg?si=PJwSSX5Ri1MxpwvN"
+  },
+  {
+    "number": 13,
+    "name": "OUTBOUND",
+    "creator": "HELFZz",
+    "fps": "1.00663296*10⁹",
+    "id": "123441213",
+    "fv": "Helfzsasal",
+    "type": "Collision Stack",
+    "showcase": "https://vt.tiktok.com/ZSU33T6Pt/"
   }
 ]
