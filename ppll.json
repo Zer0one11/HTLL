@@ -1,6 +1,6 @@
 [
- {
-    "number": "1",
+  {
+    "number": 1,
     "name": "base before based",
     "creator": "HELFZz",
     "fps": "~10^10^14.45",
@@ -8,8 +8,8 @@
     "fv": "HELFZz",
     "type": "Simulated Binary",
     "showcase": "https://vt.tiktok.com/ZS5WtjQLy/"
- },
- {
+  },
+  {
     "number": 2,
     "name": "Sequence Shiver",
     "creator": "HELFZz",
@@ -18,9 +18,9 @@
     "fv": "HELFZz",
     "type": "Sequence Stack",
     "showcase": "https://youtu.be/DvZfDaw3dqc?si=1IN3yxZjcB4xw8A0"
- },
- {
-    "number": "3",
+  },
+  {
+    "number": 3,
     "name": "Slow Coming",
     "creator": "HELFZz & Osirissssss",
     "fps": "~10^10^9",
@@ -28,9 +28,9 @@
     "fv": "gmd",
     "type": "WESB",
     "showcase": "https://youtu.be/LmnMr9nOt7I?si=RH3Dz2-CA_tYvh9D"
- },
- {
-    "number": "4",
+  },
+  {
+    "number": 4,
     "name": "DoraNePPLL",
     "creator": "dm4k",
     "fps": "~10^10^5.253233983197905",
@@ -38,8 +38,8 @@
     "fv": "dm4k",
     "type": "Sequence Stack",
     "showcase": "https://youtu.be/-cVK-BHvJvk?si=-HF6qBB5azQU2LSb"
- },
- {
+  },
+  {
     "number": 5,
     "name": "SWAM96",
     "creator": "HELFZz",
@@ -48,8 +48,8 @@
     "fv": "HELFZz",
     "type": "Pickup Stack",
     "showcase": "https://vt.tiktok.com/ZSfR3RUVq/"
- },
- {
+  },
+  {
     "number": 6,
     "name": "SadPPLL",
     "creator": "HELFZz & nojjel",
@@ -70,27 +70,27 @@
     "showcase": "https://vt.tiktok.com/ZSU33fxEo/"
   },
   {
-    "number": "8",
-    "name": "Victim PPLL",
-    "creator": "Adenlite",
-    "fps": "10³⁸⁵³",
-    "id": "131611400",
-    "fv": "Adenlite",
-    "type": "Groupless Sequence Stack",
-    "showcase": "none"
+    "number": 8,
+    "name": "Victim PPLL",
+    "creator": "Adenlite",
+    "fps": "10³⁸⁵³",
+    "id": "131611400",
+    "fv": "Adenlite",
+    "type": "Groupless Sequence Stack",
+    "showcase": "none"
   },
   {
-    "number": "9",
+    "number": 9,
     "name": "saws",
     "creator": "oilo",
     "fps": "~1.7*10⁴⁴⁹",
     "id": "129252087",
     "fv": "oiloogd",
     "type": "pickup stack",
-    "showcase": ".как отправить пустое эээ"
+    "showcase": "none"
   },
   {
-    "number": "10",
+    "number": 10,
     "name": "OUTBOUND 2",
     "creator": "Fluristpl",
     "fps": "~0.9905*10⁵⁰⁰",
@@ -120,7 +120,7 @@
     "showcase": "https://vt.tiktok.com/ZSyASkajq/"
   },
   {
-    "number": "13",
+    "number": 13,
     "name": "Putin PPLL",
     "creator": "moloko23866",
     "fps": "1 cps for (2³²)²⁰ seconds",
@@ -130,7 +130,7 @@
     "showcase": "https://youtu.be/OhWZijSvLYc?feature=shared"
   },
   {
-    "number": "14",
+    "number": 14,
     "name": "Extra",
     "creator": "Osirissssss",
     "fps": "~1,71396*10¹⁹ seconds",
