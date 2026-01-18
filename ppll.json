@@ -76,7 +76,7 @@
     "fps": "10^3853",
     "id": "131611400",
     "fv": "Adenlite",
-    "type": "Groupless sequence stack+spawn delay",
+    "type": "Groupless Sequence Stack",
     "showcase": "none"
   },
   {
