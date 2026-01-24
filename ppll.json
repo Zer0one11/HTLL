@@ -10,7 +10,7 @@
     "showcase": "https://vt.tiktok.com/ZS5WtjQLy/"
   },
   {
-    "number": "2",
+    "number": 2,
     "name": "SkyLucent",
     "creator": "dm4k",
     "fps": "12 cps for 10^10^13.33 seconds",
@@ -18,7 +18,7 @@
     "fv": "dm4k",
     "type": "Simulated Binary",
     "showcase": "https://youtu.be/hB3rI8_n8nM?si=cWyab1_sPloGS8mw"
-  }
+  },
   {
     "number": 3,
     "name": "Sequence Shiver",
