@@ -1,9 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
     const listElement = document.getElementById('levelList');
-    const body = document.body;
-    const mainTitle = document.querySelector('.main-title');
-    const themeButtons = document.querySelectorAll('.theme-button');
-    const listButtons = document.querySelectorAll('.list-button');
     const snowToggle = document.getElementById('snow-toggle');
     const snowContainer = document.getElementById('snow-container');
 
@@ -17,95 +13,75 @@ document.addEventListener('DOMContentLoaded', () => {
         'icl': { file: 'icl.json', title: 'ICL LIST' }
     };
 
+    // ЗАГРУЗКА НАСТРОЕК (Снег и Тема)
+    const snowSaved = localStorage.getItem('snowEnabled');
+    snowToggle.checked = snowSaved !== 'false'; // По умолчанию true
+
     let currentListId = localStorage.getItem('currentListId') || 'levels';
     setTheme(localStorage.getItem('siteTheme') || 'dark');
 
-    themeButtons.forEach(button => {
+    // Сохранение настройки снега при переключении
+    snowToggle.addEventListener('change', () => {
+        localStorage.setItem('snowEnabled', snowToggle.checked);
+    });
+
+    function setTheme(theme) {
+        document.body.className = `theme-${theme}`;
+        document.querySelectorAll('.theme-button').forEach(btn => {
+            btn.classList.toggle('active-theme', btn.dataset.theme === theme);
+        });
+    }
+
+    document.querySelectorAll('.theme-button').forEach(button => {
         button.addEventListener('click', () => {
             const newTheme = button.dataset.theme;
             setTheme(newTheme);
             localStorage.setItem('siteTheme', newTheme);
-            themeButtons.forEach(btn => btn.classList.remove('active-theme'));
-            button.classList.add('active-theme');
         });
     });
 
-    listButtons.forEach(button => {
+    document.querySelectorAll('.list-button').forEach(button => {
         button.addEventListener('click', () => {
-            currentListId = button.dataset.list;
-            localStorage.setItem('currentListId', currentListId);
-            loadList(currentListId);
-            listButtons.forEach(btn => btn.classList.remove('active-list'));
+            const listId = button.dataset.list;
+            currentListId = listId;
+            localStorage.setItem('currentListId', listId);
+            document.querySelectorAll('.list-button').forEach(btn => btn.classList.remove('active-list'));
             button.classList.add('active-list');
+            loadList(listId);
         });
     });
-
-    function setTheme(themeName) {
-        body.className = `theme-${themeName}`;
-    }
-
-    // ФУНКЦИЯ АВТОМАТИЧЕСКИХ ДОЛЛАРОВ И ТЕКСТА
-    function formatLatex(text) {
-        if (typeof text !== 'string' || text === "none") return text;
-        
-        // Проверяем, есть ли признаки формулы (слэш, степень или нижний индекс)
-        const hasLatex = text.includes('\\') || text.includes('^') || text.includes('_');
-
-        if (hasLatex && !text.startsWith('$')) {
-            let processed = text;
-
-            // Чтобы слова типа "cps", "for", "years" не стали курсивом:
-            // Оборачиваем английские слова (от 3 букв), перед которыми нет слэша, в \text{}
-            processed = processed.replace(/(?<!\\)\b([a-z]{3,})\b/gi, (match) => `\\text{${match}}`);
-            
-            // Оборачиваем итоговый результат в доллары для MathJax
-            return `$${processed}$`;
-        }
-        return text;
-    }
 
     function loadList(listId) {
-        const listConfig = listMap[listId];
-        mainTitle.textContent = listConfig.title;
-        listElement.innerHTML = '<p style="text-align:center;">Загрузка данных...</p>';
+        const config = listMap[listId];
+        document.querySelector('.main-title').innerText = config.title;
+        listElement.innerHTML = '<p style="text-align:center;">Загрузка...</p>';
 
-        fetch(listConfig.file)
-            .then(r => r.json())
+        fetch(config.file + '?t=' + Date.now())
+            .then(response => response.json())
             .then(data => {
                 listElement.innerHTML = '';
+                data.sort((a, b) => parseInt(a.number) - parseInt(b.number));
                 data.forEach(level => {
-                    const li = document.createElement('li');
-                    li.className = 'level-item';
-                    
-                    let typeHtml = (level.type && level.type !== "none") 
-                        ? `<li class="detail-line"><span class="detail-label">Type:</span> ${formatLatex(level.type)}</li>` 
-                        : '';
-
+                    const li = document.createElement('div');
+                    li.className = 'level-card';
+                    // Тут твоя стандартная разметка карточки...
                     li.innerHTML = `
                         <div class="level-header">
                             <span class="level-number">#${level.number}</span>
-                            <div class="level-title-group">
-                                <a href="${level.showcase}" target="_blank" class="level-name">${formatLatex(level.name)}</a>
-                                <span class="level-creator">by ${level.creator}</span>
-                            </div>
+                            <span class="level-name">${level.name}</span>
                         </div>
+                        <div class="level-creator">by ${level.creator}</div>
                         <ul class="level-details">
-                            <li class="detail-line"><span class="detail-label">FPS:</span> <span>${formatLatex(level.fps)}</span></li>
-                            <li class="detail-line"><span class="detail-label">ID:</span> ${level.id}</li> 
-                            <li class="detail-line"><span class="detail-label">FV:</span> ${level.fv}</li> 
-                            ${typeHtml}
+                            <li>FPS: ${level.fps}</li>
+                            <li>ID: ${level.id}</li>
                         </ul>
                     `;
                     listElement.appendChild(li);
                 });
-
-                // Вызываем перерисовку MathJax после того, как карточки добавились в HTML
-                if (window.MathJax && window.MathJax.typesetPromise) {
-                    MathJax.typesetPromise();
-                }
+                if (window.MathJax) MathJax.typesetPromise();
             })
             .catch(err => {
-                listElement.innerHTML = `<p style="text-align:center; color:red;">Ошибка загрузки JSON: ${err.message}</p>`;
+                listElement.innerHTML = `<p style="color:red;">Ошибка: ${err.message}</p>`;
             });
     }
 
