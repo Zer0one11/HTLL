@@ -2,131 +2,194 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HTLL | Admin Panel</title>
-    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&family=Oswald:wght@500&display=swap" rel="stylesheet">
     <style>
-        body { display: flex; justify-content: center; align-items: center; min-height: 100vh; background: #050505; }
-        .admin-container { background: rgba(20, 20, 20, 0.95); border: 1px solid #00ff00; border-radius: 10px; padding: 30px; width: 90%; max-width: 1100px; box-shadow: 0 0 20px rgba(0, 255, 0, 0.2); }
-        h1 { color: #00ff00; text-align: center; text-transform: uppercase; margin-bottom: 20px; font-size: 24px; }
-        input, select { background: #111; border: 1px solid #333; color: #fff; padding: 10px; border-radius: 5px; margin: 5px; font-family: 'Lexend', sans-serif; }
-        input:focus { border-color: #00ff00; outline: none; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; color: #fff; }
-        th { border-bottom: 2px solid #00ff00; padding: 10px; text-align: left; color: #00ff00; }
-        td { border-bottom: 1px solid #222; padding: 8px; }
-        .btn { background: transparent; border: 1px solid #00ff00; color: #00ff00; padding: 10px 20px; cursor: pointer; border-radius: 5px; transition: 0.3s; font-weight: bold; }
-        .btn:hover { background: #00ff00; color: #000; }
-        .btn-del { border-color: #ff4444; color: #ff4444; }
-        .btn-del:hover { background: #ff4444; color: #fff; }
-        #editor-content { display: none; }
+        :root {
+            --bg-main: #050505;
+            --bg-card: rgba(255, 255, 255, 0.03);
+            --color-text: #ffffff;
+            --accent: #888;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--bg-main);
+            color: var(--color-text);
+            margin: 0; padding: 20px;
+            display: flex; justify-content: center; align-items: flex-start; min-height: 100vh;
+        }
+
+        .container {
+            width: 100%; max-width: 900px;
+            background: var(--bg-card);
+            backdrop-filter: blur(12px);
+            border-radius: 20px;
+            padding: 40px;
+            border: 1px solid rgba(255,255,255,0.05);
+            margin-top: 40px;
+        }
+
+        h1 { font-family: 'Oswald', sans-serif; text-transform: uppercase; letter-spacing: 2px; text-align: center; margin-bottom: 30px; }
+
+        /* Логин форма */
+        #auth-form { max-width: 300px; margin: 0 auto; text-align: center; }
+        
+        /* Поля ввода */
+        input, select {
+            width: 100%; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+            color: #fff; padding: 12px; margin: 8px 0; border-radius: 8px; font-family: inherit; box-sizing: border-box;
+        }
+        input:focus { border-color: var(--accent); outline: none; }
+
+        /* Кнопки */
+        .btn {
+            width: 100%; padding: 12px; border: none; border-radius: 8px; cursor: pointer;
+            font-weight: 700; text-transform: uppercase; transition: 0.3s; font-family: 'Oswald', sans-serif;
+        }
+        .btn-primary { background: #fff; color: #000; margin-top: 10px; }
+        .btn-primary:hover { background: #ccc; }
+        .btn-save { background: #222; color: #fff; border: 1px solid #444; margin-top: 20px; }
+        .btn-save:hover { border-color: #fff; }
+
+        /* Сетка добавления уровня */
+        .add-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+            background: rgba(0,0,0,0.2); padding: 20px; border-radius: 12px; margin-bottom: 30px;
+        }
+
+        /* Список уровней */
+        .level-item {
+            display: flex; align-items: center; background: rgba(255,255,255,0.02);
+            padding: 10px 15px; border-radius: 8px; margin-bottom: 8px; border: 1px solid rgba(255,255,255,0.05);
+        }
+        .level-item span { margin-right: 15px; font-weight: 700; color: var(--accent); width: 30px; }
+        .level-item input { margin: 0 5px; padding: 5px 10px; font-size: 0.9rem; }
+        .btn-del { background: #ff4444; color: #fff; width: auto; padding: 5px 10px; font-size: 0.7rem; }
+
+        #admin-panel { display: none; }
     </style>
 </head>
 <body>
-    <div class="admin-container">
-        <div id="auth-section" style="text-align: center;">
-            <h1>Доступ в систему</h1>
-            <input type="password" id="accessCode" placeholder="Введите код...">
-            <button class="btn" onclick="login()">Войти</button>
-        </div>
 
-        <div id="editor-content">
-            <h1>Панель управления HTLL</h1>
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                <select id="fileSelect" onchange="loadData()">
-                    <option value="levels.json">Main List (levels.json)</option>
-                    <option value="ppll.json">PPLL</option>
-                    <option value="scl.json">SCL</option>
-                    <option value="ill.json">ILL</option>
-                    <option value="icl.json">ICL</option>
-                    <option value="sll.json">SLL</option>
-                </select>
-                <button class="btn" onclick="saveData()">🚀 Сохранить в GitHub</button>
-            </div>
-
-            <div style="background: rgba(0,0,0,0.3); padding: 15px; border-radius: 5px; border: 1px dashed #444; margin-bottom: 20px;">
-                <input type="text" id="addName" placeholder="Название">
-                <input type="text" id="addCreator" placeholder="Создатель">
-                <input type="text" id="addFPS" placeholder="FPS (LaTeX)">
-                <input type="text" id="addID" placeholder="ID">
-                <button class="btn" onclick="addLevel()">+ Добавить</button>
-            </div>
-
-            <table id="levelsTable">
-                <thead>
-                    <tr>
-                        <th style="width: 50px;">#</th>
-                        <th>Название</th>
-                        <th>FPS (LaTeX)</th>
-                        <th>Действие</th>
-                    </tr>
-                </thead>
-                <tbody id="tableBody"></tbody>
-            </table>
-        </div>
+<div class="container">
+    <div id="auth-form">
+        <h1>ADMIN ACCESS</h1>
+        <input type="text" id="userLogin" placeholder="Login">
+        <input type="password" id="userPass" placeholder="Password">
+        <button class="btn btn-primary" onclick="doLogin()">Войти</button>
     </div>
 
-    <script>
-        let data = [];
-        const pass = "creep000";
-
-        function login() {
-            if (document.getElementById('accessCode').value === pass) {
-                document.getElementById('auth-section').style.display = 'none';
-                document.getElementById('editor-content').style.display = 'block';
-                loadData();
-            } else { alert("Неверный код!"); }
-        }
-
-        async function loadData() {
-            const file = document.getElementById('fileSelect').value;
-            const res = await fetch(`/api/update?fileName=${file}`);
-            const result = await res.json();
-            data = JSON.parse(result.content);
-            render();
-        }
-
-        function render() {
-            const body = document.getElementById('tableBody');
-            body.innerHTML = '';
-            data.forEach((item, i) => {
-                item.number = (i + 1).toString();
-                body.innerHTML += `
-                    <tr>
-                        <td>${item.number}</td>
-                        <td><input type="text" value="${item.name}" onchange="update(${i}, 'name', this.value)"></td>
-                        <td><input type="text" value="${item.fps}" onchange="update(${i}, 'fps', this.value)"></td>
-                        <td><button class="btn btn-del" onclick="remove(${i})">Удалить</button></td>
-                    </tr>`;
-            });
-        }
-
-        function update(i, k, v) { 
-            if(k === 'fps') v = v.replace(/phi/g, '\\phi').replace(/w/g, '\\omega');
-            data[i][k] = v; 
-        }
-        function remove(i) { data.splice(i, 1); render(); }
+    <div id="admin-panel">
+        <h1>DASHBOARD</h1>
         
-        function addLevel() {
-            data.push({
-                number: "0",
-                name: document.getElementById('addName').value,
-                creator: document.getElementById('addCreator').value,
-                fps: document.getElementById('addFPS').value.replace(/phi/g, '\\phi').replace(/w/g, '\\omega'),
-                id: document.getElementById('addID').value,
-                fv: "None", type: "None", showcase: "none"
-            });
-            render();
-        }
+        <div style="margin-bottom: 20px; display: flex; gap: 10px;">
+            <select id="fileSelect" onchange="fetchData()" style="flex: 2;">
+                <option value="levels.json">TPLL (Main)</option>
+                <option value="ppll.json">PPLL</option>
+                <option value="sll.json">SLL</option>
+                <option value="ill.json">ILL</option>
+                <option value="scl.json">SCL</option>
+                <option value="icl.json">ICL</option>
+            </select>
+            <button class="btn btn-primary" onclick="saveData()" style="flex: 1; margin: 0;">Sync GitHub</button>
+        </div>
 
-        async function saveData() {
-            const file = document.getElementById('fileSelect').value;
-            const res = await fetch('/api/update', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ login: 'HELFZz', password: pass, fileName: file, newData: data })
-            });
-            const resData = await res.json();
-            alert(resData.success ? "Успешно сохранено!" : "Ошибка: " + resData.error);
-        }
-    </script>
+        <div class="add-grid">
+            <input type="number" id="addPos" placeholder="Место в топе (число)">
+            <input type="text" id="addName" placeholder="Название уровня">
+            <input type="text" id="addCreator" placeholder="Автор">
+            <input type="text" id="addFPS" placeholder="ФПС (LaTeX)">
+            <input type="text" id="addID" placeholder="ID">
+            <input type="text" id="addFV" placeholder="ФВ">
+            <input type="text" id="addType" placeholder="Тип">
+            <input type="text" id="addShowcase" placeholder="Шоукейс (URL)">
+            <button class="btn btn-primary" onclick="addLevel()" style="grid-column: span 2;">Добавить уровень в список</button>
+        </div>
+
+        <div id="levels-list">
+            </div>
+    </div>
+</div>
+
+<script>
+    let currentData = [];
+    const AUTH = { login: 'HELFZz', pass: 'creep000' };
+
+    function doLogin() {
+        const l = document.getElementById('userLogin').value;
+        const p = document.getElementById('userPass').value;
+        if (l === AUTH.login && p === AUTH.pass) {
+            document.getElementById('auth-form').style.display = 'none';
+            document.getElementById('admin-panel').style.display = 'block';
+            fetchData();
+        } else { alert('Неверные данные'); }
+    }
+
+    async function fetchData() {
+        const file = document.getElementById('fileSelect').value;
+        const res = await fetch(`/api/update?fileName=${file}`);
+        const result = await res.json();
+        currentData = JSON.parse(result.content);
+        render();
+    }
+
+    function render() {
+        const container = document.getElementById('levels-list');
+        container.innerHTML = '';
+        
+        // Сортировка по полю number
+        currentData.sort((a, b) => parseInt(a.number) - parseInt(b.number));
+
+        currentData.forEach((item, i) => {
+            const div = document.createElement('div');
+            div.className = 'level-item';
+            div.innerHTML = `
+                <span>#${item.number}</span>
+                <input type="text" value="${item.name}" style="flex: 2" onchange="update(${i}, 'name', this.value)">
+                <input type="text" value="${item.fps}" style="flex: 1" onchange="update(${i}, 'fps', this.value)">
+                <button class="btn btn-del" onclick="remove(${i})">DEL</button>
+            `;
+            container.appendChild(div);
+        });
+    }
+
+    function update(i, k, v) { currentData[i][k] = v; }
+    function remove(i) { currentData.splice(i, 1); render(); }
+
+    function addLevel() {
+        const pos = document.getElementById('addPos').value;
+        const newLevel = {
+            number: pos || (currentData.length + 1).toString(),
+            name: document.getElementById('addName').value,
+            creator: document.getElementById('addCreator').value,
+            fps: document.getElementById('addFPS').value,
+            id: document.getElementById('addID').value,
+            fv: document.getElementById('addFV').value,
+            type: document.getElementById('addType').value,
+            showcase: document.getElementById('addShowcase').value
+        };
+        currentData.push(newLevel);
+        render();
+    }
+
+    async function saveData() {
+        const file = document.getElementById('fileSelect').value;
+        const res = await fetch('/api/update', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+                login: AUTH.login, 
+                password: AUTH.pass, 
+                fileName: file, 
+                newData: currentData 
+            })
+        });
+        const resJson = await res.json();
+        alert(resJson.success ? "Успешно синхронизировано!" : "Ошибка: " + resJson.error);
+    }
+</script>
+
 </body>
 </html>
