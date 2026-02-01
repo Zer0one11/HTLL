@@ -1,258 +1,143 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HTLL | Geometry Dash List</title>
-    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;700&display=swap" rel="stylesheet">
+    <title>HTLL</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@100..900&display=swap" rel="stylesheet">
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <style>
-        :root {
-            --accent: #00ff00;
-            --bg: #050505;
-            --panel: rgba(20, 20, 20, 0.8);
-            --shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
-        }
-
-        body {
-            margin: 0;
-            padding: 0;
-            background-color: var(--bg);
-            color: white;
-            font-family: 'Lexend', sans-serif;
-            overflow-x: hidden;
-        }
-
-        /* Фоновый эффект (снег или частицы) */
-        #particles-js {
-            position: fixed;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
-        }
-
-        /* Шапка */
-        header {
-            text-align: center;
-            padding: 60px 20px;
-            background: linear-gradient(to bottom, rgba(0,255,0,0.05), transparent);
-        }
-
-        h1 {
-            font-size: 3rem;
-            margin: 0;
-            text-transform: uppercase;
-            letter-spacing: 5px;
-            color: var(--accent);
-            text-shadow: 0 0 20px rgba(0, 255, 0, 0.4);
-        }
-
-        /* Кнопка Админки */
-        .admin-link {
+        /* Стиль для кнопки админки, соответствующий твоему дизайну */
+        .admin-btn {
             position: fixed;
             top: 20px;
             right: 20px;
-            width: 45px;
-            height: 45px;
-            background: var(--panel);
-            border: 1px solid var(--accent);
-            border-radius: 50%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            cursor: pointer;
-            text-decoration: none;
-            transition: 0.3s;
             z-index: 1000;
-            box-shadow: var(--shadow);
-        }
-
-        .admin-link:hover {
-            background: var(--accent);
-            transform: rotate(90deg);
-        }
-
-        .admin-link svg {
-            fill: var(--accent);
-            width: 24px;
-            height: 24px;
+            opacity: 0.4;
             transition: 0.3s;
-        }
-
-        .admin-link:hover svg {
-            fill: #000;
-        }
-
-        /* Контент и табы */
-        .container {
-            max-width: 1000px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-
-        .tabs {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            margin-bottom: 40px;
-        }
-
-        .tab-btn {
-            background: var(--panel);
-            border: 1px solid #333;
-            color: #888;
-            padding: 12px 25px;
             cursor: pointer;
-            border-radius: 30px;
-            transition: 0.3s;
-            font-weight: bold;
         }
-
-        .tab-btn.active {
-            border-color: var(--accent);
-            color: var(--accent);
-            box-shadow: 0 0 15px rgba(0, 255, 0, 0.2);
+        .admin-btn:hover {
+            opacity: 1;
+            transform: rotate(45deg);
         }
-
-        /* Список уровней */
-        .list-item {
-            background: var(--panel);
-            margin-bottom: 15px;
-            padding: 20px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            border: 1px solid #222;
-            transition: 0.3s;
-            backdrop-filter: blur(10px);
+        .admin-btn img {
+            width: 30px;
+            height: 30px;
+            filter: invert(100%) sepia(0%) saturate(0%) hue-rotate(93deg) brightness(103%) contrast(103%);
         }
-
-        .list-item:hover {
-            border-color: var(--accent);
-            transform: translateX(10px);
-            background: rgba(0, 255, 0, 0.02);
-        }
-
-        .rank {
-            font-size: 2rem;
-            font-weight: bold;
-            color: var(--accent);
-            margin-right: 25px;
-            min-width: 50px;
-        }
-
-        .info { flex-grow: 1; }
-        .info h2 { margin: 0; font-size: 1.4rem; }
-        .info p { margin: 5px 0 0; color: #888; font-size: 0.9rem; }
-
-        .fps-badge {
-            background: rgba(0, 255, 0, 0.1);
-            color: var(--accent);
-            padding: 8px 15px;
-            border-radius: 8px;
-            font-family: monospace;
-            font-size: 1.1rem;
-        }
-
-        /* Загрузка */
-        #loader { text-align: center; padding: 50px; display: none; }
     </style>
-
-    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 </head>
 <body>
+    <canvas id="snowCanvas"></canvas>
 
-<div id="particles-js"></div>
+    <a href="admin.html" class="admin-btn" title="Admin Panel">
+        <img src="https://www.svgrepo.com/show/433303/settings.svg" alt="Settings">
+    </a>
 
-<a href="admin.html" class="admin-link" title="Admin Panel">
-    <svg viewBox="0 0 24 24"><path d="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.07-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61 l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41 h-3.84c-0.24,0-0.43,0.17-0.47,0.41L9.25,5.35C8.66,5.59,8.12,5.92,7.63,6.29L5.24,5.33c-0.22-0.08-0.47,0-0.59,0.22L2.74,8.87 C2.62,9.08,2.66,9.34,2.85,9.48l2.03,1.58C4.84,11.36,4.81,11.69,4.81,12s0.02,0.64,0.07,0.94l-2.03,1.58 c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.54 c0.05,0.24,0.24,0.41,0.48,0.41h3.84c0.24,0,0.44-0.17,0.47-0.41l0.36-2.54c0.59-0.24,1.13-0.56,1.62-0.94l2.39,0.96 c0.22,0.08,0.47,0,0.59-0.22l1.92-3.32c0.12-0.22,0.07-0.47-0.12-0.61L19.14,12.94z M12,15.5c-1.93,0-3.5-1.57-3.5-3.5 s1.57-3.5,3.5-3.5s3.5,1.57,3.5,3.5S13.93,15.5,12,15.5z"/></svg>
-</a>
+    <header>
+        <h1>HTLL</h1>
+        <div class="tabs">
+            <button class="tab-button active" onclick="showTab('levels')">Main List</button>
+            <button class="tab-button" onclick="showTab('ppll')">PPLL</button>
+            <button class="tab-button" onclick="showTab('scl')">SCL</button>
+            <button class="tab-button" onclick="showTab('ill')">ILL</button>
+            <button class="tab-button" onclick="showTab('icl')">ICL</button>
+            <button class="tab-button" onclick="showTab('sll')">SLL</button>
+        </div>
+    </header>
 
-<header>
-    <h1>HTLL List</h1>
-    <p style="color: #666;">The impossible becomes possible</p>
-</header>
+    <main>
+        <div id="levels" class="tab-content active">
+            <div id="levels-container"></div>
+        </div>
+        <div id="ppll" class="tab-content">
+            <div id="ppll-container"></div>
+        </div>
+        <div id="scl" class="tab-content">
+            <div id="scl-container"></div>
+        </div>
+        <div id="ill" class="tab-content">
+            <div id="ill-container"></div>
+        </div>
+        <div id="icl" class="tab-content">
+            <div id="icl-container"></div>
+        </div>
+        <div id="sll" class="tab-content">
+            <div id="sll-container"></div>
+        </div>
+    </main>
 
-<div class="container">
-    <div class="tabs">
-        <button class="tab-btn active" onclick="switchList('levels.json', this)">Main List</button>
-        <button class="tab-btn" onclick="switchList('ppll.json', this)">PPLL</button>
-        <button class="tab-btn" onclick="switchList('scl.json', this)">SCL</button>
-    </div>
-
-    <div id="loader">Загрузка данных...</div>
-    <div id="list-container"></div>
-</div>
-
-<script>
-    let currentFile = 'levels.json';
-
-    async function loadList(fileName) {
-        const container = document.getElementById('list-container');
-        const loader = document.getElementById('loader');
-        
-        loader.style.display = 'block';
-        container.innerHTML = '';
-
-        try {
-            // Добавляем timestamp, чтобы браузер не кешировал старый JSON после админки
-            const response = await fetch(`${fileName}?t=${Date.now()}`);
-            const data = await response.json();
-            
-            loader.style.display = 'none';
-
-            data.forEach(item => {
-                const card = document.createElement('div');
-                card.className = 'list-item';
-                
-                // Форматируем FPS для MathJax
-                const formattedFPS = item.fps.includes('^') || item.fps.includes('\\') 
-                    ? `\\( ${item.fps} \\)` 
-                    : item.fps;
-
-                card.innerHTML = `
-                    <div class="rank">#${item.number}</div>
-                    <div class="info">
-                        <h2>${item.name}</h2>
-                        <p>By ${item.creator} | ID: ${item.id}</p>
-                    </div>
-                    <div class="fps-badge">${formattedFPS}</div>
-                `;
-                container.appendChild(card);
+    <script src="script.js"></script>
+    <script>
+        // Дополнительная логика переключения табов, если она не в script.js
+        function showTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
             });
-
-            // Заставляем MathJax перерисовать новые формулы
+            document.querySelectorAll('.tab-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.getElementById(tabId).classList.add('active');
+            event.currentTarget.classList.add('active');
+            
+            // Перерисовываем MathJax при смене таба
             if (window.MathJax) {
                 MathJax.typesetPromise();
             }
-
-        } catch (error) {
-            container.innerHTML = `<p style="color:red">Ошибка загрузки списка: ${error.message}</p>`;
         }
-    }
 
-    function switchList(file, btn) {
-        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        loadList(file);
-    }
+        // Инициализация снега (из твоего оригинального стиля)
+        const canvas = document.getElementById('snowCanvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
 
-    // Первая загрузка
-    window.onload = () => loadList('levels.json');
-</script>
-
-<script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
-<script>
-    particlesJS("particles-js", {
-        "particles": {
-            "number": { "value": 80 },
-            "color": { "value": "#00ff00" },
-            "shape": { "type": "circle" },
-            "opacity": { "value": 0.2 },
-            "size": { "value": 3 },
-            "move": { "enable": true, "speed": 1 }
+        function resize() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
         }
-    });
-</script>
 
+        window.addEventListener('resize', resize);
+        resize();
+
+        class Particle {
+            constructor() {
+                this.reset();
+            }
+            reset() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 3 + 1;
+                this.speed = Math.random() * 1 + 0.5;
+                this.opacity = Math.random() * 0.5 + 0.3;
+            }
+            update() {
+                this.y += this.speed;
+                if (this.y > canvas.height) this.y = -10;
+            }
+            draw() {
+                ctx.fillStyle = `rgba(255, 255, 255, ${this.opacity})`;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        for (let i = 0; i < 100; i++) particles.push(new Particle());
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(p => {
+                p.update();
+                p.draw();
+            });
+            requestAnimationFrame(animate);
+        }
+        animate();
+    </script>
 </body>
 </html>
