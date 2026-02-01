@@ -93,7 +93,7 @@
     "number": "10",
     "name": "Pulsewidth",
     "creator": "Osirissssss",
-    "fps": "60 \\ cps \\ for \\ ~f_{\\omega \\cdot 496+\\omega}(496) \\ seconds",
+    "fps": "60 \\ cps \\ for \\ ~f_{\\omega 496+\\omega}(496) \\ seconds",
     "id": "116367721",
     "fv": "Osirissssss",
     "type": "PPS (Primitive Pair System)",
