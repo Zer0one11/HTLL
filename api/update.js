@@ -1,10 +1,16 @@
-// api/update.js
 export default async function handler(req, res) {
     const OWNER = 'Zer0one11';
     const REPO = 'HTLL';
     const GITHUB_TOKEN = process.env.GH_TOKEN;
 
     if (!GITHUB_TOKEN) return res.status(500).json({ error: 'GH_TOKEN not found' });
+
+    // Список пользователей прямо в коде
+    const allowedUsers = [
+        { u: 'HELFZz', p: 'creep000' },
+        { u: 'Curruser54', p: '546111' },
+        { u: 'ByHanseLLL', p: '11540hanse' }
+    ];
 
     if (req.method === 'GET') {
         const { fileName } = req.query;
@@ -21,24 +27,16 @@ export default async function handler(req, res) {
     if (req.method === 'POST') {
         const { login, password, fileName, newData } = req.body;
 
-        // ПРОВЕРКА ПОЛЬЗОВАТЕЛЕЙ
-        const allowedUsers = [
-            { u: 'HELFZz', p: 'creep000' },
-            { u: 'Curruser54', p: '546111' },
-            { u: 'ByHanseLLL', p: '11540hanse' }
-        ];
-
         const isValid = allowedUsers.some(user => user.u === login && user.p === password);
         if (!isValid) return res.status(401).json({ error: 'Access Denied' });
 
         try {
-            // Получаем текущий SHA файла
             const getFile = await fetch(`https://api.github.com/repos/${OWNER}/${REPO}/contents/${fileName}`, {
                 headers: { 'Authorization': `Bearer ${GITHUB_TOKEN}` }
             });
             const fileData = await getFile.json();
 
-            // Кодируем данные так, чтобы \\ не превращались в \
+            // Сохраняем с отступами и корректной обработкой слэшей для LaTeX
             const jsonString = JSON.stringify(newData, null, 2);
             const newContentBase64 = btoa(unescape(encodeURIComponent(jsonString)));
 
