@@ -40,7 +40,17 @@
     "showcase": "https://youtu.be/LmnMr9nOt7I?si=RH3Dz2-CA_tYvh9D"
   },
   {
-    "number": 5,
+    "number": "5",
+    "name": "Loppll",
+    "creator": "NererX",
+    "fps": "~10^{524255}",
+    "id": "GMDfile",
+    "fv": "NererX",
+    "type": "Groupless Sequence Stack ",
+    "showcase": "none"
+  },
+  {
+    "number": "6",
     "name": "DoraNePPLL",
     "creator": "dm4k",
     "fps": "~10^{10^{5.253233983197905}}",
@@ -50,7 +60,7 @@
     "showcase": "https://youtu.be/-cVK-BHvJvk?si=-HF6qBB5azQU2LSb"
   },
   {
-    "number": 6,
+    "number": "7",
     "name": "SWAM96",
     "creator": "HELFZz",
     "fps": "~7.108 \\cdot 10^{96331}",
@@ -60,7 +70,7 @@
     "showcase": "https://vt.tiktok.com/ZSfR3RUVq/"
   },
   {
-    "number": 7,
+    "number": "8",
     "name": "SadPPLL",
     "creator": "HELFZz & nojjel",
     "fps": "3 \\ cps \\ for \\ \\sim 9 \\cdot 10^{804}",
@@ -70,7 +80,7 @@
     "showcase": "https://youtu.be/Yfyc54jKrrY?si=rdgwtndS1MQkLaE-"
   },
   {
-    "number": 8,
+    "number": "9",
     "name": "TWO",
     "creator": "HELFZz",
     "fps": "~10^{4390}",
@@ -80,7 +90,7 @@
     "showcase": "https://vt.tiktok.com/ZSU33fxEo/"
   },
   {
-    "number": 9,
+    "number": "10",
     "name": "Victim PPLL",
     "creator": "Adenlite",
     "fps": "10^{3853}",
@@ -90,7 +100,7 @@
     "showcase": "none"
   },
   {
-    "number": 10,
+    "number": "11",
     "name": "saws",
     "creator": "oilo",
     "fps": "~1.7 \\cdot 10^{449}",
@@ -100,7 +110,7 @@
     "showcase": "none"
   },
   {
-    "number": 11,
+    "number": "12",
     "name": "OUTBOUND 2",
     "creator": "Fluristpl",
     "fps": "~0.9905 \\cdot 10^{500}",
@@ -110,7 +120,7 @@
     "showcase": "Нет"
   },
   {
-    "number": 12,
+    "number": "13",
     "name": "iron pickup",
     "creator": "Прячти",
     "fps": "~5.188 \\cdot 10^{353}",
@@ -120,7 +130,7 @@
     "showcase": "https://vt.tiktok.com/ZSy4FKBMA/"
   },
   {
-    "number": 13,
+    "number": "14",
     "name": "Limbo type shi 3",
     "creator": "Прячти",
     "fps": "~1.35 \\cdot 10^{270}",
@@ -130,7 +140,7 @@
     "showcase": "https://vt.tiktok.com/ZSyASkajq/"
   },
   {
-    "number": 14,
+    "number": "15",
     "name": "Putin PPLL",
     "creator": "moloko23866",
     "fps": "1 \\ cps \\ for \\ (2^{32})^{20} \\ sec",
@@ -140,7 +150,7 @@
     "showcase": "https://youtu.be/OhWZijSvLYc?feature=shared"
   },
   {
-    "number": 15,
+    "number": "16",
     "name": "Extra",
     "creator": "Osirissssss",
     "fps": "~1,71396 \\cdot 10^{19} \\ sec",
@@ -150,17 +160,7 @@
     "showcase": "https://youtu.be/3lnj7zTl4LI?si=RIVVvUDC2Fl2XnBA"
   },
   {
-    "number": "16",
-    "name": "Loppll",
-    "creator": "NererX",
-    "fps": "~3×10^{18}",
-    "id": "GMDfile",
-    "fv": "NererX",
-    "type": "Groupless Sequence Stack ",
-    "showcase": "none"
-  },
-  {
-    "number": "17",
+    "number": "18",
     "name": "Unnamed pofik",
     "creator": "kafeechek234",
     "fps": "~2^{32}",
@@ -170,7 +170,7 @@
     "showcase": "https://youtu.be/99zABCzYelg?si=PJwSSX5Ri1MxpwvN"
   },
   {
-    "number": "18",
+    "number": "19",
     "name": "OUTBOUND",
     "creator": "HELFZz",
     "fps": "~1.00663296 \\cdot 10^{9}",
