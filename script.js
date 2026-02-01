@@ -13,18 +13,84 @@ document.addEventListener('DOMContentLoaded', () => {
         'icl': { file: 'icl.json', title: 'ICL LIST' }
     };
 
-    // ЗАГРУЗКА НАСТРОЕК (Снег и Тема)
-    const snowSaved = localStorage.getItem('snowEnabled');
-    snowToggle.checked = snowSaved !== 'false'; // По умолчанию true
+    // --- ЛОГИКА СНЕГА (СОХРАНЕНИЕ) ---
+    const savedSnow = localStorage.getItem('snowEnabled');
+    const isSnowEnabled = savedSnow !== null ? savedSnow === 'true' : true;
+    snowToggle.checked = isSnowEnabled;
 
-    let currentListId = localStorage.getItem('currentListId') || 'levels';
-    setTheme(localStorage.getItem('siteTheme') || 'dark');
-
-    // Сохранение настройки снега при переключении
     snowToggle.addEventListener('change', () => {
         localStorage.setItem('snowEnabled', snowToggle.checked);
     });
 
+    function createSnowflake() {
+        if (!snowToggle.checked) return;
+        const snowflake = document.createElement('div');
+        snowflake.className = 'snowflake';
+        const size = Math.random() * 5 + 4 + 'px';
+        snowflake.style.width = size;
+        snowflake.style.height = size;
+        snowflake.style.left = Math.random() * 100 + 'vw';
+        snowflake.style.animationDuration = Math.random() * 3 + 4 + 's';
+        snowflake.style.opacity = Math.random() * 0.6 + 0.4;
+        snowContainer.appendChild(snowflake);
+        setTimeout(() => snowflake.remove(), 7000);
+    }
+    setInterval(createSnowflake, 150);
+
+    // --- ЗАГРУЗКА СПИСКОВ ---
+    let currentListId = localStorage.getItem('currentListId') || 'levels';
+
+    function loadList(listId) {
+        const config = listMap[listId];
+        document.querySelector('.main-title').innerText = config.title;
+        
+        // Очищаем контейнер полностью перед загрузкой
+        listElement.innerHTML = ''; 
+
+        fetch(config.file + '?t=' + Date.now())
+            .then(response => response.json())
+            .then(data => {
+                // Сортировка по номеру
+                data.sort((a, b) => parseInt(a.number) - parseInt(b.number));
+
+                data.forEach(level => {
+                    const levelCard = document.createElement('div');
+                    levelCard.className = 'level-card';
+                    
+                    // ВОЗВРАЩАЕМ ОРИГИНАЛЬНУЮ СТРУКТУРУ КЛАССОВ ДЛЯ ТВОЕГО CSS
+                    levelCard.innerHTML = `
+                        <div class="level-info">
+                            <div class="level-title">
+                                <span class="level-number">#${level.number}</span> 
+                                ${level.name}
+                            </div>
+                            <div class="level-creator">by ${level.creator}</div>
+                            <div class="level-details">
+                                <div>FPS: ${level.fps}</div>
+                                <div>ID: ${level.id}</div>
+                                <div>FV: ${level.fv}</div>
+                                <div>TYPE: ${level.type}</div>
+                            </div>
+                        </div>
+                        ${level.showcase ? `
+                            <div class="level-showcase">
+                                <a href="${level.showcase}" target="_blank" class="showcase-link">Смотреть Showcase</a>
+                            </div>
+                        ` : ''}
+                    `;
+                    listElement.appendChild(levelCard);
+                });
+
+                if (window.MathJax) {
+                    MathJax.typesetPromise();
+                }
+            })
+            .catch(err => {
+                listElement.innerHTML = `<p style="color:red; text-align:center;">Ошибка загрузки: ${err.message}</p>`;
+            });
+    }
+
+    // --- ТЕМЫ И КНОПКИ ---
     function setTheme(theme) {
         document.body.className = `theme-${theme}`;
         document.querySelectorAll('.theme-button').forEach(btn => {
@@ -34,71 +100,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.querySelectorAll('.theme-button').forEach(button => {
         button.addEventListener('click', () => {
-            const newTheme = button.dataset.theme;
-            setTheme(newTheme);
-            localStorage.setItem('siteTheme', newTheme);
+            const theme = button.dataset.theme;
+            setTheme(theme);
+            localStorage.setItem('siteTheme', theme);
         });
     });
 
     document.querySelectorAll('.list-button').forEach(button => {
+        if (button.dataset.list === currentListId) button.classList.add('active-list');
         button.addEventListener('click', () => {
-            const listId = button.dataset.list;
-            currentListId = listId;
-            localStorage.setItem('currentListId', listId);
+            currentListId = button.dataset.list;
+            localStorage.setItem('currentListId', currentListId);
             document.querySelectorAll('.list-button').forEach(btn => btn.classList.remove('active-list'));
             button.classList.add('active-list');
-            loadList(listId);
+            loadList(currentListId);
         });
     });
 
-    function loadList(listId) {
-        const config = listMap[listId];
-        document.querySelector('.main-title').innerText = config.title;
-        listElement.innerHTML = '<p style="text-align:center;">Загрузка...</p>';
-
-        fetch(config.file + '?t=' + Date.now())
-            .then(response => response.json())
-            .then(data => {
-                listElement.innerHTML = '';
-                data.sort((a, b) => parseInt(a.number) - parseInt(b.number));
-                data.forEach(level => {
-                    const li = document.createElement('div');
-                    li.className = 'level-card';
-                    // Тут твоя стандартная разметка карточки...
-                    li.innerHTML = `
-                        <div class="level-header">
-                            <span class="level-number">#${level.number}</span>
-                            <span class="level-name">${level.name}</span>
-                        </div>
-                        <div class="level-creator">by ${level.creator}</div>
-                        <ul class="level-details">
-                            <li>FPS: ${level.fps}</li>
-                            <li>ID: ${level.id}</li>
-                        </ul>
-                    `;
-                    listElement.appendChild(li);
-                });
-                if (window.MathJax) MathJax.typesetPromise();
-            })
-            .catch(err => {
-                listElement.innerHTML = `<p style="color:red;">Ошибка: ${err.message}</p>`;
-            });
-    }
-
-    function createSnowflake() {
-        if (!snowToggle.checked) return;
-        const snowflake = document.createElement('div');
-        snowflake.className = 'snowflake';
-        const size = Math.random() * 5 + 4 + 'px'; 
-        snowflake.style.width = size;
-        snowflake.style.height = size;
-        snowflake.style.left = Math.random() * 100 + 'vw';
-        snowflake.style.animationDuration = Math.random() * 3 + 4 + 's';
-        snowflake.style.opacity = Math.random() * 0.6 + 0.4;
-        snowContainer.appendChild(snowflake);
-        setTimeout(() => snowflake.remove(), 7000);
-    }
-
-    setInterval(createSnowflake, 150);
+    setTheme(localStorage.getItem('siteTheme') || 'dark');
     loadList(currentListId);
 });
