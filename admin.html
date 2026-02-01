@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HTLL | Admin Panel</title>
+    <title>HTLL | Admin Dashboard</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&family=Oswald:wght@500&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -18,7 +18,7 @@
             background-color: var(--bg-main);
             color: var(--color-text);
             margin: 0; padding: 20px;
-            display: flex; justify-content: center; align-items: flex-start; min-height: 100vh;
+            display: flex; flex-direction: column; align-items: center;
         }
 
         .container {
@@ -28,106 +28,103 @@
             border-radius: 20px;
             padding: 40px;
             border: 1px solid rgba(255,255,255,0.05);
-            margin-top: 40px;
+            margin-top: 20px;
         }
 
-        h1 { font-family: 'Oswald', sans-serif; text-transform: uppercase; letter-spacing: 2px; text-align: center; margin-bottom: 30px; }
+        h1 { font-family: 'Oswald', sans-serif; text-transform: uppercase; letter-spacing: 2px; text-align: center; }
 
-        /* Логин форма */
-        #auth-form { max-width: 300px; margin: 0 auto; text-align: center; }
-        
-        /* Поля ввода */
         input, select {
-            width: 100%; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
-            color: #fff; padding: 12px; margin: 8px 0; border-radius: 8px; font-family: inherit; box-sizing: border-box;
+            width: 100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1);
+            color: #fff; padding: 12px; margin: 8px 0; border-radius: 8px; font-family: inherit;
         }
-        input:focus { border-color: var(--accent); outline: none; }
 
-        /* Кнопки */
         .btn {
-            width: 100%; padding: 12px; border: none; border-radius: 8px; cursor: pointer;
+            padding: 12px 24px; border: none; border-radius: 8px; cursor: pointer;
             font-weight: 700; text-transform: uppercase; transition: 0.3s; font-family: 'Oswald', sans-serif;
         }
-        .btn-primary { background: #fff; color: #000; margin-top: 10px; }
-        .btn-primary:hover { background: #ccc; }
-        .btn-save { background: #222; color: #fff; border: 1px solid #444; margin-top: 20px; }
-        .btn-save:hover { border-color: #fff; }
+        .btn-primary { background: #fff; color: #000; }
+        .btn-save { background: #00ff00; color: #000; width: 100%; margin-top: 20px; }
+        .btn-del { background: #ff4444; color: #fff; padding: 5px 10px; font-size: 10px; }
 
-        /* Сетка добавления уровня */
-        .add-grid {
+        /* Сетка формы */
+        .level-form {
             display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
-            background: rgba(0,0,0,0.2); padding: 20px; border-radius: 12px; margin-bottom: 30px;
+            background: rgba(255,255,255,0.02); padding: 20px; border-radius: 12px; margin-bottom: 20px;
         }
 
         /* Список уровней */
-        .level-item {
-            display: flex; align-items: center; background: rgba(255,255,255,0.02);
-            padding: 10px 15px; border-radius: 8px; margin-bottom: 8px; border: 1px solid rgba(255,255,255,0.05);
+        .level-row {
+            display: flex; align-items: center; justify-content: space-between;
+            background: rgba(255,255,255,0.02); padding: 15px; border-radius: 10px;
+            margin-bottom: 10px; cursor: pointer; transition: 0.2s; border: 1px solid transparent;
         }
-        .level-item span { margin-right: 15px; font-weight: 700; color: var(--accent); width: 30px; }
-        .level-item input { margin: 0 5px; padding: 5px 10px; font-size: 0.9rem; }
-        .btn-del { background: #ff4444; color: #fff; width: auto; padding: 5px 10px; font-size: 0.7rem; }
+        .level-row:hover { background: rgba(255,255,255,0.05); border-color: #555; }
+        .level-info { flex: 1; }
+        .level-info b { color: #888; margin-right: 10px; }
 
-        #admin-panel { display: none; }
+        #auth-screen { text-align: center; margin-top: 100px; }
+        #admin-panel { display: none; width: 100%; max-width: 900px; }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <div id="auth-form">
+    <div id="auth-screen" class="container" style="max-width: 400px;">
         <h1>ADMIN ACCESS</h1>
-        <input type="text" id="userLogin" placeholder="Login">
-        <input type="password" id="userPass" placeholder="Password">
-        <button class="btn btn-primary" onclick="doLogin()">Войти</button>
+        <input type="text" id="login" placeholder="Login">
+        <input type="password" id="password" placeholder="Password">
+        <button class="btn btn-primary" onclick="checkAuth()">Войти</button>
     </div>
 
     <div id="admin-panel">
-        <h1>DASHBOARD</h1>
-        
-        <div style="margin-bottom: 20px; display: flex; gap: 10px;">
-            <select id="fileSelect" onchange="fetchData()" style="flex: 2;">
-                <option value="levels.json">TPLL (Main)</option>
-                <option value="ppll.json">PPLL</option>
-                <option value="sll.json">SLL</option>
-                <option value="ill.json">ILL</option>
-                <option value="scl.json">SCL</option>
-                <option value="icl.json">ICL</option>
-            </select>
-            <button class="btn btn-primary" onclick="saveData()" style="flex: 1; margin: 0;">Sync GitHub</button>
-        </div>
-
-        <div class="add-grid">
-            <input type="number" id="addPos" placeholder="Место в топе (число)">
-            <input type="text" id="addName" placeholder="Название уровня">
-            <input type="text" id="addCreator" placeholder="Автор">
-            <input type="text" id="addFPS" placeholder="ФПС (LaTeX)">
-            <input type="text" id="addID" placeholder="ID">
-            <input type="text" id="addFV" placeholder="ФВ">
-            <input type="text" id="addType" placeholder="Тип">
-            <input type="text" id="addShowcase" placeholder="Шоукейс (URL)">
-            <button class="btn btn-primary" onclick="addLevel()" style="grid-column: span 2;">Добавить уровень в список</button>
-        </div>
-
-        <div id="levels-list">
+        <div class="container">
+            <h1>Управление Листами</h1>
+            
+            <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+                <select id="fileSelect" onchange="loadList()">
+                    <option value="levels.json">TPLL (Main)</option>
+                    <option value="ppll.json">PPLL</option>
+                    <option value="sll.json">SLL</option>
+                    <option value="ill.json">ILL</option>
+                    <option value="inf.json">INF</option>
+                    <option value="scl.json">SCL</option>
+                    <option value="icl.json">ICL</option>
+                </select>
+                <button class="btn btn-primary" onclick="saveToGitHub()">Синхронизировать</button>
             </div>
+
+            <h3 id="formTitle">Добавить новый уровень</h3>
+            <div class="level-form" id="editorForm">
+                <input type="hidden" id="editIndex" value="-1">
+                <input type="text" id="inpNum" placeholder="Место (#)">
+                <input type="text" id="inpName" placeholder="Название">
+                <input type="text" id="inpCreator" placeholder="Автор">
+                <input type="text" id="inpFPS" placeholder="FPS (LaTeX)">
+                <input type="text" id="inpID" placeholder="ID">
+                <input type="text" id="inpFV" placeholder="FV">
+                <input type="text" id="inpType" placeholder="Тип">
+                <input type="text" id="inpShowcase" placeholder="Showcase URL">
+                <button class="btn btn-primary" onclick="addOrUpdate()" id="submitBtn">Добавить в список</button>
+                <button class="btn" onclick="resetForm()" style="background: #333; color: #fff;">Очистить</button>
+            </div>
+
+            <div id="listContainer"></div>
+        </div>
     </div>
-</div>
 
 <script>
     let currentData = [];
-    const AUTH = { login: 'HELFZz', pass: 'creep000' };
+    const credentials = { user: 'HELFZz', pass: 'creep000' };
 
-    function doLogin() {
-        const l = document.getElementById('userLogin').value;
-        const p = document.getElementById('userPass').value;
-        if (l === AUTH.login && p === AUTH.pass) {
-            document.getElementById('auth-form').style.display = 'none';
+    function checkAuth() {
+        if (document.getElementById('login').value === credentials.user && 
+            document.getElementById('password').value === credentials.pass) {
+            document.getElementById('auth-screen').style.display = 'none';
             document.getElementById('admin-panel').style.display = 'block';
-            fetchData();
-        } else { alert('Неверные данные'); }
+            loadList();
+        } else { alert("Неверный логин или пароль"); }
     }
 
-    async function fetchData() {
+    async function loadList() {
         const file = document.getElementById('fileSelect').value;
         const res = await fetch(`/api/update?fileName=${file}`);
         const result = await res.json();
@@ -136,60 +133,96 @@
     }
 
     function render() {
-        const container = document.getElementById('levels-list');
+        const container = document.getElementById('listContainer');
         container.innerHTML = '';
         
-        // Сортировка по полю number
+        // Сортировка по номеру
         currentData.sort((a, b) => parseInt(a.number) - parseInt(b.number));
 
         currentData.forEach((item, i) => {
-            const div = document.createElement('div');
-            div.className = 'level-item';
-            div.innerHTML = `
-                <span>#${item.number}</span>
-                <input type="text" value="${item.name}" style="flex: 2" onchange="update(${i}, 'name', this.value)">
-                <input type="text" value="${item.fps}" style="flex: 1" onchange="update(${i}, 'fps', this.value)">
-                <button class="btn btn-del" onclick="remove(${i})">DEL</button>
+            const row = document.createElement('div');
+            row.className = 'level-row';
+            row.onclick = () => editLevel(i);
+            row.innerHTML = `
+                <div class="level-info">
+                    <b>#${item.number}</b> ${item.name} <small style="color:#555">by ${item.creator}</small>
+                </div>
+                <button class="btn btn-del" onclick="deleteLevel(event, ${i})">Удалить</button>
             `;
-            container.appendChild(div);
+            container.appendChild(row);
         });
     }
 
-    function update(i, k, v) { currentData[i][k] = v; }
-    function remove(i) { currentData.splice(i, 1); render(); }
-
-    function addLevel() {
-        const pos = document.getElementById('addPos').value;
-        const newLevel = {
-            number: pos || (currentData.length + 1).toString(),
-            name: document.getElementById('addName').value,
-            creator: document.getElementById('addCreator').value,
-            fps: document.getElementById('addFPS').value,
-            id: document.getElementById('addID').value,
-            fv: document.getElementById('addFV').value,
-            type: document.getElementById('addType').value,
-            showcase: document.getElementById('addShowcase').value
+    function addOrUpdate() {
+        const idx = parseInt(document.getElementById('editIndex').value);
+        const level = {
+            number: document.getElementById('inpNum').value,
+            name: document.getElementById('inpName').value,
+            creator: document.getElementById('inpCreator').value,
+            fps: document.getElementById('inpFPS').value,
+            id: document.getElementById('inpID').value,
+            fv: document.getElementById('inpFV').value,
+            type: document.getElementById('inpType').value,
+            showcase: document.getElementById('inpShowcase').value
         };
-        currentData.push(newLevel);
+
+        if (idx === -1) {
+            currentData.push(level);
+        } else {
+            currentData[idx] = level;
+        }
+        
+        resetForm();
         render();
     }
 
-    async function saveData() {
+    function editLevel(i) {
+        const item = currentData[i];
+        document.getElementById('editIndex').value = i;
+        document.getElementById('inpNum').value = item.number;
+        document.getElementById('inpName').value = item.name;
+        document.getElementById('inpCreator').value = item.creator;
+        document.getElementById('inpFPS').value = item.fps;
+        document.getElementById('inpID').value = item.id;
+        document.getElementById('inpFV').value = item.fv;
+        document.getElementById('inpType').value = item.type;
+        document.getElementById('inpShowcase').value = item.showcase;
+        
+        document.getElementById('formTitle').innerText = "Редактирование: " + item.name;
+        document.getElementById('submitBtn').innerText = "Сохранить изменения";
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function resetForm() {
+        document.getElementById('editIndex').value = "-1";
+        document.querySelectorAll('#editorForm input').forEach(i => i.value = "");
+        document.getElementById('formTitle').innerText = "Добавить новый уровень";
+        document.getElementById('submitBtn').innerText = "Добавить в список";
+    }
+
+    function deleteLevel(e, i) {
+        e.stopPropagation();
+        if (confirm("Удалить уровень?")) {
+            currentData.splice(i, 1);
+            render();
+        }
+    }
+
+    async function saveToGitHub() {
         const file = document.getElementById('fileSelect').value;
         const res = await fetch('/api/update', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ 
-                login: AUTH.login, 
-                password: AUTH.pass, 
-                fileName: file, 
-                newData: currentData 
+            body: JSON.stringify({
+                login: credentials.user,
+                password: credentials.pass,
+                fileName: file,
+                newData: currentData
             })
         });
-        const resJson = await res.json();
-        alert(resJson.success ? "Успешно синхронизировано!" : "Ошибка: " + resJson.error);
+        const result = await res.json();
+        alert(result.success ? "Успешно сохранено!" : "Ошибка: " + result.error);
     }
 </script>
-
 </body>
 </html>
