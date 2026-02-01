@@ -1,254 +1,27 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HTLL | Admin Dashboard</title>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&family=Oswald:wght@500&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --bg-main: #050505;
-            --bg-card: rgba(255, 255, 255, 0.03);
-            --color-text: #ffffff;
-            --accent: #888;
-        }
+// Найди функцию addOrUpdate() в admin.html и убедись, что она выглядит так:
+function addOrUpdate() {
+    const idx = parseInt(document.getElementById('editIndex').value);
+    
+    // Берем значение FPS "как есть", без лишних замен при вводе
+    let rawFps = document.getElementById('inpFPS').value;
 
-        body {
-            font-family: 'Montserrat', sans-serif;
-            background-color: var(--bg-main);
-            color: var(--color-text);
-            margin: 0; padding: 20px;
-            display: flex; flex-direction: column; align-items: center;
-        }
+    const level = {
+        number: document.getElementById('inpNum').value,
+        name: document.getElementById('inpName').value,
+        creator: document.getElementById('inpCreator').value,
+        fps: rawFps, 
+        id: document.getElementById('inpID').value,
+        fv: document.getElementById('inpFV').value,
+        type: document.getElementById('inpType').value,
+        showcase: document.getElementById('inpShowcase').value
+    };
 
-        .container {
-            width: 100%; max-width: 900px;
-            background: var(--bg-card);
-            backdrop-filter: blur(12px);
-            border-radius: 20px;
-            padding: 40px;
-            border: 1px solid rgba(255,255,255,0.05);
-            margin-top: 20px;
-        }
-
-        h1 { font-family: 'Oswald', sans-serif; text-transform: uppercase; letter-spacing: 2px; text-align: center; }
-
-        input, select {
-            width: 100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1);
-            color: #fff; padding: 12px; margin: 8px 0; border-radius: 8px; font-family: inherit;
-        }
-
-        .btn {
-            padding: 12px 24px; border: none; border-radius: 8px; cursor: pointer;
-            font-weight: 700; text-transform: uppercase; transition: 0.3s; font-family: 'Oswald', sans-serif;
-        }
-        .btn-primary { background: #fff; color: #000; }
-        .btn-sync { background: #00ff00; color: #000; font-weight: 900; }
-        .btn-del { background: #ff4444; color: #fff; padding: 5px 10px; font-size: 10px; }
-
-        .level-form {
-            display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
-            background: rgba(255,255,255,0.02); padding: 20px; border-radius: 12px; margin-bottom: 20px;
-        }
-
-        .level-row {
-            display: flex; align-items: center; justify-content: space-between;
-            background: rgba(255,255,255,0.02); padding: 15px; border-radius: 10px;
-            margin-bottom: 10px; cursor: pointer; transition: 0.2s; border: 1px solid transparent;
-        }
-        .level-row:hover { background: rgba(255,255,255,0.05); border-color: #555; }
-        
-        #auth-screen { text-align: center; margin-top: 100px; }
-        #admin-panel { display: none; width: 100%; max-width: 900px; }
-        
-        .status-msg { text-align: center; margin-top: 10px; font-size: 0.9rem; }
-    </style>
-</head>
-<body>
-
-    <div id="auth-screen" class="container" style="max-width: 400px;">
-        <h1>ADMIN ACCESS</h1>
-        <input type="text" id="login" placeholder="Login">
-        <input type="password" id="password" placeholder="Password">
-        <button class="btn btn-primary" onclick="checkAuth()" style="width: 100%;">Войти</button>
-    </div>
-
-    <div id="admin-panel">
-        <div class="container">
-            <h1>HTLL DASHBOARD</h1>
-            
-            <div style="display: flex; gap: 10px; margin-bottom: 20px;">
-                <select id="fileSelect" onchange="loadList()">
-                    <option value="levels.json">TPLL (Main)</option>
-                    <option value="ppll.json">PPLL</option>
-                    <option value="sll.json">SLL</option>
-                    <option value="ill.json">ILL</option>
-                    <option value="inf.json">INF</option>
-                    <option value="scl.json">SCL</option>
-                    <option value="icl.json">ICL</option>
-                </select>
-                <button class="btn btn-sync" onclick="saveToGitHub()">СИНХРОНИЗИРОВАТЬ</button>
-            </div>
-
-            <h3 id="formTitle">Добавить новый уровень</h3>
-            <div class="level-form" id="editorForm">
-                <input type="hidden" id="editIndex" value="-1">
-                <input type="text" id="inpNum" placeholder="Место (#)">
-                <input type="text" id="inpName" placeholder="Название">
-                <input type="text" id="inpCreator" placeholder="Автор">
-                <input type="text" id="inpFPS" placeholder="FPS (используйте \\ для LaTeX)">
-                <input type="text" id="inpID" placeholder="ID">
-                <input type="text" id="inpFV" placeholder="FV">
-                <input type="text" id="inpType" placeholder="Тип">
-                <input type="text" id="inpShowcase" placeholder="Showcase URL">
-                <button class="btn btn-primary" onclick="addOrUpdate()" id="submitBtn" style="grid-column: span 2;">Добавить / Сохранить</button>
-                <button class="btn" onclick="resetForm()" style="grid-column: span 2; background: #222; color: #666;">Очистить форму</button>
-            </div>
-
-            <div id="listContainer"></div>
-            <div id="statusMsg" class="status-msg"></div>
-        </div>
-    </div>
-
-<script>
-    let currentData = [];
-    let sessionUser = "";
-    let sessionPass = "";
-
-    // Список разрешенных пользователей
-    const USERS = [
-        { user: 'HELFZz', pass: 'creep000' },
-        { user: 'Curruser54', pass: '546111' },
-        { user: 'ByHanseLLL', pass: '11540hanse' }
-    ];
-
-    function checkAuth() {
-        const l = document.getElementById('login').value;
-        const p = document.getElementById('password').value;
-        
-        const found = USERS.find(u => u.user === l && u.pass === p);
-        
-        if (found) {
-            sessionUser = l;
-            sessionPass = p;
-            document.getElementById('auth-screen').style.display = 'none';
-            document.getElementById('admin-panel').style.display = 'block';
-            loadList();
-        } else {
-            alert("Ошибка: Неверный логин или пароль.");
-        }
+    if (idx === -1) {
+        currentData.push(level);
+    } else {
+        currentData[idx] = level;
     }
-
-    async function loadList() {
-        const file = document.getElementById('fileSelect').value;
-        const res = await fetch(`/api/update?fileName=${file}`);
-        const result = await res.json();
-        currentData = JSON.parse(result.content);
-        render();
-    }
-
-    function render() {
-        const container = document.getElementById('listContainer');
-        container.innerHTML = '';
-        
-        // Сортировка
-        currentData.sort((a, b) => parseInt(a.number) - parseInt(b.number));
-
-        currentData.forEach((item, i) => {
-            const row = document.createElement('div');
-            row.className = 'level-row';
-            row.onclick = () => editLevel(i);
-            row.innerHTML = `
-                <div><b>#${item.number}</b> ${item.name} <small style="color:var(--accent)">by ${item.creator}</small></div>
-                <button class="btn btn-del" onclick="deleteLevel(event, ${i})">УДАЛИТЬ</button>
-            `;
-            container.appendChild(row);
-        });
-    }
-
-    function addOrUpdate() {
-        const idx = parseInt(document.getElementById('editIndex').value);
-        
-        const level = {
-            number: document.getElementById('inpNum').value,
-            name: document.getElementById('inpName').value,
-            creator: document.getElementById('inpCreator').value,
-            fps: document.getElementById('inpFPS').value, // Сохраняем как введено
-            id: document.getElementById('inpID').value,
-            fv: document.getElementById('inpFV').value,
-            type: document.getElementById('inpType').value,
-            showcase: document.getElementById('inpShowcase').value
-        };
-
-        if (idx === -1) {
-            currentData.push(level);
-        } else {
-            currentData[idx] = level;
-        }
-        
-        resetForm();
-        render();
-    }
-
-    function editLevel(i) {
-        const item = currentData[i];
-        document.getElementById('editIndex').value = i;
-        document.getElementById('inpNum').value = item.number;
-        document.getElementById('inpName').value = item.name;
-        document.getElementById('inpCreator').value = item.creator;
-        document.getElementById('inpFPS').value = item.fps;
-        document.getElementById('inpID').value = item.id;
-        document.getElementById('inpFV').value = item.fv;
-        document.getElementById('inpType').value = item.type;
-        document.getElementById('inpShowcase').value = item.showcase;
-        
-        document.getElementById('formTitle').innerText = "Редактирование: " + item.name;
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-
-    function resetForm() {
-        document.getElementById('editIndex').value = "-1";
-        document.querySelectorAll('#editorForm input').forEach(i => i.value = "");
-        document.getElementById('formTitle').innerText = "Добавить новый уровень";
-    }
-
-    function deleteLevel(e, i) {
-        e.stopPropagation();
-        if (confirm("Точно удалить?")) {
-            currentData.splice(i, 1);
-            render();
-        }
-    }
-
-    async function saveToGitHub() {
-        const status = document.getElementById('statusMsg');
-        status.innerText = "Синхронизация...";
-        status.style.color = "white";
-
-        const file = document.getElementById('fileSelect').value;
-        try {
-            const res = await fetch('/api/update', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    login: sessionUser,
-                    password: sessionPass,
-                    fileName: file,
-                    newData: currentData
-                })
-            });
-            const result = await res.json();
-            if (result.success) {
-                status.innerText = "Успешно обновлено на GitHub!";
-                status.style.color = "#00ff00";
-            } else {
-                throw new Error(result.error);
-            }
-        } catch (err) {
-            status.innerText = "Ошибка: " + err.message;
-            status.style.color = "#ff4444";
-        }
-    }
-</script>
-</body>
-</html>
+    
+    resetForm();
+    render();
+}
