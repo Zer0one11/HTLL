@@ -13,10 +13,10 @@ document.addEventListener('DOMContentLoaded', () => {
         'icl': { file: 'icl.json', title: 'ICL LIST' }
     };
 
-    // --- ЛОГИКА СНЕГА (СОХРАНЕНИЕ) ---
-    const savedSnow = localStorage.getItem('snowEnabled');
-    const isSnowEnabled = savedSnow !== null ? savedSnow === 'true' : true;
-    snowToggle.checked = isSnowEnabled;
+    // --- 1. ЛОГИКА СНЕГА (СОХРАНЕНИЕ) ---
+    const snowSaved = localStorage.getItem('snowEnabled');
+    // Если в памяти 'false', выключаем. По умолчанию включен.
+    snowToggle.checked = snowSaved !== 'false'; 
 
     snowToggle.addEventListener('change', () => {
         localStorage.setItem('snowEnabled', snowToggle.checked);
@@ -37,60 +37,58 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     setInterval(createSnowflake, 150);
 
-    // --- ЗАГРУЗКА СПИСКОВ ---
+    // --- 2. ЗАГРУЗКА СПИСКА ---
     let currentListId = localStorage.getItem('currentListId') || 'levels';
 
     function loadList(listId) {
         const config = listMap[listId];
         document.querySelector('.main-title').innerText = config.title;
         
-        // Очищаем контейнер полностью перед загрузкой
-        listElement.innerHTML = ''; 
+        // Очистка перед загрузкой (исправляет наслоение)
+        listElement.innerHTML = '';
 
         fetch(config.file + '?t=' + Date.now())
             .then(response => response.json())
             .then(data => {
-                // Сортировка по номеру
                 data.sort((a, b) => parseInt(a.number) - parseInt(b.number));
 
                 data.forEach(level => {
-                    const levelCard = document.createElement('div');
-                    levelCard.className = 'level-card';
+                    const section = document.createElement('section');
+                    section.className = 'level-card'; // Возвращаем оригинальный класс
                     
-                    // ВОЗВРАЩАЕМ ОРИГИНАЛЬНУЮ СТРУКТУРУ КЛАССОВ ДЛЯ ТВОЕГО CSS
-                    levelCard.innerHTML = `
+                    // ТОЧНАЯ СТРУКТУРА ТВОЕГО ОРИГИНАЛЬНОГО ДИЗАЙНА
+                    section.innerHTML = `
                         <div class="level-info">
-                            <div class="level-title">
-                                <span class="level-number">#${level.number}</span> 
-                                ${level.name}
-                            </div>
-                            <div class="level-creator">by ${level.creator}</div>
-                            <div class="level-details">
-                                <div>FPS: ${level.fps}</div>
-                                <div>ID: ${level.id}</div>
-                                <div>FV: ${level.fv}</div>
-                                <div>TYPE: ${level.type}</div>
-                            </div>
+                            <h2 class="level-title">#${level.number} ${level.name}</h2>
+                            <p class="level-creator">by ${level.creator}</p>
+                            <p class="level-details">FPS: ${level.fps} | ID: ${level.id}</p>
+                            <p class="level-details">FV: ${level.fv} | Type: ${level.type}</p>
                         </div>
                         ${level.showcase ? `
-                            <div class="level-showcase">
-                                <a href="${level.showcase}" target="_blank" class="showcase-link">Смотреть Showcase</a>
-                            </div>
-                        ` : ''}
+                        <div class="level-showcase">
+                            <iframe src="${level.showcase.replace('watch?v=', 'embed/')}" frameborder="0" allowfullscreen></iframe>
+                        </div>` : ''}
                     `;
-                    listElement.appendChild(levelCard);
+                    listElement.appendChild(section);
                 });
 
-                if (window.MathJax) {
-                    MathJax.typesetPromise();
-                }
+                if (window.MathJax) MathJax.typesetPromise();
             })
-            .catch(err => {
-                listElement.innerHTML = `<p style="color:red; text-align:center;">Ошибка загрузки: ${err.message}</p>`;
-            });
+            .catch(err => console.error("Ошибка:", err));
     }
 
-    // --- ТЕМЫ И КНОПКИ ---
+    // --- 3. КНОПКИ И ТЕМЫ ---
+    document.querySelectorAll('.list-button').forEach(button => {
+        if (button.dataset.list === currentListId) button.classList.add('active-list');
+        button.addEventListener('click', () => {
+            currentListId = button.dataset.list;
+            localStorage.setItem('currentListId', currentListId);
+            document.querySelectorAll('.list-button').forEach(btn => btn.classList.remove('active-list'));
+            button.classList.add('active-list');
+            loadList(currentListId);
+        });
+    });
+
     function setTheme(theme) {
         document.body.className = `theme-${theme}`;
         document.querySelectorAll('.theme-button').forEach(btn => {
@@ -103,17 +101,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const theme = button.dataset.theme;
             setTheme(theme);
             localStorage.setItem('siteTheme', theme);
-        });
-    });
-
-    document.querySelectorAll('.list-button').forEach(button => {
-        if (button.dataset.list === currentListId) button.classList.add('active-list');
-        button.addEventListener('click', () => {
-            currentListId = button.dataset.list;
-            localStorage.setItem('currentListId', currentListId);
-            document.querySelectorAll('.list-button').forEach(btn => btn.classList.remove('active-list'));
-            button.classList.add('active-list');
-            loadList(currentListId);
         });
     });
 
