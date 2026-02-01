@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTLL | Admin Panel</title>
+    <style>
+        :root {
+            --accent: #00ff00;
+            --bg: #0a0a0a;
+            --panel: #111;
+            --text: #eee;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: 'Segoe UI', monospace;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        /* Окно админки */
+        .admin-window {
+            width: 90%;
+            max-width: 1000px;
+            background: var(--panel);
+            border: 2px solid var(--accent);
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.15);
+            padding: 25px;
+            border-radius: 8px;
+        }
+
+        h2 { color: var(--accent); text-transform: uppercase; letter-spacing: 2px; border-bottom: 1px solid #333; padding-bottom: 10px; }
+
+        /* Форма логина */
+        #login-screen { text-align: center; padding: 50px 0; }
+        
+        /* Поля ввода */
+        input, select, textarea {
+            background: #000;
+            border: 1px solid #444;
+            color: var(--accent);
+            padding: 10px;
+            margin: 5px;
+            border-radius: 4px;
+            outline: none;
+        }
+        input:focus { border-color: var(--accent); }
+
+        /* Таблица */
+        .table-container { max-height: 500px; overflow-y: auto; margin-top: 20px; border: 1px solid #333; }
+        table { width: 100%; border-collapse: collapse; background: #000; }
+        th { background: #1a1a1a; position: sticky; top: 0; color: var(--accent); padding: 12px; border-bottom: 2px solid var(--accent); }
+        td { padding: 8px; border-bottom: 1px solid #222; }
+
+        /* Кнопки */
+        .btn {
+            background: transparent;
+            color: var(--accent);
+            border: 1px solid var(--accent);
+            padding: 10px 20px;
+            cursor: pointer;
+            transition: 0.3s;
+            text-transform: uppercase;
+            font-weight: bold;
+        }
+        .btn:hover { background: var(--accent); color: #000; box-shadow: 0 0 10px var(--accent); }
+        .btn-del { border-color: #ff4444; color: #ff4444; }
+        .btn-del:hover { background: #ff4444; color: #fff; box-shadow: 0 0 10px #ff4444; }
+
+        .add-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-bottom: 20px; border: 1px dashed var(--accent); padding: 15px; }
+
+        .status { margin-top: 15px; font-size: 0.9em; color: #888; }
+    </style>
+</head>
+<body>
+
+<div class="admin-window">
+    <div id="login-screen">
+        <h2>System Access Required</h2>
+        <input type="password" id="passInput" placeholder="ENTER ACCESS CODE...">
+        <button class="btn" onclick="checkAuth()">Login</button>
+    </div>
+
+    <div id="admin-content" style="display: none;">
+        <h2>HTLL Dashboard</h2>
+        
+        <div style="margin-bottom: 20px;">
+            <label>Select List: </label>
+            <select id="fileSelect" onchange="loadDataFromServer()">
+                <option value="levels.json">Main List</option>
+                <option value="ppll.json">PPLL List</option>
+                <option value="scl.json">SCL List</option>
+            </select>
+            <button class="btn" onclick="loadDataFromServer()" style="padding: 5px 10px;">Refresh</button>
+        </div>
+
+        <div class="add-form">
+            <input type="text" id="addName" placeholder="Level Name">
+            <input type="text" id="addCreator" placeholder="Creator">
+            <input type="text" id="addFPS" placeholder="FPS (e.g. f_phi(w,0))">
+            <input type="text" id="addID" placeholder="ID">
+            <button class="btn" onclick="addLevel()">+ Add Level</button>
+        </div>
+
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 50px;">#</th>
+                        <th>Name</th>
+                        <th>FPS (LaTeX)</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="levelsBody">
+                    </tbody>
+            </table>
+        </div>
+
+        <div style="margin-top: 25px; display: flex; justify-content: space-between; align-items: center;">
+            <div id="statusText" class="status">Ready to sync...</div>
+            <button class="btn" style="background: var(--accent); color: #000;" onclick="saveToGitHub()">🚀 Sync Changes to GitHub</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    let currentData = [];
+    const AUTH = { login: 'HELFZz', pass: 'creep000' };
+
+    // 1. Проверка входа
+    function checkAuth() {
+        const pass = document.getElementById('passInput').value;
+        if (pass === AUTH.pass) {
+            document.getElementById('login-screen').style.display = 'none';
+            document.getElementById('admin-content').style.display = 'block';
+            loadDataFromServer();
+        } else {
+            alert("ACCESS DENIED");
+        }
+    }
+
+    // 2. Умный LaTeX (авто-замена)
+    function cleanLatex(val) {
+        return val
+            .replace(/phi/g, '\\phi')
+            .replace(/w/g, '\\omega')
+            .replace(/omega/g, '\\omega')
+            .replace(/\s/g, ' \\ '); // Заменяет обычный пробел на LaTeX-пробел
+    }
+
+    // 3. Загрузка данных
+    async function loadDataFromServer() {
+        const file = document.getElementById('fileSelect').value;
+        document.getElementById('statusText').innerText = "Loading " + file + "...";
+        
+        try {
+            const res = await fetch(`/api/update?fileName=${file}`);
+            const result = await res.json();
+            currentData = JSON.parse(result.content);
+            renderTable();
+            document.getElementById('statusText').innerText = "Loaded " + currentData.length + " levels.";
+        } catch (e) {
+            alert("Error loading data. Check Vercel logs.");
+        }
+    }
+
+    // 4. Отрисовка таблицы
+    function renderTable() {
+        const body = document.getElementById('levelsBody');
+        const file = document.getElementById('fileSelect').value;
+        body.innerHTML = '';
+
+        // Авто-сортировка для SCL по FPS (числовая)
+        if (file === 'scl.json') {
+            currentData.sort((a, b) => parseFloat(b.fps) - parseFloat(a.fps));
+        }
+
+        currentData.forEach((level, index) => {
+            // Авто-обновление номера (сдвиг топа)
+            level.number = (index + 1).toString();
+
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${level.number}</td>
+                <td><input type="text" value="${level.name}" onchange="editLevel(${index}, 'name', this.value)"></td>
+                <td><input type="text" value="${level.fps}" onchange="editLevel(${index}, 'fps', this.value)"></td>
+                <td><button class="btn btn-del" onclick="removeLevel(${index})">Del</button></td>
+            `;
+            body.appendChild(tr);
+        });
+    }
+
+    // 5. Функции редактирования
+    function editLevel(index, field, value) {
+        if (field === 'fps') value = cleanLatex(value);
+        currentData[index][field] = value;
+        if (field === 'fps') renderTable(); // пересортировать если изменили фпс
+    }
+
+    function removeLevel(index) {
+        if (confirm("Delete this level?")) {
+            currentData.splice(index, 1);
+            renderTable();
+        }
+    }
+
+    function addLevel() {
+        const name = document.getElementById('addName').value;
+        const creator = document.getElementById('addCreator').value;
+        const fps = cleanLatex(document.getElementById('addFPS').value);
+        const id = document.getElementById('addID').value;
+
+        if (!name || !fps) return alert("Fill Name and FPS!");
+
+        currentData.push({
+            number: "0",
+            name: name,
+            creator: creator,
+            fps: fps,
+            id: id,
+            fv: "None",
+            type: "None",
+            showcase: "none"
+        });
+
+        // Очистка полей
+        document.getElementById('addName').value = '';
+        document.getElementById('addFPS').value = '';
+        renderTable();
+    }
+
+    // 6. Сохранение
+    async function saveToGitHub() {
+        const pass = document.getElementById('passInput').value;
+        const file = document.getElementById('fileSelect').value;
+        document.getElementById('statusText').innerText = "Syncing with GitHub...";
+
+        try {
+            const res = await fetch('/api/update', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    login: AUTH.login,
+                    password: pass,
+                    fileName: file,
+                    newData: currentData
+                })
+            });
+            const result = await res.json();
+            if (result.success) {
+                alert("SUCCESS! GitHub updated. Wait 1-2 mins for Vercel to refresh.");
+                document.getElementById('statusText').innerText = "Last sync: Success";
+            } else {
+                alert("ERROR: " + result.error);
+                document.getElementById('statusText').innerText = "Last sync: Failed";
+            }
+        } catch (e) {
+            alert("Critical Error: " + e);
+        }
+    }
+</script>
+
+</body>
+</html>
+
