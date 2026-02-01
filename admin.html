@@ -29,41 +29,53 @@
             padding: 40px;
             border: 1px solid rgba(255,255,255,0.05);
             margin-top: 20px;
+            box-sizing: border-box;
         }
 
         h1 { font-family: 'Oswald', sans-serif; text-transform: uppercase; letter-spacing: 2px; text-align: center; }
 
+        /* ИСПРАВЛЕНИЕ НАСЛАИВАНИЯ: Адаптивная сетка */
+        .level-form {
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); 
+            gap: 15px;
+            background: rgba(255,255,255,0.02); 
+            padding: 20px; 
+            border-radius: 12px; 
+            margin-bottom: 20px;
+        }
+
         input, select {
-            width: 100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1);
-            color: #fff; padding: 12px; margin: 8px 0; border-radius: 8px; font-family: inherit;
+            width: 100%; 
+            box-sizing: border-box;
+            background: rgba(0,0,0,0.3); 
+            border: 1px solid rgba(255,255,255,0.1);
+            color: #fff; 
+            padding: 12px; 
+            border-radius: 8px; 
+            font-family: inherit;
         }
 
         .btn {
             padding: 12px 24px; border: none; border-radius: 8px; cursor: pointer;
             font-weight: 700; text-transform: uppercase; transition: 0.3s; font-family: 'Oswald', sans-serif;
         }
-        .btn-primary { background: #fff; color: #000; }
-        .btn-sync { background: #00ff00; color: #000; font-weight: 900; width: 100%; }
+        .btn-primary { background: #fff; color: #000; grid-column: 1 / -1; }
+        .btn-sync { background: #00ff00; color: #000; font-weight: 900; width: 100%; margin-bottom: 20px;}
         .btn-del { background: #ff4444; color: #fff; padding: 5px 10px; font-size: 10px; }
-
-        .level-form {
-            display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
-            background: rgba(255,255,255,0.02); padding: 20px; border-radius: 12px; margin-bottom: 20px;
-        }
 
         .level-row {
             display: flex; align-items: center; justify-content: space-between;
             background: rgba(255,255,255,0.02); padding: 15px; border-radius: 10px;
             margin-bottom: 10px; cursor: pointer; transition: 0.2s; border: 1px solid transparent;
+            gap: 15px;
         }
         .level-row:hover { background: rgba(255,255,255,0.05); border-color: #555; }
         
         #auth-screen { text-align: center; margin-top: 100px; }
         #admin-panel { display: none; width: 100%; max-width: 900px; }
         .status-msg { text-align: center; margin-top: 15px; font-weight: bold; }
-        
         .logout-btn { background: none; border: 1px solid #333; color: #555; font-size: 10px; padding: 5px; margin-bottom: 10px; cursor: pointer; border-radius: 5px; }
-        .logout-btn:hover { color: #fff; border-color: #fff; }
     </style>
 </head>
 <body>
@@ -72,7 +84,7 @@
         <h1>ADMIN ACCESS</h1>
         <input type="text" id="login" placeholder="Login">
         <input type="password" id="password" placeholder="Password">
-        <button class="btn btn-primary" onclick="manualLogin()" style="width: 100%;">Войти</button>
+        <button class="btn btn-primary" onclick="manualLogin()">Войти</button>
     </div>
 
     <div id="admin-panel">
@@ -80,32 +92,30 @@
         <div class="container">
             <h1>HTLL DASHBOARD</h1>
             
-            <div style="display: flex; gap: 10px; margin-bottom: 20px;">
-                <select id="fileSelect" onchange="loadList()">
-                    <option value="levels.json">TPLL (Main)</option>
-                    <option value="ppll.json">PPLL</option>
-                    <option value="sll.json">SLL</option>
-                    <option value="ill.json">ILL</option>
-                    <option value="inf.json">INF</option>
-                    <option value="scl.json">SCL</option>
-                    <option value="icl.json">ICL</option>
-                </select>
-                <button class="btn btn-sync" onclick="saveToGitHub()">СИНХРОНИЗИРОВАТЬ</button>
-            </div>
+            <select id="fileSelect" onchange="loadList()">
+                <option value="levels.json">TPLL (Main)</option>
+                <option value="ppll.json">PPLL</option>
+                <option value="sll.json">SLL</option>
+                <option value="ill.json">ILL</option>
+                <option value="inf.json">INF</option>
+                <option value="scl.json">SCL</option>
+                <option value="icl.json">ICL</option>
+            </select>
+            <button class="btn btn-sync" onclick="saveToGitHub()">СИНХРОНИЗИРОВАТЬ НА GITHUB</button>
 
             <h3 id="formTitle">Добавить новый уровень</h3>
             <div class="level-form" id="editorForm">
                 <input type="hidden" id="editIndex" value="-1">
-                <input type="text" id="inpNum" placeholder="Место (#)">
+                <input type="number" id="inpNum" placeholder="Место (#)">
                 <input type="text" id="inpName" placeholder="Название">
                 <input type="text" id="inpCreator" placeholder="Автор">
-                <input type="text" id="inpFPS" placeholder="FPS (используйте \\ для LaTeX)">
+                <input type="text" id="inpFPS" placeholder="FPS (\\ для LaTeX)">
                 <input type="text" id="inpID" placeholder="ID">
                 <input type="text" id="inpFV" placeholder="FV">
                 <input type="text" id="inpType" placeholder="Тип">
                 <input type="text" id="inpShowcase" placeholder="Showcase URL">
-                <button class="btn btn-primary" onclick="addOrUpdate()" id="submitBtn" style="grid-column: span 2;">Применить / Сохранить в список</button>
-                <button class="btn" onclick="resetForm()" style="grid-column: span 2; background: #222; color: #555;">Очистить форму</button>
+                <button class="btn btn-primary" onclick="addOrUpdate()" id="submitBtn">Применить / Сдвинуть топ</button>
+                <button class="btn" onclick="resetForm()" style="grid-column: 1/-1; background: #222; color: #555;">Очистить форму</button>
             </div>
 
             <div id="listContainer"></div>
@@ -124,43 +134,30 @@
         { user: 'ByHanseLLL', pass: '11540hanse' }
     ];
 
-    // Авто-логин при загрузке
     window.onload = () => {
-        const u = localStorage.getItem('at_u');
-        const p = localStorage.getItem('at_p');
-        if (u && p) {
-            checkAuth(u, p, true);
-        }
+        const u = localStorage.getItem('at_u'), p = localStorage.getItem('at_p');
+        if (u && p) checkAuth(u, p, true);
     };
 
     function manualLogin() {
-        const u = document.getElementById('login').value;
-        const p = document.getElementById('password').value;
-        checkAuth(u, p, false);
+        checkAuth(document.getElementById('login').value, document.getElementById('password').value, false);
     }
 
     function checkAuth(l, p, isAuto) {
         const found = USERS.find(u => u.user === l && u.pass === p);
         if (found) {
             sessionUser = l; sessionPass = p;
-            localStorage.setItem('at_u', l);
-            localStorage.setItem('at_p', p);
+            localStorage.setItem('at_u', l); localStorage.setItem('at_p', p);
             document.getElementById('auth-screen').style.display = 'none';
             document.getElementById('admin-panel').style.display = 'block';
             loadList();
-        } else if (!isAuto) {
-            alert("Неверный логин или пароль");
-        }
+        } else if (!isAuto) alert("Ошибка доступа");
     }
 
-    function logout() {
-        localStorage.clear();
-        location.reload();
-    }
+    function logout() { localStorage.clear(); location.reload(); }
 
     async function loadList() {
-        const file = document.getElementById('fileSelect').value;
-        const res = await fetch(`/api/update?fileName=${file}`);
+        const res = await fetch(`/api/update?fileName=${document.getElementById('fileSelect').value}`);
         const result = await res.json();
         currentData = JSON.parse(result.content);
         render();
@@ -174,18 +171,18 @@
             const row = document.createElement('div');
             row.className = 'level-row';
             row.onclick = () => editLevel(i);
-            row.innerHTML = `
-                <div><b>#${item.number}</b> ${item.name} <small style="color:var(--accent)">by ${item.creator}</small></div>
-                <button class="btn btn-del" onclick="deleteLevel(event, ${i})">УДАЛИТЬ</button>
-            `;
+            row.innerHTML = `<div><b>#${item.number}</b> ${item.name}</div><button class="btn btn-del" onclick="deleteLevel(event, ${i})">Удалить</button>`;
             container.appendChild(row);
         });
     }
 
+    // ЛОГИКА АВТО-СДВИГА
     function addOrUpdate() {
         const idx = parseInt(document.getElementById('editIndex').value);
+        const newNum = parseInt(document.getElementById('inpNum').value);
+        
         const level = {
-            number: document.getElementById('inpNum').value,
+            number: newNum.toString(),
             name: document.getElementById('inpName').value,
             creator: document.getElementById('inpCreator').value,
             fps: document.getElementById('inpFPS').value,
@@ -194,8 +191,22 @@
             type: document.getElementById('inpType').value,
             showcase: document.getElementById('inpShowcase').value
         };
-        if (idx === -1) currentData.push(level);
-        else currentData[idx] = level;
+
+        // Если редактируем старый, сначала временно удаляем его из расчетов
+        let tempData = [...currentData];
+        if (idx !== -1) tempData.splice(idx, 1);
+
+        // Сдвигаем все уровни, которые имеют такой же или больший номер
+        tempData.forEach(item => {
+            let itemNum = parseInt(item.number);
+            if (itemNum >= newNum) {
+                item.number = (itemNum + 1).toString();
+            }
+        });
+
+        tempData.push(level);
+        currentData = tempData;
+        
         resetForm();
         render();
     }
@@ -211,8 +222,7 @@
         document.getElementById('inpFV').value = item.fv;
         document.getElementById('inpType').value = item.type;
         document.getElementById('inpShowcase').value = item.showcase;
-        document.getElementById('formTitle').innerText = "Редактирование: " + item.name;
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        document.getElementById('formTitle').innerText = "Изменение уровня #" + item.number;
     }
 
     function resetForm() {
@@ -223,34 +233,25 @@
 
     function deleteLevel(e, i) {
         e.stopPropagation();
-        if (confirm("Удалить уровень из списка?")) {
-            currentData.splice(i, 1);
-            render();
-        }
+        if (confirm("Удалить?")) { currentData.splice(i, 1); render(); }
     }
 
     async function saveToGitHub() {
         const status = document.getElementById('statusMsg');
-        status.innerText = "СОХРАНЕНИЕ..."; status.style.color = "white";
-        const file = document.getElementById('fileSelect').value;
+        status.innerText = "СОХРАНЕНИЕ...";
         try {
             const res = await fetch('/api/update', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     login: sessionUser, password: sessionPass,
-                    fileName: file, newData: currentData
+                    fileName: document.getElementById('fileSelect').value, newData: currentData
                 })
             });
-            const result = await res.json();
-            if (result.success) {
-                status.innerText = "УСПЕШНО СОХРАНЕНО НА GITHUB!";
-                status.style.color = "#00ff00";
-            } else { throw new Error(result.error); }
-        } catch (err) {
-            status.innerText = "ОШИБКА: " + err.message;
-            status.style.color = "#ff4444";
-        }
+            if ((await res.json()).success) {
+                status.innerText = "УСПЕШНО!"; status.style.color = "#00ff00";
+            } else throw new Error();
+        } catch (err) { status.innerText = "ОШИБКА!"; status.style.color = "#ff4444"; }
     }
 </script>
 </body>
