@@ -1,5 +1,9 @@
 document.addEventListener('DOMContentLoaded', () => {
     const listElement = document.getElementById('levelList');
+    const body = document.body;
+    const mainTitle = document.querySelector('.main-title');
+    const themeButtons = document.querySelectorAll('.theme-button');
+    const listButtons = document.querySelectorAll('.list-button');
     const snowToggle = document.getElementById('snow-toggle');
     const snowContainer = document.getElementById('snow-container');
 
@@ -13,7 +17,10 @@ document.addEventListener('DOMContentLoaded', () => {
         'icl': { file: 'icl.json', title: 'ICL LIST' }
     };
 
-    // --- 1. ЛОГИКА СНЕГА (СОХРАНЕНИЕ) ---
+    let currentListId = localStorage.getItem('currentListId') || 'levels';
+    setTheme(localStorage.getItem('siteTheme') || 'dark');
+
+    // --- ЛОГИКА СНЕГА (СОХРАНЕНИЕ) ---
     const snowSaved = localStorage.getItem('snowEnabled');
     // Если в памяти 'false', выключаем. По умолчанию включен.
     snowToggle.checked = snowSaved !== 'false'; 
@@ -22,11 +29,97 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.setItem('snowEnabled', snowToggle.checked);
     });
 
+    themeButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const newTheme = button.dataset.theme;
+            setTheme(newTheme);
+            localStorage.setItem('siteTheme', newTheme);
+            themeButtons.forEach(btn => btn.classList.remove('active-theme'));
+            button.classList.add('active-theme');
+        });
+    });
+
+    listButtons.forEach(button => {
+        // Устанавливаем активную кнопку при загрузке
+        if (button.dataset.list === currentListId) button.classList.add('active-list');
+        
+        button.addEventListener('click', () => {
+            currentListId = button.dataset.list;
+            localStorage.setItem('currentListId', currentListId);
+            loadList(currentListId);
+            listButtons.forEach(btn => btn.classList.remove('active-list'));
+            button.classList.add('active-list');
+        });
+    });
+
+    function setTheme(themeName) {
+        body.className = `theme-${themeName}`;
+    }
+
+    function formatLatex(text) {
+        if (typeof text !== 'string' || text === "none") return text;
+        const hasLatex = text.includes('\\') || text.includes('^') || text.includes('_');
+        if (hasLatex && !text.startsWith('$')) {
+            let processed = text;
+            processed = processed.replace(/(?<!\\)\b([a-z]{3,})\b/gi, (match) => `\\text{${match}}`);
+            return `$${processed}$`;
+        }
+        return text;
+    }
+
+    function loadList(listId) {
+        const listConfig = listMap[listId];
+        mainTitle.textContent = listConfig.title;
+        
+        // ОЧИСТКА ПЕРЕД ЗАГРУЗКОЙ (Фикс наслоения)
+        listElement.innerHTML = ''; 
+
+        fetch(listConfig.file + '?t=' + Date.now()) // Добавил анти-кэш
+            .then(r => r.json())
+            .then(data => {
+                // Сортировка для порядка
+                data.sort((a, b) => parseInt(a.number) - parseInt(b.number));
+                
+                data.forEach(level => {
+                    const li = document.createElement('li');
+                    li.className = 'level-item'; // Тот самый класс из твоего CSS
+                    
+                    let typeHtml = (level.type && level.type !== "none") 
+                        ? `<li class="detail-line"><span class="detail-label">Type:</span> ${formatLatex(level.type)}</li>` 
+                        : '';
+
+                    li.innerHTML = `
+                        <div class="level-header">
+                            <span class="level-number">#${level.number}</span>
+                            <div class="level-title-group">
+                                <a href="${level.showcase}" target="_blank" class="level-name">${formatLatex(level.name)}</a>
+                                <span class="level-creator">by ${level.creator}</span>
+                            </div>
+                        </div>
+                        <ul class="level-details">
+                            <li class="detail-line"><span class="detail-label">FPS:</span> <span>${formatLatex(level.fps)}</span></li>
+                            <li class="detail-line"><span class="detail-label">ID:</span> ${level.id}</li> 
+                            <li class="detail-line"><span class="detail-label">FV:</span> ${level.fv}</li> 
+                            ${typeHtml}
+                        </ul>
+                    `;
+                    listElement.appendChild(li);
+                });
+
+                if (window.MathJax && window.MathJax.typesetPromise) {
+                    MathJax.typesetPromise();
+                }
+            })
+            .catch(err => {
+                listElement.innerHTML = `<p style="text-align:center; color:red;">Ошибка: ${err.message}</p>`;
+            });
+    }
+
     function createSnowflake() {
         if (!snowToggle.checked) return;
         const snowflake = document.createElement('div');
         snowflake.className = 'snowflake';
-        const size = Math.random() * 5 + 4 + 'px';
+        const size = Math.random() * 5 + 4 + 'px'; 
         snowflake.style.width = size;
         snowflake.style.height = size;
         snowflake.style.left = Math.random() * 100 + 'vw';
@@ -35,75 +128,7 @@ document.addEventListener('DOMContentLoaded', () => {
         snowContainer.appendChild(snowflake);
         setTimeout(() => snowflake.remove(), 7000);
     }
+
     setInterval(createSnowflake, 150);
-
-    // --- 2. ЗАГРУЗКА СПИСКА ---
-    let currentListId = localStorage.getItem('currentListId') || 'levels';
-
-    function loadList(listId) {
-        const config = listMap[listId];
-        document.querySelector('.main-title').innerText = config.title;
-        
-        // Очистка перед загрузкой (исправляет наслоение)
-        listElement.innerHTML = '';
-
-        fetch(config.file + '?t=' + Date.now())
-            .then(response => response.json())
-            .then(data => {
-                data.sort((a, b) => parseInt(a.number) - parseInt(b.number));
-
-                data.forEach(level => {
-                    const section = document.createElement('section');
-                    section.className = 'level-card'; // Возвращаем оригинальный класс
-                    
-                    // ТОЧНАЯ СТРУКТУРА ТВОЕГО ОРИГИНАЛЬНОГО ДИЗАЙНА
-                    section.innerHTML = `
-                        <div class="level-info">
-                            <h2 class="level-title">#${level.number} ${level.name}</h2>
-                            <p class="level-creator">by ${level.creator}</p>
-                            <p class="level-details">FPS: ${level.fps} | ID: ${level.id}</p>
-                            <p class="level-details">FV: ${level.fv} | Type: ${level.type}</p>
-                        </div>
-                        ${level.showcase ? `
-                        <div class="level-showcase">
-                            <iframe src="${level.showcase.replace('watch?v=', 'embed/')}" frameborder="0" allowfullscreen></iframe>
-                        </div>` : ''}
-                    `;
-                    listElement.appendChild(section);
-                });
-
-                if (window.MathJax) MathJax.typesetPromise();
-            })
-            .catch(err => console.error("Ошибка:", err));
-    }
-
-    // --- 3. КНОПКИ И ТЕМЫ ---
-    document.querySelectorAll('.list-button').forEach(button => {
-        if (button.dataset.list === currentListId) button.classList.add('active-list');
-        button.addEventListener('click', () => {
-            currentListId = button.dataset.list;
-            localStorage.setItem('currentListId', currentListId);
-            document.querySelectorAll('.list-button').forEach(btn => btn.classList.remove('active-list'));
-            button.classList.add('active-list');
-            loadList(currentListId);
-        });
-    });
-
-    function setTheme(theme) {
-        document.body.className = `theme-${theme}`;
-        document.querySelectorAll('.theme-button').forEach(btn => {
-            btn.classList.toggle('active-theme', btn.dataset.theme === theme);
-        });
-    }
-
-    document.querySelectorAll('.theme-button').forEach(button => {
-        button.addEventListener('click', () => {
-            const theme = button.dataset.theme;
-            setTheme(theme);
-            localStorage.setItem('siteTheme', theme);
-        });
-    });
-
-    setTheme(localStorage.getItem('siteTheme') || 'dark');
     loadList(currentListId);
 });
