@@ -150,7 +150,17 @@
     "showcase": "https://youtu.be/3lnj7zTl4LI?si=RIVVvUDC2Fl2XnBA"
   },
   {
-    "number": 16,
+    "number": "16",
+    "name": "Loppll",
+    "creator": "NererX",
+    "fps": "~3×10^18",
+    "id": "GMDfile",
+    "fv": "NererX",
+    "type": "Groupless Sequence Stack ",
+    "showcase": "none"
+  },
+  {
+    "number": "17",
     "name": "Unnamed pofik",
     "creator": "kafeechek234",
     "fps": "~2^{32}",
@@ -160,7 +170,7 @@
     "showcase": "https://youtu.be/99zABCzYelg?si=PJwSSX5Ri1MxpwvN"
   },
   {
-    "number": 17,
+    "number": "18",
     "name": "OUTBOUND",
     "creator": "HELFZz",
     "fps": "~1.00663296 \\cdot 10^{9}",
