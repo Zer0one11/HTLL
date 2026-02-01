@@ -59,17 +59,7 @@
     "type": "PrSS (weak)",
     "showcase": "https://vm.tiktok.com/ZMATFwqSy/"
   },
-  {
-    "number": "7",
-    "name": "Recursion Overload",
-    "creator": "Yebok228228",
-    "fps": "~f_{\\omega^{2}}(6969)",
-    "id": "127524787",
-    "fv": "yebok228228",
-    "type": "Reordered ackermann",
-    "showcase": "Ne ebu ne moy lvl"
-  },
-  {
+{
     "number": "7",
     "name": "cYyycq",
     "creator": "Osirissssss ",
@@ -81,6 +71,16 @@
   },
   {
     "number": "8",
+    "name": "Recursion Overload",
+    "creator": "Yebok228228",
+    "fps": "~f_{\\omega^{2}}(6969)",
+    "id": "127524787",
+    "fv": "yebok228228",
+    "type": "Reordered ackermann",
+    "showcase": "Ne ebu ne moy lvl"
+  },
+  {
+    "number": "9",
     "name": "Pulsewidth",
     "creator": "Osirissssss",
     "fps": "60 \\ cps \\ for \\ f_{\\omega \\cdot 496+\\omega}(496) \\ seconds",
@@ -90,7 +90,7 @@
     "showcase": "https://vm.tiktok.com/ZMATHATB5/"
   },
   {
-    "number": "9",
+    "number": "11",
     "name": "Recursion Softload",
     "creator": "Osirissssss",
     "fps": "~f_{\\omega 2}(6969)",
@@ -100,7 +100,7 @@
     "showcase": "Нету"
   },
   {
-    "number": "10",
+    "number": "12",
     "name": "6e8d",
     "creator": "Dokazatb",
     "fps": "~f_{\\omega}(2^{32} \\cdot 10000)",
@@ -110,7 +110,7 @@
     "showcase": "https://youtu.be/O93JdiHFYis"
   },
   {
-    "number": "11",
+    "number": "13",
     "name": "The final",
     "creator": "Zipin",
     "fps": "~1488\\{1488\\}1488",
@@ -120,7 +120,7 @@
     "showcase": "сделайте шоукейси"
   },
   {
-    "number": "12",
+    "number": "14",
     "name": "Dry out so easy",
     "creator": "Прячти",
     "fps": "~2\\{32\\}22",
@@ -130,7 +130,7 @@
     "showcase": "https://vt.tiktok.com/ZSfNxFqWq/"
   },
   {
-    "number": "13",
+    "number": "15",
     "name": "Black trouble",
     "creator": "KryXo & oilo",
     "fps": "2\\{8\\}6",
@@ -140,7 +140,7 @@
     "showcase": "None"
   },
   {
-    "number": "14",
+    "number": "16",
     "name": "ODNAZDI",
     "creator": "Прячти",
     "fps": "~2 \\uparrow\\uparrow\\uparrow\\uparrow\\uparrow 10",
@@ -150,7 +150,7 @@
     "showcase": "https://vt.tiktok.com/ZSykktC23/"
   },
   {
-    "number": "15",
+    "number": "17",
     "name": "Black lvl",
     "creator": "Fluristpl",
     "fps": "~100 \\uparrow\\uparrow\\uparrow\\uparrow 2^{32}",
@@ -160,7 +160,7 @@
     "showcase": "https://youtu.be/17EgpvfN090?si=_FMO036Va6CAjqcs"
   },
   {
-    "number": "16",
+    "number": "18",
     "name": "JL NEVER CLEAR",
     "creator": "Osirissssss",
     "fps": "~Collatz(837799)",
