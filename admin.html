@@ -43,7 +43,7 @@
             font-weight: 700; text-transform: uppercase; transition: 0.3s; font-family: 'Oswald', sans-serif;
         }
         .btn-primary { background: #fff; color: #000; }
-        .btn-sync { background: #00ff00; color: #000; font-weight: 900; }
+        .btn-sync { background: #00ff00; color: #000; font-weight: 900; width: 100%; }
         .btn-del { background: #ff4444; color: #fff; padding: 5px 10px; font-size: 10px; }
 
         .level-form {
@@ -60,8 +60,10 @@
         
         #auth-screen { text-align: center; margin-top: 100px; }
         #admin-panel { display: none; width: 100%; max-width: 900px; }
+        .status-msg { text-align: center; margin-top: 15px; font-weight: bold; }
         
-        .status-msg { text-align: center; margin-top: 10px; font-size: 0.9rem; }
+        .logout-btn { background: none; border: 1px solid #333; color: #555; font-size: 10px; padding: 5px; margin-bottom: 10px; cursor: pointer; border-radius: 5px; }
+        .logout-btn:hover { color: #fff; border-color: #fff; }
     </style>
 </head>
 <body>
@@ -70,10 +72,11 @@
         <h1>ADMIN ACCESS</h1>
         <input type="text" id="login" placeholder="Login">
         <input type="password" id="password" placeholder="Password">
-        <button class="btn btn-primary" onclick="checkAuth()" style="width: 100%;">Войти</button>
+        <button class="btn btn-primary" onclick="manualLogin()" style="width: 100%;">Войти</button>
     </div>
 
     <div id="admin-panel">
+        <button class="logout-btn" onclick="logout()">ВЫЙТИ ИЗ АККАУНТА</button>
         <div class="container">
             <h1>HTLL DASHBOARD</h1>
             
@@ -101,8 +104,8 @@
                 <input type="text" id="inpFV" placeholder="FV">
                 <input type="text" id="inpType" placeholder="Тип">
                 <input type="text" id="inpShowcase" placeholder="Showcase URL">
-                <button class="btn btn-primary" onclick="addOrUpdate()" id="submitBtn" style="grid-column: span 2;">Добавить / Сохранить</button>
-                <button class="btn" onclick="resetForm()" style="grid-column: span 2; background: #222; color: #666;">Очистить форму</button>
+                <button class="btn btn-primary" onclick="addOrUpdate()" id="submitBtn" style="grid-column: span 2;">Применить / Сохранить в список</button>
+                <button class="btn" onclick="resetForm()" style="grid-column: span 2; background: #222; color: #555;">Очистить форму</button>
             </div>
 
             <div id="listContainer"></div>
@@ -121,16 +124,38 @@
         { user: 'ByHanseLLL', pass: '11540hanse' }
     ];
 
-    function checkAuth() {
-        const l = document.getElementById('login').value;
+    // Авто-логин при загрузке
+    window.onload = () => {
+        const u = localStorage.getItem('at_u');
+        const p = localStorage.getItem('at_p');
+        if (u && p) {
+            checkAuth(u, p, true);
+        }
+    };
+
+    function manualLogin() {
+        const u = document.getElementById('login').value;
         const p = document.getElementById('password').value;
+        checkAuth(u, p, false);
+    }
+
+    function checkAuth(l, p, isAuto) {
         const found = USERS.find(u => u.user === l && u.pass === p);
         if (found) {
             sessionUser = l; sessionPass = p;
+            localStorage.setItem('at_u', l);
+            localStorage.setItem('at_p', p);
             document.getElementById('auth-screen').style.display = 'none';
             document.getElementById('admin-panel').style.display = 'block';
             loadList();
-        } else { alert("Ошибка доступа."); }
+        } else if (!isAuto) {
+            alert("Неверный логин или пароль");
+        }
+    }
+
+    function logout() {
+        localStorage.clear();
+        location.reload();
     }
 
     async function loadList() {
@@ -198,31 +223,32 @@
 
     function deleteLevel(e, i) {
         e.stopPropagation();
-        if (confirm("Удалить?")) { currentData.splice(i, 1); render(); }
+        if (confirm("Удалить уровень из списка?")) {
+            currentData.splice(i, 1);
+            render();
+        }
     }
 
     async function saveToGitHub() {
         const status = document.getElementById('statusMsg');
-        status.innerText = "Синхронизация...";
+        status.innerText = "СОХРАНЕНИЕ..."; status.style.color = "white";
         const file = document.getElementById('fileSelect').value;
         try {
             const res = await fetch('/api/update', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    login: sessionUser,
-                    password: sessionPass,
-                    fileName: file,
-                    newData: currentData
+                    login: sessionUser, password: sessionPass,
+                    fileName: file, newData: currentData
                 })
             });
             const result = await res.json();
             if (result.success) {
-                status.innerText = "Успешно обновлено!";
+                status.innerText = "УСПЕШНО СОХРАНЕНО НА GITHUB!";
                 status.style.color = "#00ff00";
             } else { throw new Error(result.error); }
         } catch (err) {
-            status.innerText = "Ошибка: " + err.message;
+            status.innerText = "ОШИБКА: " + err.message;
             status.style.color = "#ff4444";
         }
     }
