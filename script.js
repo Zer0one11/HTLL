@@ -24,11 +24,11 @@ document.addEventListener('DOMContentLoaded', () => {
     
     setTheme(localStorage.getItem('siteTheme') || 'dark');
 
-    // Предзагрузка всех данных для глобального поиска
+    // Предзагрузка всех данных для поиска по всему сайту
     Object.values(listMap).forEach(item => {
         fetch(item.file).then(r => r.json()).then(data => {
             globalData = [...globalData, ...data];
-        }).catch(e => console.error("Ошибка загрузки для поиска:", e));
+        }).catch(e => console.error("Ошибка загрузки данных:", e));
     });
 
     const snowSaved = localStorage.getItem('snowEnabled');
@@ -37,12 +37,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function setTheme(themeName) { body.className = `theme-${themeName}`; }
 
-    // ФИКС ЛАТЕКСА: Убрана лишняя обработка \text{}, которая всё ломала
+    // ИСПРАВЛЕННЫЙ ЛАТЕКС: Никакого \text{}, только доллары при необходимости
     function formatLatex(text) {
         if (typeof text !== 'string' || text === "none") return text;
-        // Если есть символы формул и нет знаков $, оборачиваем
-        const hasLatexSymbols = /[\^\\_]/.test(text);
-        if (hasLatexSymbols && !text.includes('$')) {
+        
+        // Если в строке есть символы формул и она еще не обернута в доллары
+        const needsLatex = /[\^\\_]/.test(text);
+        if (needsLatex && !text.includes('$')) {
             return `$${text}$`;
         }
         return text;
@@ -74,7 +75,10 @@ document.addEventListener('DOMContentLoaded', () => {
             `;
             listElement.appendChild(li);
         });
-        if (window.MathJax) MathJax.typesetPromise();
+        
+        if (window.MathJax && window.MathJax.typesetPromise) {
+            MathJax.typesetPromise([listElement]);
+        }
     }
 
     function loadList(listId) {
@@ -88,26 +92,28 @@ document.addEventListener('DOMContentLoaded', () => {
             });
     }
 
-    // ПОИСК ПО ВСЕМ ЛИСТАМ
-    searchInput.addEventListener('input', (e) => {
-        const val = e.target.value.toLowerCase();
-        if (val.length === 0) {
-            render(currentListData);
-            mainTitle.textContent = listMap[currentListId].title;
-            return;
-        }
-        mainTitle.textContent = "SEARCH RESULTS";
-        const filtered = globalData.filter(l => 
-            (l.name && l.name.toLowerCase().includes(val)) || 
-            (l.id && l.id.toString().includes(val))
-        );
-        render(filtered);
-    });
+    // Поиск по всем листам сразу
+    if (searchInput) {
+        searchInput.addEventListener('input', (e) => {
+            const val = e.target.value.toLowerCase();
+            if (val.length === 0) {
+                render(currentListData);
+                mainTitle.textContent = listMap[currentListId].title;
+                return;
+            }
+            mainTitle.textContent = "SEARCH RESULTS";
+            const filtered = globalData.filter(l => 
+                (l.name && l.name.toLowerCase().includes(val)) || 
+                (l.id && l.id.toString().includes(val))
+            );
+            render(filtered);
+        });
+    }
 
     listButtons.forEach(button => {
         if (button.dataset.list === currentListId) button.classList.add('active-list');
         button.addEventListener('click', () => {
-            searchInput.value = '';
+            if (searchInput) searchInput.value = '';
             currentListId = button.dataset.list;
             localStorage.setItem('currentListId', currentListId);
             loadList(currentListId);
