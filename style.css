@@ -1,4 +1,4 @@
-/* --- ПЕРЕМЕННЫЕ --- */
+/* Твои переменные без изменений */
 :root {
     --bg-main: #0a0a0b;
     --bg-card: rgba(255, 255, 255, 0.03);
@@ -21,13 +21,11 @@ body.theme-dark {
     --color-accent: #cccccc;
 }
 
-/* --- ОБЩИЕ СТИЛИ --- */
 body {
     font-family: 'Montserrat', sans-serif;
     background-color: var(--bg-main);
     color: var(--color-text);
     margin: 0; padding: 20px;
-    transition: background 0.4s ease;
     position: relative;
 }
 
@@ -53,12 +51,32 @@ header {
     font-size: 1.1rem;
     letter-spacing: 2px;
     opacity: 0.8;
-    transition: 0.3s;
 }
-.channel-link:hover { opacity: 1; color: var(--color-text); }
 
-.list-switcher { margin-bottom: 15px; }
-.theme-switcher { margin-bottom: 40px; }
+.list-switcher, .theme-switcher { margin-bottom: 15px; }
+
+/* ПОИСК В РАЗМЕР КАРТОЧЕК */
+.search-container {
+    max-width: 800px; /* Идентично #levelList */
+    margin: 0 auto 30px;
+}
+
+#levelSearch {
+    width: 100%;
+    box-sizing: border-box; /* Чтобы padding не раздувал ширину */
+    background: var(--bg-card);
+    backdrop-filter: var(--blur-val);
+    border: 1px solid rgba(128, 128, 128, 0.1);
+    border-radius: 20px; /* Как у карточек */
+    padding: 15px 25px;
+    color: var(--color-text);
+    font-family: 'Montserrat', sans-serif;
+    outline: none;
+    font-size: 1rem;
+}
+
+#levelSearch:focus { border-color: var(--color-accent); }
+#levelSearch::placeholder { color: var(--color-accent); opacity: 0.5; text-transform: uppercase; font-family: 'Oswald'; }
 
 /* КАРТОЧКИ */
 #levelList { max-width: 800px; margin: 0 auto; padding: 0; list-style: none; }
@@ -73,84 +91,36 @@ header {
     margin-bottom: 25px;
 }
 
-.level-header {
-    display: flex;
-    align-items: baseline;
-    gap: 12px;
-    margin-bottom: 15px;
-}
-
-.level-number {
-    font-size: 1.8rem; 
-    font-weight: 700;
-    color: var(--color-accent);
-    min-width: 45px;
-}
-
+.level-header { display: flex; align-items: baseline; gap: 12px; margin-bottom: 15px; }
+.level-number { font-size: 1.8rem; font-weight: 700; color: var(--color-accent); min-width: 45px; }
 .level-title-group { display: flex; flex-direction: column; text-align: left; }
 .level-name { font-size: 1.8rem; font-weight: 700; color: inherit; text-decoration: none; }
-.level-creator { font-size: 0.9rem; opacity: 0.7; margin-top: 2px; }
+.level-creator { font-size: 0.9rem; opacity: 0.7; }
 
-.level-details {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 6px;
-    list-style: none;
-    padding: 0; margin: 0;
-}
-.detail-label {
-    font-weight: 700; font-size: 0.75rem;
-    color: var(--color-accent);
-    text-transform: uppercase; margin-right: 8px;
-}
+.level-details { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; list-style: none; padding: 0; }
+.detail-label { font-weight: 700; font-size: 0.75rem; color: var(--color-accent); text-transform: uppercase; margin-right: 8px; }
 
 /* ПОЛЗУНОК СНЕГА */
 .snow-ui-fixed {
-    position: absolute; 
-    top: 25px; left: 25px;
-    z-index: 10000;
+    position: absolute; top: 25px; left: 25px; z-index: 10000;
     display: flex; align-items: center; gap: 10px;
     background: rgba(128, 128, 128, 0.15);
-    padding: 7px 14px; border-radius: 40px;
-    backdrop-filter: blur(10px);
+    padding: 7px 14px; border-radius: 40px; backdrop-filter: blur(10px);
 }
-.snow-text { font-family: 'Oswald', sans-serif; font-size: 0.8rem; color: var(--color-text); }
-
+.snow-text { font-family: 'Oswald', sans-serif; font-size: 0.8rem; }
 .snow-switch { position: relative; display: inline-block; width: 34px; height: 18px; }
 .snow-switch input { opacity: 0; width: 0; height: 0; }
-.snow-slider {
-    position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
-    background-color: rgba(128, 128, 128, 0.3); transition: .4s; border-radius: 34px;
-}
-.snow-slider:before {
-    position: absolute; content: ""; height: 12px; width: 12px; left: 3px; bottom: 3px;
-    background-color: #888; transition: .4s; border-radius: 50%;
-}
+.snow-slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(128, 128, 128, 0.3); border-radius: 34px; transition: .4s; }
+.snow-slider:before { position: absolute; content: ""; height: 12px; width: 12px; left: 3px; bottom: 3px; background-color: #888; border-radius: 50%; transition: .4s; }
 input:checked + .snow-slider:before { transform: translateX(16px); background-color: var(--color-text); }
 
-/* СНЕЖИНКИ */
 #snow-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: -1; }
-.snowflake { position: absolute; background: #fff; border-radius: 50%; top: -10px; animation: fall linear forwards; }
+.snowflake { position: absolute; background: #fff; border-radius: 50%; animation: fall linear forwards; }
 body.theme-light .snowflake { background: #000 !important; }
-
 @keyframes fall { to { transform: translateY(105vh); } }
 
-/* КНОПКИ */
 .list-button, .theme-button {
     background: transparent; border: 1px solid rgba(128, 128, 128, 0.2);
-    color: inherit; padding: 6px 14px; border-radius: 30px;
-    cursor: pointer; margin: 3px; font-size: 0.8rem; transition: 0.3s;
+    color: inherit; padding: 6px 14px; border-radius: 30px; cursor: pointer; margin: 3px; font-size: 0.8rem;
 }
 .active-theme, .active-list { background: var(--color-text) !important; color: var(--bg-main) !important; }
-
-/* ПОИСК (БЕЗ УБОГОСТИ) */
-.search-container { margin: 0 auto 30px; max-width: 400px; }
-#levelSearch {
-    width: 100%; background: var(--bg-card); backdrop-filter: var(--blur-val);
-    border: 1px solid rgba(128, 128, 128, 0.2); border-radius: 40px;
-    padding: 10px 20px; color: var(--color-text); text-align: center;
-    font-family: 'Montserrat', sans-serif; outline: none; transition: 0.3s;
-}
-#levelSearch:focus { border-color: var(--color-text); background: rgba(128, 128, 128, 0.1); }
-#levelSearch::placeholder { color: var(--color-accent); opacity: 0.5; font-family: 'Oswald', sans-serif; }
