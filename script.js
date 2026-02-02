@@ -24,25 +24,25 @@ document.addEventListener('DOMContentLoaded', () => {
     
     setTheme(localStorage.getItem('siteTheme') || 'dark');
 
-    // Предзагрузка всех листов для глобального поиска
+    // Предзагрузка всех данных для глобального поиска
     Object.values(listMap).forEach(item => {
         fetch(item.file).then(r => r.json()).then(data => {
             globalData = [...globalData, ...data];
         }).catch(e => console.error("Ошибка загрузки для поиска:", e));
     });
 
-    // Сохранение состояния снега
     const snowSaved = localStorage.getItem('snowEnabled');
     snowToggle.checked = snowSaved !== 'false'; 
     snowToggle.addEventListener('change', () => localStorage.setItem('snowEnabled', snowToggle.checked));
 
     function setTheme(themeName) { body.className = `theme-${themeName}`; }
 
-    // ФИКС ЛАТЕКСА: Просто оборачиваем в доллары, если есть признаки формулы
+    // ФИКС ЛАТЕКСА: Убрана лишняя обработка \text{}, которая всё ломала
     function formatLatex(text) {
         if (typeof text !== 'string' || text === "none") return text;
-        const hasSymbols = /[\^\\_]/.test(text); 
-        if (hasSymbols && !text.includes('$')) {
+        // Если есть символы формул и нет знаков $, оборачиваем
+        const hasLatexSymbols = /[\^\\_]/.test(text);
+        if (hasLatexSymbols && !text.includes('$')) {
             return `$${text}$`;
         }
         return text;
@@ -88,7 +88,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
     }
 
-    // Глобальный поиск
+    // ПОИСК ПО ВСЕМ ЛИСТАМ
     searchInput.addEventListener('input', (e) => {
         const val = e.target.value.toLowerCase();
         if (val.length === 0) {
@@ -98,7 +98,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         mainTitle.textContent = "SEARCH RESULTS";
         const filtered = globalData.filter(l => 
-            l.name.toLowerCase().includes(val) || l.id.toString().includes(val)
+            (l.name && l.name.toLowerCase().includes(val)) || 
+            (l.id && l.id.toString().includes(val))
         );
         render(filtered);
     });
