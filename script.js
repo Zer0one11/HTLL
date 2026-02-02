@@ -17,11 +17,11 @@ document.addEventListener('DOMContentLoaded', () => {
         'icl': { file: 'icl.json', title: 'ICL LIST' }
     };
 
-    let allData = []; // Для поиска
+    let allData = []; 
     let currentListId = localStorage.getItem('currentListId') || 'levels';
     setTheme(localStorage.getItem('siteTheme') || 'dark');
 
-    // СОХРАНЕНИЕ СНЕГА [Добавлено]
+    // --- СОХРАНЕНИЕ СНЕГА ---
     const snowSaved = localStorage.getItem('snowEnabled');
     snowToggle.checked = snowSaved !== 'false'; 
     snowToggle.addEventListener('change', () => localStorage.setItem('snowEnabled', snowToggle.checked));
@@ -37,23 +37,17 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     listButtons.forEach(button => {
-        // Подсветка активной кнопки при загрузке [Добавлено]
         if (button.dataset.list === currentListId) button.classList.add('active-list');
-        
         button.addEventListener('click', () => {
             currentListId = button.dataset.list;
             localStorage.setItem('currentListId', currentListId);
             loadList(currentListId);
             listButtons.forEach(btn => btn.classList.remove('active-list'));
             button.classList.add('active-list');
-            const sInput = document.getElementById('levelSearch');
-            if(sInput) sInput.value = '';
         });
     });
 
-    function setTheme(themeName) {
-        body.className = `theme-${themeName}`;
-    }
+    function setTheme(themeName) { body.className = `theme-${themeName}`; }
 
     function formatLatex(text) {
         if (typeof text !== 'string' || text === "none") return text;
@@ -66,9 +60,8 @@ document.addEventListener('DOMContentLoaded', () => {
         return text;
     }
 
-    // РЕНДЕР КАРТОЧЕК (Твоя структура)
     function renderCards(data) {
-        listElement.innerHTML = '';
+        listElement.innerHTML = ''; // Чистим перед рендером
         data.forEach(level => {
             const li = document.createElement('li');
             li.className = 'level-item';
@@ -95,15 +88,13 @@ document.addEventListener('DOMContentLoaded', () => {
             listElement.appendChild(li);
         });
 
-        if (window.MathJax && window.MathJax.typesetPromise) {
-            MathJax.typesetPromise();
-        }
+        if (window.MathJax && window.MathJax.typesetPromise) { MathJax.typesetPromise(); }
     }
 
     function loadList(listId) {
         const listConfig = listMap[listId];
         mainTitle.textContent = listConfig.title;
-        listElement.innerHTML = ''; // Фикс наслоения
+        listElement.innerHTML = '<p style="text-align:center;">Загрузка...</p>';
 
         fetch(listConfig.file + '?t=' + Date.now())
             .then(r => r.json())
@@ -111,12 +102,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 allData = data.sort((a, b) => parseInt(a.number) - parseInt(b.number));
                 renderCards(allData);
             })
-            .catch(err => {
-                listElement.innerHTML = `<p style="text-align:center; color:red;">Ошибка: ${err.message}</p>`;
-            });
+            .catch(err => { listElement.innerHTML = `<p>Ошибка: ${err.message}</p>`; });
     }
 
-    // ЛОГИКА ПОИСКА
+    // ПОИСК (Привязан к ID "levelSearch" в HTML)
     const searchInput = document.getElementById('levelSearch');
     if (searchInput) {
         searchInput.addEventListener('input', (e) => {
@@ -140,7 +129,6 @@ document.addEventListener('DOMContentLoaded', () => {
         snowContainer.appendChild(snowflake);
         setTimeout(() => snowflake.remove(), 7000);
     }
-
     setInterval(createSnowflake, 150);
     loadList(currentListId);
 });
