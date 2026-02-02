@@ -1,3 +1,20 @@
+// 1. КОНФИГУРАЦИЯ MATHJAX (должна быть до загрузки основного скрипта MathJax в HTML)
+window.MathJax = {
+    tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        processEscapes: true
+    },
+    options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+    },
+    startup: {
+        pageReady: () => {
+            return MathJax.startup.defaultPageReady();
+        }
+    }
+};
+
 document.addEventListener('DOMContentLoaded', () => {
     const listElement = document.getElementById('levelList');
     const body = document.body;
@@ -40,30 +57,29 @@ document.addEventListener('DOMContentLoaded', () => {
     function setTheme(themeName) { body.className = `theme-${themeName}`; }
 
     /**
-     * ФИКС ЛАТЕКСА
-     * 1. Восстанавливает бэкслеши перед командами (text, frac и т.д.)
-     * 2. Оборачивает в доллары для MathJax
+     * УЛЬТИМАТИВНЫЙ ФИКС ЛАТЕКСА
      */
     function formatLatex(text) {
         if (typeof text !== 'string' || text === "none" || text.trim() === "") return text;
 
         let processed = text;
 
-        // Список команд, перед которыми часто теряется бэкслеш в JSON
-        const commands = ['text', 'frac', 'sqrt', 'cdot', 'times', 'alpha', 'beta'];
-        
-        commands.forEach(cmd => {
-            // Ищем слово cmd, если перед ним нет бэкслеша
-            // Используем конструкцию, совместимую с большинством браузеров
-            if (processed.includes(cmd) && !processed.includes('\\' + cmd)) {
-                processed = processed.replace(new RegExp(cmd, 'g'), '\\' + cmd);
-            }
+        // Фикс: если JSON "съел" бэкслеши перед командами
+        // Заменяем "text{" на "\text{" и т.д.
+        const keywords = ['text', 'frac', 'sqrt', 'cdot', 'times'];
+        keywords.forEach(word => {
+            // Регулярка ищет слово, перед которым НЕТ бэкслеша
+            const regex = new RegExp(`(?<!\\\\)${word}`, 'g');
+            processed = processed.replace(regex, `\\${word}`);
         });
 
-        // Если в строке есть признаки LaTeX (\, ^, _, { }), оборачиваем в доллары
-        const hasLatexSigns = /[\^\\_{}]/.test(processed);
-        if (hasLatexSigns && !processed.includes('$')) {
-            return `$${processed}$`;
+        // Фикс: если вдруг бэкслеши удвоились/утроились (\\\\text -> \text)
+        processed = processed.replace(/\\+/g, '\\');
+
+        // Оборачиваем в доллары, если есть спецсимволы LaTeX, но нет самих долларов
+        const latexPattern = /[\^\\_{}]/;
+        if (latexPattern.test(processed) && !processed.includes('$')) {
+            processed = `$${processed}$`;
         }
 
         return processed;
@@ -77,7 +93,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const li = document.createElement('li');
             li.className = 'level-item';
             
-            // Обрабатываем тип уровня, если он есть
             let typeHtml = (level.type && level.type !== "none") 
                 ? `<li class="detail-line"><span class="detail-label">Type:</span> ${formatLatex(level.type)}</li>` 
                 : '';
@@ -100,29 +115,26 @@ document.addEventListener('DOMContentLoaded', () => {
             listElement.appendChild(li);
         });
         
-        // Перерисовываем MathJax после добавления элементов в DOM
-        if (window.MathJax && window.MathJax.typesetPromise) {
-            window.MathJax.typesetPromise([listElement]).catch((err) => console.log('MathJax error:', err));
-        }
+        // ПРИНУДИТЕЛЬНЫЙ РЕНДЕР MATHJAX
+        // Используем небольшую задержку, чтобы DOM успел обновиться
+        setTimeout(() => {
+            if (window.MathJax && window.MathJax.typesetPromise) {
+                window.MathJax.typesetPromise([listElement]).catch(err => console.error(err));
+            }
+        }, 10);
     }
 
     function loadList(listId) {
         const config = listMap[listId];
         if (!config) return;
-        
         if (mainTitle) mainTitle.textContent = config.title;
         
         fetch(config.file + '?t=' + Date.now())
             .then(r => r.json())
             .then(data => {
-                currentListData = data.sort((a, b) => {
-                    const numA = parseInt(a.number) || 0;
-                    const numB = parseInt(b.number) || 0;
-                    return numA - numB;
-                });
+                currentListData = data.sort((a, b) => (parseInt(a.number) || 0) - (parseInt(b.number) || 0));
                 render(currentListData);
-            })
-            .catch(err => console.error("Load error:", err));
+            });
     }
 
     if (searchInput) {
@@ -136,8 +148,7 @@ document.addEventListener('DOMContentLoaded', () => {
             mainTitle.textContent = "SEARCH RESULTS";
             const filtered = globalData.filter(l => 
                 (l.name && l.name.toLowerCase().includes(val)) || 
-                (l.id && l.id.toString().includes(val)) ||
-                (l.creator && l.creator.toLowerCase().includes(val))
+                (l.id && l.id.toString().includes(val))
             );
             render(filtered);
         });
@@ -170,15 +181,13 @@ document.addEventListener('DOMContentLoaded', () => {
         const snowflake = document.createElement('div');
         snowflake.className = 'snowflake';
         const size = Math.random() * 5 + 4 + 'px'; 
-        snowflake.style.width = size; 
-        snowflake.style.height = size;
+        snowflake.style.width = size; snowflake.style.height = size;
         snowflake.style.left = Math.random() * 100 + 'vw';
         snowflake.style.animationDuration = Math.random() * 3 + 4 + 's';
         snowflake.style.opacity = Math.random() * 0.6 + 0.4;
         snowContainer.appendChild(snowflake);
         setTimeout(() => snowflake.remove(), 7000);
     }
-
     setInterval(createSnowflake, 150);
     loadList(currentListId);
 });
