@@ -6,19 +6,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const listButtons = document.querySelectorAll('.list-button');
     const snowToggle = document.getElementById('snow-toggle');
     const snowContainer = document.getElementById('snow-container');
-    
-    // Создаем контейнер для поиска (стиль как у кнопки снега)
-    const controlsContainer = document.querySelector('.controls') || document.body;
-    const searchWrapper = document.createElement('div');
-    searchWrapper.className = 'search-wrapper';
-    searchWrapper.innerHTML = `
-        <input type="text" id="levelSearch" placeholder="Поиск уровня по названию или ID..." autocomplete="off">
-    `;
-    // Вставляем поиск перед списком или в блок управления
-    const topSection = document.querySelector('.top-section') || body;
-    topSection.appendChild(searchWrapper);
-
-    const searchInput = document.getElementById('levelSearch');
 
     const listMap = {
         'levels': { file: 'levels.json', title: 'TPLL LIST' },
@@ -30,11 +17,11 @@ document.addEventListener('DOMContentLoaded', () => {
         'icl': { file: 'icl.json', title: 'ICL LIST' }
     };
 
-    let allData = []; // Хранилище для всех уровней текущего списка
+    let allData = []; // Для поиска
     let currentListId = localStorage.getItem('currentListId') || 'levels';
     setTheme(localStorage.getItem('siteTheme') || 'dark');
 
-    // СОХРАНЕНИЕ СНЕГА
+    // СОХРАНЕНИЕ СНЕГА [Добавлено]
     const snowSaved = localStorage.getItem('snowEnabled');
     snowToggle.checked = snowSaved !== 'false'; 
     snowToggle.addEventListener('change', () => localStorage.setItem('snowEnabled', snowToggle.checked));
@@ -50,18 +37,23 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     listButtons.forEach(button => {
+        // Подсветка активной кнопки при загрузке [Добавлено]
         if (button.dataset.list === currentListId) button.classList.add('active-list');
+        
         button.addEventListener('click', () => {
             currentListId = button.dataset.list;
             localStorage.setItem('currentListId', currentListId);
             loadList(currentListId);
             listButtons.forEach(btn => btn.classList.remove('active-list'));
             button.classList.add('active-list');
-            searchInput.value = ''; // Сброс поиска при смене списка
+            const sInput = document.getElementById('levelSearch');
+            if(sInput) sInput.value = '';
         });
     });
 
-    function setTheme(themeName) { body.className = `theme-${themeName}`; }
+    function setTheme(themeName) {
+        body.className = `theme-${themeName}`;
+    }
 
     function formatLatex(text) {
         if (typeof text !== 'string' || text === "none") return text;
@@ -74,12 +66,12 @@ document.addEventListener('DOMContentLoaded', () => {
         return text;
     }
 
-    function renderList(data) {
+    // РЕНДЕР КАРТОЧЕК (Твоя структура)
+    function renderCards(data) {
         listElement.innerHTML = '';
-        data.forEach((level, index) => {
+        data.forEach(level => {
             const li = document.createElement('li');
             li.className = 'level-item';
-            li.style.animationDelay = `${index * 0.05}s`; // Плавное каскадное появление
             
             let typeHtml = (level.type && level.type !== "none") 
                 ? `<li class="detail-line"><span class="detail-label">Type:</span> ${formatLatex(level.type)}</li>` 
@@ -111,27 +103,30 @@ document.addEventListener('DOMContentLoaded', () => {
     function loadList(listId) {
         const listConfig = listMap[listId];
         mainTitle.textContent = listConfig.title;
-        listElement.innerHTML = ''; 
+        listElement.innerHTML = ''; // Фикс наслоения
 
         fetch(listConfig.file + '?t=' + Date.now())
             .then(r => r.json())
             .then(data => {
                 allData = data.sort((a, b) => parseInt(a.number) - parseInt(b.number));
-                renderList(allData);
+                renderCards(allData);
             })
-            .catch(err => console.error("Ошибка:", err));
+            .catch(err => {
+                listElement.innerHTML = `<p style="text-align:center; color:red;">Ошибка: ${err.message}</p>`;
+            });
     }
 
     // ЛОГИКА ПОИСКА
-    searchInput.addEventListener('input', (e) => {
-        const term = e.target.value.toLowerCase();
-        const filtered = allData.filter(level => 
-            level.name.toLowerCase().includes(term) || 
-            level.id.toString().includes(term) ||
-            level.creator.toLowerCase().includes(term)
-        );
-        renderList(filtered);
-    });
+    const searchInput = document.getElementById('levelSearch');
+    if (searchInput) {
+        searchInput.addEventListener('input', (e) => {
+            const val = e.target.value.toLowerCase();
+            const filtered = allData.filter(l => 
+                l.name.toLowerCase().includes(val) || l.id.toString().includes(val)
+            );
+            renderCards(filtered);
+        });
+    }
 
     function createSnowflake() {
         if (!snowToggle.checked) return;
