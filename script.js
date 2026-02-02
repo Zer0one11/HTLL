@@ -24,11 +24,11 @@ document.addEventListener('DOMContentLoaded', () => {
     
     setTheme(localStorage.getItem('siteTheme') || 'dark');
 
-    // Предзавантаження всіх даних для глобального пошуку
+    // Предзагрузка данных для поиска по всем спискам сразу
     Object.values(listMap).forEach(item => {
         fetch(item.file).then(r => r.json()).then(data => {
             globalData = [...globalData, ...data];
-        }).catch(e => console.error("Помилка завантаження:", e));
+        }).catch(e => console.error("Ошибка загрузки:", e));
     });
 
     const snowSaved = localStorage.getItem('snowEnabled');
@@ -37,9 +37,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function setTheme(themeName) { body.className = `theme-${themeName}`; }
 
-    // ІСПРАВЛЕНИЙ ЛАТЕКС: Просто загортаємо в $ якщо є спецсимволи
+    // ФИКС ЛАТЕКСА: Просто оборачиваем в доллары, если есть спецсимволы
     function formatLatex(text) {
         if (typeof text !== 'string' || text === "none") return text;
+        // Проверяем на наличие символов формул: \, ^, _
         const hasLatex = /[\^\\_]/.test(text);
         if (hasLatex && !text.includes('$')) {
             return `$${text}$`;
@@ -74,6 +75,7 @@ document.addEventListener('DOMContentLoaded', () => {
             listElement.appendChild(li);
         });
         
+        // Перерисовываем MathJax
         if (window.MathJax && window.MathJax.typesetPromise) {
             MathJax.typesetPromise([listElement]);
         }
@@ -90,7 +92,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
     }
 
-    // ГЛОБАЛЬНИЙ ПОШУК
+    // ПОИСК ПО ВСЕМ СПИСКАМ
     if (searchInput) {
         searchInput.addEventListener('input', (e) => {
             const val = e.target.value.toLowerCase();
