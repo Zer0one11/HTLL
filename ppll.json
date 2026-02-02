@@ -69,18 +69,8 @@
     "type": "Pickup Stack",
     "showcase": "https://vt.tiktok.com/ZSfR3RUVq/"
   },
-  {
+{
     "number": "8",
-    "name": "SadPPLL",
-    "creator": "HELFZz & nojjel",
-    "fps": "3 \\ cps \\ for \\ \\sim 9 \\cdot 10^{804}",
-    "id": "128159596",
-    "fv": "HELFZz",
-    "type": "Collision stack + Spawn",
-    "showcase": "https://youtu.be/Yfyc54jKrrY?si=rdgwtndS1MQkLaE-"
-  },
-  {
-    "number": "9",
     "name": "TWO",
     "creator": "HELFZz",
     "fps": "~10^{4390}",
@@ -89,8 +79,8 @@
     "type": "Collision Stack + Pickup Stack",
     "showcase": "https://vt.tiktok.com/ZSU33fxEo/"
   },
-  {
-    "number": "10",
+{
+    "number": "9",
     "name": "Victim PPLL",
     "creator": "Adenlite",
     "fps": "10^{3853}",
@@ -98,6 +88,16 @@
     "fv": "Adenlite",
     "type": "Groupless Sequence Stack",
     "showcase": "none"
+  },
+  {
+    "number": "10",
+    "name": "SadPPLL",
+    "creator": "HELFZz & nojjel",
+    "fps": "3 \\ cps \\ for \\ \\sim 9 \\cdot 10^{804}",
+    "id": "128159596",
+    "fv": "HELFZz",
+    "type": "Collision stack + Spawn",
+    "showcase": "https://youtu.be/Yfyc54jKrrY?si=rdgwtndS1MQkLaE-"
   },
   {
     "number": "11",
@@ -160,7 +160,7 @@
     "showcase": "https://youtu.be/3lnj7zTl4LI?si=RIVVvUDC2Fl2XnBA"
   },
   {
-    "number": "18",
+    "number": "17",
     "name": "Unnamed pofik",
     "creator": "kafeechek234",
     "fps": "~2^{32}",
@@ -170,7 +170,7 @@
     "showcase": "https://youtu.be/99zABCzYelg?si=PJwSSX5Ri1MxpwvN"
   },
   {
-    "number": "19",
+    "number": "18",
     "name": "OUTBOUND",
     "creator": "HELFZz",
     "fps": "~1.00663296 \\cdot 10^{9}",
