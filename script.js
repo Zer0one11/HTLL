@@ -27,35 +27,14 @@ document.addEventListener('DOMContentLoaded', () => {
     snowToggle.checked = snowSaved !== 'false'; 
     snowToggle.addEventListener('change', () => localStorage.setItem('snowEnabled', snowToggle.checked));
 
-    themeButtons.forEach(button => {
-        button.addEventListener('click', () => {
-            const newTheme = button.dataset.theme;
-            setTheme(newTheme);
-            localStorage.setItem('siteTheme', newTheme);
-            themeButtons.forEach(btn => btn.classList.remove('active-theme'));
-            button.classList.add('active-theme');
-        });
-    });
-
-    listButtons.forEach(button => {
-        button.addEventListener('click', () => {
-            currentListId = button.dataset.list;
-            localStorage.setItem('currentListId', currentListId);
-            loadList(currentListId);
-            listButtons.forEach(btn => btn.classList.remove('active-list'));
-            button.classList.add('active-list');
-        });
-    });
-
     function setTheme(themeName) { body.className = `theme-${themeName}`; }
 
+    // ИСПРАВЛЕННЫЙ LATEX
     function formatLatex(text) {
         if (typeof text !== 'string' || text === "none") return text;
-        const hasLatex = text.includes('\\') || text.includes('^') || text.includes('_');
+        const hasLatex = /[\^\\_]/.test(text); // Проверка на спецсимволы
         if (hasLatex && !text.startsWith('$')) {
-            let processed = text;
-            processed = processed.replace(/(?<!\\)\b([a-z]{3,})\b/gi, (match) => `\\text{${match}}`);
-            return `$${processed}$`;
+            return `$${text}$`; // Просто оборачиваем в доллары
         }
         return text;
     }
@@ -99,13 +78,38 @@ document.addEventListener('DOMContentLoaded', () => {
             });
     }
 
-    searchInput.addEventListener('input', (e) => {
-        const val = e.target.value.toLowerCase();
-        const filtered = allData.filter(l => 
-            l.name.toLowerCase().includes(val) || l.id.toString().includes(val)
-        );
-        render(filtered);
+    // Обработчики кнопок
+    listButtons.forEach(button => {
+        if (button.dataset.list === currentListId) button.classList.add('active-list');
+        button.addEventListener('click', () => {
+            currentListId = button.dataset.list;
+            localStorage.setItem('currentListId', currentListId);
+            loadList(currentListId);
+            listButtons.forEach(btn => btn.classList.remove('active-list'));
+            button.classList.add('active-list');
+        });
     });
+
+    themeButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const newTheme = button.dataset.theme;
+            setTheme(newTheme);
+            localStorage.setItem('siteTheme', newTheme);
+            themeButtons.forEach(btn => btn.classList.remove('active-theme'));
+            button.classList.add('active-theme');
+        });
+    });
+
+    // Поиск
+    if (searchInput) {
+        searchInput.addEventListener('input', (e) => {
+            const val = e.target.value.toLowerCase();
+            const filtered = allData.filter(l => 
+                l.name.toLowerCase().includes(val) || l.id.toString().includes(val)
+            );
+            render(filtered);
+        });
+    }
 
     function createSnowflake() {
         if (!snowToggle.checked) return;
