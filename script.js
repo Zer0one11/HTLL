@@ -18,9 +18,18 @@ document.addEventListener('DOMContentLoaded', () => {
         'icl': { file: 'icl.json', title: 'ICL LIST' }
     };
 
-    let allData = [];
+    let currentListData = []; // Данные текущего выбранного списка
+    let globalData = [];      // Все данные изо всех JSON для глобального поиска
     let currentListId = localStorage.getItem('currentListId') || 'levels';
+    
     setTheme(localStorage.getItem('siteTheme') || 'dark');
+
+    // Кэшируем все листы для глобального поиска
+    Object.values(listMap).forEach(item => {
+        fetch(item.file).then(r => r.json()).then(data => {
+            globalData = [...globalData, ...data];
+        }).catch(e => console.error("Ошибка предзагрузки:", e));
+    });
 
     // Сохранение снега
     const snowSaved = localStorage.getItem('snowEnabled');
@@ -29,14 +38,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function setTheme(themeName) { body.className = `theme-${themeName}`; }
 
-    // ИСПРАВЛЕННЫЙ LATEX
+    // ФИКС ЛАТЕКСА: Оборачиваем только если есть спецсимволы и нет долларов
     function formatLatex(text) {
         if (typeof text !== 'string' || text === "none") return text;
-        const hasLatex = /[\^\\_]/.test(text); // Проверка на спецсимволы
-        if (hasLatex && !text.startsWith('$')) {
-            return `$${text}$`; // Просто оборачиваем в доллары
-        }
-        return text;
+        const hasLatex = /[\^\\_]/.test(text); 
+        return (hasLatex && !text.includes('$')) ? `$${text}$` : text;
     }
 
     function render(data) {
@@ -47,6 +53,8 @@ document.addEventListener('DOMContentLoaded', () => {
             let typeHtml = (level.type && level.type !== "none") 
                 ? `<li class="detail-line"><span class="detail-label">Type:</span> ${formatLatex(level.type)}</li>` 
                 : '';
+            
+            // Твоя оригинальная структура карточки
             li.innerHTML = `
                 <div class="level-header">
                     <span class="level-number">#${level.number}</span>
@@ -68,20 +76,36 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function loadList(listId) {
-        const listConfig = listMap[listId];
-        mainTitle.textContent = listConfig.title;
-        fetch(listConfig.file + '?t=' + Date.now())
+        const config = listMap[listId];
+        mainTitle.textContent = config.title;
+        fetch(config.file + '?t=' + Date.now())
             .then(r => r.json())
             .then(data => {
-                allData = data.sort((a, b) => parseInt(a.number) - parseInt(b.number));
-                render(allData);
+                currentListData = data.sort((a, b) => parseInt(a.number) - parseInt(b.number));
+                render(currentListData);
             });
     }
 
-    // Обработчики кнопок
+    // ПОИСК ПО ВСЕМ ЛИСТАМ СРАЗУ
+    searchInput.addEventListener('input', (e) => {
+        const val = e.target.value.toLowerCase();
+        if (val.length === 0) {
+            render(currentListData); // Если пусто, возвращаем текущий список
+            mainTitle.textContent = listMap[currentListId].title;
+            return;
+        }
+        mainTitle.textContent = "SEARCH RESULTS";
+        const filtered = globalData.filter(l => 
+            l.name.toLowerCase().includes(val) || l.id.toString().includes(val)
+        );
+        render(filtered);
+    });
+
+    // Кнопки переключения
     listButtons.forEach(button => {
         if (button.dataset.list === currentListId) button.classList.add('active-list');
         button.addEventListener('click', () => {
+            searchInput.value = '';
             currentListId = button.dataset.list;
             localStorage.setItem('currentListId', currentListId);
             loadList(currentListId);
@@ -99,17 +123,6 @@ document.addEventListener('DOMContentLoaded', () => {
             button.classList.add('active-theme');
         });
     });
-
-    // Поиск
-    if (searchInput) {
-        searchInput.addEventListener('input', (e) => {
-            const val = e.target.value.toLowerCase();
-            const filtered = allData.filter(l => 
-                l.name.toLowerCase().includes(val) || l.id.toString().includes(val)
-            );
-            render(filtered);
-        });
-    }
 
     function createSnowflake() {
         if (!snowToggle.checked) return;
