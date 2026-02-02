@@ -17,17 +17,16 @@ document.addEventListener('DOMContentLoaded', () => {
         'icl': { file: 'icl.json', title: 'ICL LIST' }
     };
 
-    let currentListId = localStorage.getItem('currentListId') || 'levels';
-    setTheme(localStorage.getItem('siteTheme') || 'dark');
-
     // --- ЛОГИКА СНЕГА (СОХРАНЕНИЕ) ---
     const snowSaved = localStorage.getItem('snowEnabled');
-    // Если в памяти 'false', выключаем. По умолчанию включен.
     snowToggle.checked = snowSaved !== 'false'; 
 
     snowToggle.addEventListener('change', () => {
         localStorage.setItem('snowEnabled', snowToggle.checked);
     });
+
+    let currentListId = localStorage.getItem('currentListId') || 'levels';
+    setTheme(localStorage.getItem('siteTheme') || 'dark');
 
     themeButtons.forEach(button => {
         button.addEventListener('click', () => {
@@ -40,9 +39,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     listButtons.forEach(button => {
-        // Устанавливаем активную кнопку при загрузке
         if (button.dataset.list === currentListId) button.classList.add('active-list');
-        
         button.addEventListener('click', () => {
             currentListId = button.dataset.list;
             localStorage.setItem('currentListId', currentListId);
@@ -71,18 +68,17 @@ document.addEventListener('DOMContentLoaded', () => {
         const listConfig = listMap[listId];
         mainTitle.textContent = listConfig.title;
         
-        // ОЧИСТКА ПЕРЕД ЗАГРУЗКОЙ (Фикс наслоения)
+        // ОЧИСТКА ПЕРЕД ЗАГРУЗКОЙ
         listElement.innerHTML = ''; 
 
-        fetch(listConfig.file + '?t=' + Date.now()) // Добавил анти-кэш
+        fetch(listConfig.file + '?t=' + Date.now())
             .then(r => r.json())
             .then(data => {
-                // Сортировка для порядка
                 data.sort((a, b) => parseInt(a.number) - parseInt(b.number));
                 
                 data.forEach(level => {
                     const li = document.createElement('li');
-                    li.className = 'level-item'; // Тот самый класс из твоего CSS
+                    li.className = 'level-item';
                     
                     let typeHtml = (level.type && level.type !== "none") 
                         ? `<li class="detail-line"><span class="detail-label">Type:</span> ${formatLatex(level.type)}</li>` 
