@@ -6,6 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const listButtons = document.querySelectorAll('.list-button');
     const snowToggle = document.getElementById('snow-toggle');
     const snowContainer = document.getElementById('snow-container');
+    const searchInput = document.getElementById('levelSearch');
 
     const listMap = {
         'levels': { file: 'levels.json', title: 'TPLL LIST' },
@@ -17,11 +18,11 @@ document.addEventListener('DOMContentLoaded', () => {
         'icl': { file: 'icl.json', title: 'ICL LIST' }
     };
 
-    let allData = []; 
+    let allData = [];
     let currentListId = localStorage.getItem('currentListId') || 'levels';
     setTheme(localStorage.getItem('siteTheme') || 'dark');
 
-    // СОХРАНЕНИЕ СНЕГА
+    // Сохранение снега
     const snowSaved = localStorage.getItem('snowEnabled');
     snowToggle.checked = snowSaved !== 'false'; 
     snowToggle.addEventListener('change', () => localStorage.setItem('snowEnabled', snowToggle.checked));
@@ -37,7 +38,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     listButtons.forEach(button => {
-        if (button.dataset.list === currentListId) button.classList.add('active-list');
         button.addEventListener('click', () => {
             currentListId = button.dataset.list;
             localStorage.setItem('currentListId', currentListId);
@@ -60,17 +60,14 @@ document.addEventListener('DOMContentLoaded', () => {
         return text;
     }
 
-    // РЕНДЕР: Используем в точности твою структуру из исходника
-    function renderCards(data) {
-        listElement.innerHTML = ''; 
+    function render(data) {
+        listElement.innerHTML = '';
         data.forEach(level => {
             const li = document.createElement('li');
             li.className = 'level-item';
-            
             let typeHtml = (level.type && level.type !== "none") 
                 ? `<li class="detail-line"><span class="detail-label">Type:</span> ${formatLatex(level.type)}</li>` 
                 : '';
-
             li.innerHTML = `
                 <div class="level-header">
                     <span class="level-number">#${level.number}</span>
@@ -94,27 +91,21 @@ document.addEventListener('DOMContentLoaded', () => {
     function loadList(listId) {
         const listConfig = listMap[listId];
         mainTitle.textContent = listConfig.title;
-        listElement.innerHTML = '<p style="text-align:center;">Загрузка...</p>';
-
         fetch(listConfig.file + '?t=' + Date.now())
             .then(r => r.json())
             .then(data => {
                 allData = data.sort((a, b) => parseInt(a.number) - parseInt(b.number));
-                renderCards(allData);
+                render(allData);
             });
     }
 
-    // ЛОГИКА ПОИСКА
-    const searchInput = document.getElementById('levelSearch');
-    if (searchInput) {
-        searchInput.addEventListener('input', (e) => {
-            const val = e.target.value.toLowerCase();
-            const filtered = allData.filter(l => 
-                l.name.toLowerCase().includes(val) || l.id.toString().includes(val)
-            );
-            renderCards(filtered);
-        });
-    }
+    searchInput.addEventListener('input', (e) => {
+        const val = e.target.value.toLowerCase();
+        const filtered = allData.filter(l => 
+            l.name.toLowerCase().includes(val) || l.id.toString().includes(val)
+        );
+        render(filtered);
+    });
 
     function createSnowflake() {
         if (!snowToggle.checked) return;
