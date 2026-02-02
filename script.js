@@ -17,14 +17,8 @@ document.addEventListener('DOMContentLoaded', () => {
         'icl': { file: 'icl.json', title: 'ICL LIST' }
     };
 
-    let allData = []; 
     let currentListId = localStorage.getItem('currentListId') || 'levels';
     setTheme(localStorage.getItem('siteTheme') || 'dark');
-
-    // --- СОХРАНЕНИЕ СНЕГА ---
-    const snowSaved = localStorage.getItem('snowEnabled');
-    snowToggle.checked = snowSaved !== 'false'; 
-    snowToggle.addEventListener('change', () => localStorage.setItem('snowEnabled', snowToggle.checked));
 
     themeButtons.forEach(button => {
         button.addEventListener('click', () => {
@@ -37,7 +31,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     listButtons.forEach(button => {
-        if (button.dataset.list === currentListId) button.classList.add('active-list');
         button.addEventListener('click', () => {
             currentListId = button.dataset.list;
             localStorage.setItem('currentListId', currentListId);
@@ -47,74 +40,73 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    function setTheme(themeName) { body.className = `theme-${themeName}`; }
+    function setTheme(themeName) {
+        body.className = `theme-${themeName}`;
+    }
 
+    // ФУНКЦИЯ АВТОМАТИЧЕСКИХ ДОЛЛАРОВ И ТЕКСТА
     function formatLatex(text) {
         if (typeof text !== 'string' || text === "none") return text;
+        
+        // Проверяем, есть ли признаки формулы (слэш, степень или нижний индекс)
         const hasLatex = text.includes('\\') || text.includes('^') || text.includes('_');
+
         if (hasLatex && !text.startsWith('$')) {
             let processed = text;
+
+            // Чтобы слова типа "cps", "for", "years" не стали курсивом:
+            // Оборачиваем английские слова (от 3 букв), перед которыми нет слэша, в \text{}
             processed = processed.replace(/(?<!\\)\b([a-z]{3,})\b/gi, (match) => `\\text{${match}}`);
+            
+            // Оборачиваем итоговый результат в доллары для MathJax
             return `$${processed}$`;
         }
         return text;
     }
 
-    function renderCards(data) {
-        listElement.innerHTML = ''; // Чистим перед рендером
-        data.forEach(level => {
-            const li = document.createElement('li');
-            li.className = 'level-item';
-            
-            let typeHtml = (level.type && level.type !== "none") 
-                ? `<li class="detail-line"><span class="detail-label">Type:</span> ${formatLatex(level.type)}</li>` 
-                : '';
-
-            li.innerHTML = `
-                <div class="level-header">
-                    <span class="level-number">#${level.number}</span>
-                    <div class="level-title-group">
-                        <a href="${level.showcase}" target="_blank" class="level-name">${formatLatex(level.name)}</a>
-                        <span class="level-creator">by ${level.creator}</span>
-                    </div>
-                </div>
-                <ul class="level-details">
-                    <li class="detail-line"><span class="detail-label">FPS:</span> <span>${formatLatex(level.fps)}</span></li>
-                    <li class="detail-line"><span class="detail-label">ID:</span> ${level.id}</li> 
-                    <li class="detail-line"><span class="detail-label">FV:</span> ${level.fv}</li> 
-                    ${typeHtml}
-                </ul>
-            `;
-            listElement.appendChild(li);
-        });
-
-        if (window.MathJax && window.MathJax.typesetPromise) { MathJax.typesetPromise(); }
-    }
-
     function loadList(listId) {
         const listConfig = listMap[listId];
         mainTitle.textContent = listConfig.title;
-        listElement.innerHTML = '<p style="text-align:center;">Загрузка...</p>';
+        listElement.innerHTML = '<p style="text-align:center;">Загрузка данных...</p>';
 
-        fetch(listConfig.file + '?t=' + Date.now())
+        fetch(listConfig.file)
             .then(r => r.json())
             .then(data => {
-                allData = data.sort((a, b) => parseInt(a.number) - parseInt(b.number));
-                renderCards(allData);
-            })
-            .catch(err => { listElement.innerHTML = `<p>Ошибка: ${err.message}</p>`; });
-    }
+                listElement.innerHTML = '';
+                data.forEach(level => {
+                    const li = document.createElement('li');
+                    li.className = 'level-item';
+                    
+                    let typeHtml = (level.type && level.type !== "none") 
+                        ? `<li class="detail-line"><span class="detail-label">Type:</span> ${formatLatex(level.type)}</li>` 
+                        : '';
 
-    // ПОИСК (Привязан к ID "levelSearch" в HTML)
-    const searchInput = document.getElementById('levelSearch');
-    if (searchInput) {
-        searchInput.addEventListener('input', (e) => {
-            const val = e.target.value.toLowerCase();
-            const filtered = allData.filter(l => 
-                l.name.toLowerCase().includes(val) || l.id.toString().includes(val)
-            );
-            renderCards(filtered);
-        });
+                    li.innerHTML = `
+                        <div class="level-header">
+                            <span class="level-number">#${level.number}</span>
+                            <div class="level-title-group">
+                                <a href="${level.showcase}" target="_blank" class="level-name">${formatLatex(level.name)}</a>
+                                <span class="level-creator">by ${level.creator}</span>
+                            </div>
+                        </div>
+                        <ul class="level-details">
+                            <li class="detail-line"><span class="detail-label">FPS:</span> <span>${formatLatex(level.fps)}</span></li>
+                            <li class="detail-line"><span class="detail-label">ID:</span> ${level.id}</li> 
+                            <li class="detail-line"><span class="detail-label">FV:</span> ${level.fv}</li> 
+                            ${typeHtml}
+                        </ul>
+                    `;
+                    listElement.appendChild(li);
+                });
+
+                // Вызываем перерисовку MathJax после того, как карточки добавились в HTML
+                if (window.MathJax && window.MathJax.typesetPromise) {
+                    MathJax.typesetPromise();
+                }
+            })
+            .catch(err => {
+                listElement.innerHTML = `<p style="text-align:center; color:red;">Ошибка загрузки JSON: ${err.message}</p>`;
+            });
     }
 
     function createSnowflake() {
@@ -122,13 +114,15 @@ document.addEventListener('DOMContentLoaded', () => {
         const snowflake = document.createElement('div');
         snowflake.className = 'snowflake';
         const size = Math.random() * 5 + 4 + 'px'; 
-        snowflake.style.width = size; snowflake.style.height = size;
+        snowflake.style.width = size;
+        snowflake.style.height = size;
         snowflake.style.left = Math.random() * 100 + 'vw';
         snowflake.style.animationDuration = Math.random() * 3 + 4 + 's';
         snowflake.style.opacity = Math.random() * 0.6 + 0.4;
         snowContainer.appendChild(snowflake);
         setTimeout(() => snowflake.remove(), 7000);
     }
+
     setInterval(createSnowflake, 150);
     loadList(currentListId);
 });
