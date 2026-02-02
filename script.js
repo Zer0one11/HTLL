@@ -18,31 +18,34 @@ document.addEventListener('DOMContentLoaded', () => {
         'icl': { file: 'icl.json', title: 'ICL LIST' }
     };
 
-    let currentListData = []; // Данные текущего выбранного списка
-    let globalData = [];      // Все данные изо всех JSON для глобального поиска
+    let currentListData = []; 
+    let globalData = [];      
     let currentListId = localStorage.getItem('currentListId') || 'levels';
     
     setTheme(localStorage.getItem('siteTheme') || 'dark');
 
-    // Кэшируем все листы для глобального поиска
+    // Предзагрузка всех листов для глобального поиска
     Object.values(listMap).forEach(item => {
         fetch(item.file).then(r => r.json()).then(data => {
             globalData = [...globalData, ...data];
-        }).catch(e => console.error("Ошибка предзагрузки:", e));
+        }).catch(e => console.error("Ошибка загрузки для поиска:", e));
     });
 
-    // Сохранение снега
+    // Сохранение состояния снега
     const snowSaved = localStorage.getItem('snowEnabled');
     snowToggle.checked = snowSaved !== 'false'; 
     snowToggle.addEventListener('change', () => localStorage.setItem('snowEnabled', snowToggle.checked));
 
     function setTheme(themeName) { body.className = `theme-${themeName}`; }
 
-    // ФИКС ЛАТЕКСА: Оборачиваем только если есть спецсимволы и нет долларов
+    // ФИКС ЛАТЕКСА: Просто оборачиваем в доллары, если есть признаки формулы
     function formatLatex(text) {
         if (typeof text !== 'string' || text === "none") return text;
-        const hasLatex = /[\^\\_]/.test(text); 
-        return (hasLatex && !text.includes('$')) ? `$${text}$` : text;
+        const hasSymbols = /[\^\\_]/.test(text); 
+        if (hasSymbols && !text.includes('$')) {
+            return `$${text}$`;
+        }
+        return text;
     }
 
     function render(data) {
@@ -54,7 +57,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 ? `<li class="detail-line"><span class="detail-label">Type:</span> ${formatLatex(level.type)}</li>` 
                 : '';
             
-            // Твоя оригинальная структура карточки
             li.innerHTML = `
                 <div class="level-header">
                     <span class="level-number">#${level.number}</span>
@@ -86,11 +88,11 @@ document.addEventListener('DOMContentLoaded', () => {
             });
     }
 
-    // ПОИСК ПО ВСЕМ ЛИСТАМ СРАЗУ
+    // Глобальный поиск
     searchInput.addEventListener('input', (e) => {
         const val = e.target.value.toLowerCase();
         if (val.length === 0) {
-            render(currentListData); // Если пусто, возвращаем текущий список
+            render(currentListData);
             mainTitle.textContent = listMap[currentListId].title;
             return;
         }
@@ -101,7 +103,6 @@ document.addEventListener('DOMContentLoaded', () => {
         render(filtered);
     });
 
-    // Кнопки переключения
     listButtons.forEach(button => {
         if (button.dataset.list === currentListId) button.classList.add('active-list');
         button.addEventListener('click', () => {
