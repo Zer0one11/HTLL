@@ -24,11 +24,11 @@ document.addEventListener('DOMContentLoaded', () => {
     
     setTheme(localStorage.getItem('siteTheme') || 'dark');
 
-    // Предзагрузка всех данных для поиска по всему сайту
+    // Предзагрузка всех данных для глобального поиска
     Object.values(listMap).forEach(item => {
         fetch(item.file).then(r => r.json()).then(data => {
             globalData = [...globalData, ...data];
-        }).catch(e => console.error("Ошибка загрузки данных:", e));
+        }).catch(e => console.error("Ошибка предзагрузки:", e));
     });
 
     const snowSaved = localStorage.getItem('snowEnabled');
@@ -37,11 +37,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function setTheme(themeName) { body.className = `theme-${themeName}`; }
 
-    // ИСПРАВЛЕННЫЙ ЛАТЕКС: Никакого \text{}, только доллары при необходимости
+    // РАБОЧИЙ ЛАТЕКС: Просто оборачиваем в доллары, если есть спецсимволы
     function formatLatex(text) {
         if (typeof text !== 'string' || text === "none") return text;
-        
-        // Если в строке есть символы формул и она еще не обернута в доллары
         const needsLatex = /[\^\\_]/.test(text);
         if (needsLatex && !text.includes('$')) {
             return `$${text}$`;
@@ -92,7 +90,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
     }
 
-    // Поиск по всем листам сразу
+    // Глобальный поиск
     if (searchInput) {
         searchInput.addEventListener('input', (e) => {
             const val = e.target.value.toLowerCase();
