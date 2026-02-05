@@ -29,8 +29,18 @@
     "type": "LPrSS (weak)",
     "showcase": "нету"
   },
-  {
+{
     "number": "4",
+    "name": "worm",
+    "creator": "necrotikk ",
+    "fps": "~f_{\\varepsilon_{0}}(33333)",
+    "id": "132426968",
+    "fv": "Prostoeweewe ",
+    "type": "Beklemishev's worm",
+    "showcase": "https://vt.tiktok.com/ZSaqPC29v/"
+  },
+  {
+    "number": "5",
     "name": "I love 2",
     "creator": "necrotikk ",
     "fps": "f_{\\\\varepsilon_{0}}(9999)",
@@ -41,16 +51,6 @@
   },
   {
     "number": "6",
-    "name": "worm",
-    "creator": "necrotikk ",
-    "fps": "~f_{\\varepsilon_{0}}(33333)",
-    "id": "132426968",
-    "fv": "Prostoeweewe ",
-    "type": "Beklemishev's worm",
-    "showcase": "https://vt.tiktok.com/ZSaqPC29v/"
-  },
-  {
-    "number": "7",
     "name": "TYPEPPLL",
     "creator": "Osirissssss",
     "fps": "~f_{\\varepsilon_{0}}(2281)",
@@ -60,7 +60,7 @@
     "showcase": "sam znaesh"
   },
   {
-    "number": "8",
+    "number": "7",
     "name": "Show red",
     "creator": "Zipin",
     "fps": "~f_{\\omega^{\\omega}}(9999)",
@@ -70,7 +70,7 @@
     "showcase": "нету"
   },
   {
-    "number": "9",
+    "number": "8",
     "name": "The closed road",
     "creator": "Dawdaddad & Zipin",
     "fps": "2048 \\ cps \\ for \\ ~f_{\\omega^{\\omega}}(1024) \\ years",
@@ -80,7 +80,7 @@
     "showcase": "https://vm.tiktok.com/ZMATFwqSy/"
   },
   {
-    "number": "10",
+    "number": "9",
     "name": "cYyycq",
     "creator": "Osirissssss ",
     "fps": "~f_{\\psi_{0}(\\Omega)}(3)",
@@ -90,7 +90,7 @@
     "showcase": ""
   },
   {
-    "number": "11",
+    "number": "10",
     "name": "Recursion Overload",
     "creator": "Yebok228228",
     "fps": "~f_{\\omega^{2}}(6969)",
