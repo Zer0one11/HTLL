@@ -1,4 +1,4 @@
-// 1. КОНФИГУРАЦИЯ MATHJAX (должна быть до загрузки основного скрипта MathJax в HTML)
+// 1. КОНФИГУРАЦИЯ MATHJAX (обязательно до инициализации)
 window.MathJax = {
     tex: {
         inlineMath: [['$', '$'], ['\\(', '\\)']],
@@ -35,17 +35,20 @@ document.addEventListener('DOMContentLoaded', () => {
         'icl': { file: 'icl.json', title: 'ICL LIST' }
     };
 
-    let currentListData = []; 
-    let globalData = [];      
+    let currentListData = []; // Данные текущего списка
+    let globalData = [];      // Все данные для глобального поиска
     let currentListId = localStorage.getItem('currentListId') || 'levels';
     
     setTheme(localStorage.getItem('siteTheme') || 'dark');
 
-    // Предзагрузка данных для поиска
+    // Предзагрузка ВСЕХ данных для мгновенного поиска по всему сайту
     Object.values(listMap).forEach(item => {
-        fetch(item.file).then(r => r.json()).then(data => {
-            globalData = [...globalData, ...data];
-        }).catch(e => console.error("Ошибка загрузки:", e));
+        fetch(item.file + '?t=' + Date.now())
+            .then(r => r.json())
+            .then(data => {
+                globalData = [...globalData, ...data];
+            })
+            .catch(e => console.error("Ошибка предзагрузки для поиска:", e));
     });
 
     const snowSaved = localStorage.getItem('snowEnabled');
@@ -57,26 +60,21 @@ document.addEventListener('DOMContentLoaded', () => {
     function setTheme(themeName) { body.className = `theme-${themeName}`; }
 
     /**
-     * УЛЬТИМАТИВНЫЙ ФИКС ЛАТЕКСА
+     * ТВОЙ УЛЬТИМАТИВНЫЙ ФИКС ЛАТЕКСА
      */
     function formatLatex(text) {
         if (typeof text !== 'string' || text === "none" || text.trim() === "") return text;
 
         let processed = text;
 
-        // Фикс: если JSON "съел" бэкслеши перед командами
-        // Заменяем "text{" на "\text{" и т.д.
         const keywords = ['text', 'frac', 'sqrt', 'cdot', 'times'];
         keywords.forEach(word => {
-            // Регулярка ищет слово, перед которым НЕТ бэкслеша
             const regex = new RegExp(`(?<!\\\\)${word}`, 'g');
             processed = processed.replace(regex, `\\${word}`);
         });
 
-        // Фикс: если вдруг бэкслеши удвоились/утроились (\\\\text -> \text)
         processed = processed.replace(/\\+/g, '\\');
 
-        // Оборачиваем в доллары, если есть спецсимволы LaTeX, но нет самих долларов
         const latexPattern = /[\^\\_{}]/;
         if (latexPattern.test(processed) && !processed.includes('$')) {
             processed = `$${processed}$`;
@@ -85,8 +83,17 @@ document.addEventListener('DOMContentLoaded', () => {
         return processed;
     }
 
+    /**
+     * РЕНДЕР КАРТОЧЕК
+     */
     function render(data) {
         if (!listElement) return;
+
+        // Очищаем кэш MathJax перед обновлением DOM, чтобы не было дублей
+        if (window.MathJax && window.MathJax.typesetClear) {
+            window.MathJax.typesetClear([listElement]);
+        }
+
         listElement.innerHTML = '';
         
         data.forEach(level => {
@@ -115,8 +122,7 @@ document.addEventListener('DOMContentLoaded', () => {
             listElement.appendChild(li);
         });
         
-        // ПРИНУДИТЕЛЬНЫЙ РЕНДЕР MATHJAX
-        // Используем небольшую задержку, чтобы DOM успел обновиться
+        // Принудительный рендер после обновления списка
         setTimeout(() => {
             if (window.MathJax && window.MathJax.typesetPromise) {
                 window.MathJax.typesetPromise([listElement]).catch(err => console.error(err));
@@ -124,6 +130,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 10);
     }
 
+    /**
+     * ЗАГРУЗКА СПИСКА И СТАБИЛЬНАЯ СОРТИРОВКА
+     */
     function loadList(listId) {
         const config = listMap[listId];
         if (!config) return;
@@ -132,11 +141,20 @@ document.addEventListener('DOMContentLoaded', () => {
         fetch(config.file + '?t=' + Date.now())
             .then(r => r.json())
             .then(data => {
-                currentListData = data.sort((a, b) => (parseInt(a.number) || 0) - (parseInt(b.number) || 0));
+                // Сортировка по номеру, а если равны — по имени (чтобы ничего не двигалось)
+                currentListData = data.sort((a, b) => {
+                    const numA = parseInt(a.number) || 0;
+                    const numB = parseInt(b.number) || 0;
+                    if (numA !== numB) return numA - numB;
+                    return (a.name || "").localeCompare(b.name || "");
+                });
                 render(currentListData);
             });
     }
 
+    /**
+     * ГЛОБАЛЬНЫЙ ПОИСК
+     */
     if (searchInput) {
         searchInput.addEventListener('input', (e) => {
             const val = e.target.value.toLowerCase();
@@ -146,6 +164,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
             mainTitle.textContent = "SEARCH RESULTS";
+            
+            // Ищем по всем загруженным уровням
             const filtered = globalData.filter(l => 
                 (l.name && l.name.toLowerCase().includes(val)) || 
                 (l.id && l.id.toString().includes(val))
@@ -154,6 +174,9 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    /**
+     * КНОПКИ ПЕРЕКЛЮЧЕНИЯ
+     */
     listButtons.forEach(button => {
         if (button.dataset.list === currentListId) button.classList.add('active-list');
         button.addEventListener('click', () => {
@@ -188,6 +211,7 @@ document.addEventListener('DOMContentLoaded', () => {
         snowContainer.appendChild(snowflake);
         setTimeout(() => snowflake.remove(), 7000);
     }
+
     setInterval(createSnowflake, 150);
     loadList(currentListId);
 });
