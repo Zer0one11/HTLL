@@ -1,4 +1,4 @@
-// 1. КОНФИГУРАЦИЯ MATHJAX (обязательно до инициализации)
+// 1. КОНФИГУРАЦИЯ MATHJAX
 window.MathJax = {
     tex: {
         inlineMath: [['$', '$'], ['\\(', '\\)']],
@@ -35,20 +35,29 @@ document.addEventListener('DOMContentLoaded', () => {
         'icl': { file: 'icl.json', title: 'ICL LIST' }
     };
 
-    let currentListData = []; // Данные текущего списка
-    let globalData = [];      // Все данные для глобального поиска
+    let currentListData = []; 
+    let globalData = [];      
     let currentListId = localStorage.getItem('currentListId') || 'levels';
     
     setTheme(localStorage.getItem('siteTheme') || 'dark');
 
-    // Предзагрузка ВСЕХ данных для мгновенного поиска по всему сайту
+    // ФИКС БАГА ВЫДЕЛЕНИЯ: Синхронизируем кнопки при загрузке
+    listButtons.forEach(button => {
+        if (button.dataset.list === currentListId) {
+            button.classList.add('active-list');
+        } else {
+            button.classList.remove('active-list');
+        }
+    });
+
+    // Предзагрузка всех данных для глобального поиска по автору/названию/ID
     Object.values(listMap).forEach(item => {
         fetch(item.file + '?t=' + Date.now())
             .then(r => r.json())
             .then(data => {
                 globalData = [...globalData, ...data];
             })
-            .catch(e => console.error("Ошибка предзагрузки для поиска:", e));
+            .catch(e => console.error("Ошибка предзагрузки:", e));
     });
 
     const snowSaved = localStorage.getItem('snowEnabled');
@@ -64,42 +73,30 @@ document.addEventListener('DOMContentLoaded', () => {
      */
     function formatLatex(text) {
         if (typeof text !== 'string' || text === "none" || text.trim() === "") return text;
-
         let processed = text;
-
         const keywords = ['text', 'frac', 'sqrt', 'cdot', 'times'];
         keywords.forEach(word => {
             const regex = new RegExp(`(?<!\\\\)${word}`, 'g');
             processed = processed.replace(regex, `\\${word}`);
         });
-
         processed = processed.replace(/\\+/g, '\\');
-
         const latexPattern = /[\^\\_{}]/;
         if (latexPattern.test(processed) && !processed.includes('$')) {
             processed = `$${processed}$`;
         }
-
         return processed;
     }
 
-    /**
-     * РЕНДЕР КАРТОЧЕК
-     */
     function render(data) {
         if (!listElement) return;
-
-        // Очищаем кэш MathJax перед обновлением DOM, чтобы не было дублей
         if (window.MathJax && window.MathJax.typesetClear) {
             window.MathJax.typesetClear([listElement]);
         }
-
         listElement.innerHTML = '';
         
         data.forEach(level => {
             const li = document.createElement('li');
             li.className = 'level-item';
-            
             let typeHtml = (level.type && level.type !== "none") 
                 ? `<li class="detail-line"><span class="detail-label">Type:</span> ${formatLatex(level.type)}</li>` 
                 : '';
@@ -122,7 +119,6 @@ document.addEventListener('DOMContentLoaded', () => {
             listElement.appendChild(li);
         });
         
-        // Принудительный рендер после обновления списка
         setTimeout(() => {
             if (window.MathJax && window.MathJax.typesetPromise) {
                 window.MathJax.typesetPromise([listElement]).catch(err => console.error(err));
@@ -130,9 +126,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 10);
     }
 
-    /**
-     * ЗАГРУЗКА СПИСКА И СТАБИЛЬНАЯ СОРТИРОВКА
-     */
     function loadList(listId) {
         const config = listMap[listId];
         if (!config) return;
@@ -141,19 +134,13 @@ document.addEventListener('DOMContentLoaded', () => {
         fetch(config.file + '?t=' + Date.now())
             .then(r => r.json())
             .then(data => {
-                // Сортировка по номеру, а если равны — по имени (чтобы ничего не двигалось)
-                currentListData = data.sort((a, b) => {
-                    const numA = parseInt(a.number) || 0;
-                    const numB = parseInt(b.number) || 0;
-                    if (numA !== numB) return numA - numB;
-                    return (a.name || "").localeCompare(b.name || "");
-                });
+                currentListData = data.sort((a, b) => (parseInt(a.number) || 0) - (parseInt(b.number) || 0));
                 render(currentListData);
             });
     }
 
     /**
-     * ГЛОБАЛЬНЫЙ ПОИСК
+     * ОБНОВЛЕННЫЙ ПОИСК: По названию, ID и АВТОРУ
      */
     if (searchInput) {
         searchInput.addEventListener('input', (e) => {
@@ -165,20 +152,16 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             mainTitle.textContent = "SEARCH RESULTS";
             
-            // Ищем по всем загруженным уровням
             const filtered = globalData.filter(l => 
                 (l.name && l.name.toLowerCase().includes(val)) || 
-                (l.id && l.id.toString().includes(val))
+                (l.id && l.id.toString().includes(val)) ||
+                (l.creator && l.creator.toLowerCase().includes(val)) // Добавлен поиск по автору
             );
             render(filtered);
         });
     }
 
-    /**
-     * КНОПКИ ПЕРЕКЛЮЧЕНИЯ
-     */
     listButtons.forEach(button => {
-        if (button.dataset.list === currentListId) button.classList.add('active-list');
         button.addEventListener('click', () => {
             if (searchInput) searchInput.value = '';
             currentListId = button.dataset.list;
@@ -211,7 +194,7 @@ document.addEventListener('DOMContentLoaded', () => {
         snowContainer.appendChild(snowflake);
         setTimeout(() => snowflake.remove(), 7000);
     }
-
     setInterval(createSnowflake, 150);
+
     loadList(currentListId);
 });
