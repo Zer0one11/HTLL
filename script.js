@@ -1,18 +1,8 @@
 // 1. КОНФИГУРАЦИЯ MATHJAX
 window.MathJax = {
-    tex: {
-        inlineMath: [['$', '$'], ['\\(', '\\)']],
-        displayMath: [['$$', '$$'], ['\\[', '\\]']],
-        processEscapes: true
-    },
-    options: {
-        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
-    },
-    startup: {
-        pageReady: () => {
-            return MathJax.startup.defaultPageReady();
-        }
-    }
+    tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], processEscapes: true },
+    options: { skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre'] },
+    startup: { pageReady: () => MathJax.startup.defaultPageReady() }
 };
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -24,6 +14,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const snowToggle = document.getElementById('snow-toggle');
     const snowContainer = document.getElementById('snow-container');
     const searchInput = document.getElementById('levelSearch');
+    
+    // НОВЫЕ ЭЛЕМЕНТЫ НАСТРОЕК
+    const snowSizeRange = document.getElementById('snowSizeRange');
+    const opacityRange = document.getElementById('opacityRange');
 
     const listMap = {
         'levels': { file: 'levels.json', title: 'TPLL LIST' },
@@ -40,40 +34,36 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentListId = localStorage.getItem('currentListId') || 'levels';
     let currentTheme = localStorage.getItem('siteTheme') || 'dark';
     
-    // Установка темы и ФИКС выделения кнопок тем
+    // Инициализация темы
     setTheme(currentTheme);
-    themeButtons.forEach(btn => {
-        if (btn.dataset.theme === currentTheme) {
-            btn.classList.add('active-theme');
-        } else {
-            btn.classList.remove('active-theme');
-        }
-    });
+    themeButtons.forEach(btn => btn.classList.toggle('active-theme', btn.dataset.theme === currentTheme));
+    listButtons.forEach(btn => btn.classList.toggle('active-list', btn.dataset.list === currentListId));
 
-    // ФИКС выделения кнопок листов
-    listButtons.forEach(button => {
-        if (button.dataset.list === currentListId) {
-            button.classList.add('active-list');
-        } else {
-            button.classList.remove('active-list');
-        }
-    });
+    // --- ЛОГИКА НОВЫХ НАСТРОЕК ---
 
-    // Предзагрузка всех данных
-    Object.values(listMap).forEach(item => {
-        fetch(item.file + '?t=' + Date.now())
-            .then(r => r.json())
-            .then(data => {
-                globalData = [...globalData, ...data];
-            })
-            .catch(e => console.error(`Ошибка в файле ${item.file}:`, e));
-    });
-
-    const snowSaved = localStorage.getItem('snowEnabled');
-    if (snowToggle) {
-        snowToggle.checked = snowSaved !== 'false'; 
-        snowToggle.addEventListener('change', () => localStorage.setItem('snowEnabled', snowToggle.checked));
+    // 1. Прозрачность
+    const savedOpacity = localStorage.getItem('panelOpacity') || '0.9';
+    if (opacityRange) {
+        opacityRange.value = savedOpacity;
+        document.documentElement.style.setProperty('--panel-opacity', savedOpacity);
+        opacityRange.addEventListener('input', (e) => {
+            const val = e.target.value;
+            document.documentElement.style.setProperty('--panel-opacity', val);
+            localStorage.setItem('panelOpacity', val);
+        });
     }
+
+    // 2. Размер снега
+    let currentSnowSize = localStorage.getItem('snowSize') || '5';
+    if (snowSizeRange) {
+        snowSizeRange.value = currentSnowSize;
+        snowSizeRange.addEventListener('input', (e) => {
+            currentSnowSize = e.target.value;
+            localStorage.setItem('snowSize', currentSnowSize);
+        });
+    }
+
+    // --- КОРНЕВЫЕ ФУНКЦИИ ---
 
     function setTheme(themeName) { body.className = `theme-${themeName}`; }
 
@@ -95,20 +85,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function render(data) {
         if (!listElement) return;
-        // Очистка кэша MathJax для стабильного выравнивания
-        if (window.MathJax && window.MathJax.typesetClear) {
-            window.MathJax.typesetClear([listElement]);
-        }
+        if (window.MathJax?.typesetClear) window.MathJax.typesetClear([listElement]);
         listElement.innerHTML = '';
         
-        // Стабильная отрисовка
         data.forEach(level => {
             const li = document.createElement('li');
             li.className = 'level-item';
-            let typeHtml = (level.type && level.type !== "none") 
-                ? `<li class="detail-line"><span class="detail-label">Type:</span> ${formatLatex(level.type)}</li>` 
-                : '';
-            
             li.innerHTML = `
                 <div class="level-header">
                     <span class="level-number">#${level.number}</span>
@@ -121,62 +103,46 @@ document.addEventListener('DOMContentLoaded', () => {
                     <li class="detail-line"><span class="detail-label">FPS:</span> <span>${formatLatex(level.fps)}</span></li>
                     <li class="detail-line"><span class="detail-label">ID:</span> ${level.id}</li> 
                     <li class="detail-line"><span class="detail-label">FV:</span> ${level.fv}</li> 
-                    ${typeHtml}
+                    ${level.type && level.type !== "none" ? `<li class="detail-line"><span class="detail-label">Type:</span> ${formatLatex(level.type)}</li>` : ''}
                 </ul>
             `;
             listElement.appendChild(li);
         });
         
         setTimeout(() => {
-            if (window.MathJax && window.MathJax.typesetPromise) {
-                window.MathJax.typesetPromise([listElement]).catch(err => console.error(err));
-            }
+            if (window.MathJax?.typesetPromise) window.MathJax.typesetPromise([listElement]);
         }, 10);
     }
 
     function loadList(listId) {
         const config = listMap[listId];
         if (!config) return;
-        if (mainTitle) mainTitle.textContent = config.title;
-        
+        mainTitle.textContent = config.title;
         fetch(config.file + '?t=' + Date.now())
-            .then(r => {
-                if (!r.ok) throw new Error(`Файл не найден: ${config.file}`);
-                return r.json();
-            })
+            .then(r => r.json())
             .then(data => {
-                // Стабильная сортировка по номеру
                 currentListData = data.sort((a, b) => (parseInt(a.number) || 0) - (parseInt(b.number) || 0));
                 render(currentListData);
-            })
-            .catch(err => {
-                console.error("Ошибка SLL/JSON:", err);
-                listElement.innerHTML = `<p style="color:red; text-align:center;">Ошибка загрузки ${listId}. Проверь запятые в JSON!</p>`;
-            });
+            }).catch(e => console.error("JSON Error:", e));
     }
 
+    // Поиск
     if (searchInput) {
         searchInput.addEventListener('input', (e) => {
             const val = e.target.value.toLowerCase();
-            if (val.length === 0) {
-                render(currentListData);
-                mainTitle.textContent = listMap[currentListId].title;
-                return;
-            }
+            if (!val) { render(currentListData); mainTitle.textContent = listMap[currentListId].title; return; }
             mainTitle.textContent = "SEARCH RESULTS";
-            
-            const filtered = globalData.filter(l => 
-                (l.name && l.name.toLowerCase().includes(val)) || 
-                (l.id && l.id.toString().includes(val)) ||
-                (l.creator && l.creator.toLowerCase().includes(val))
-            );
-            render(filtered);
+            render(globalData.filter(l => 
+                l.name?.toLowerCase().includes(val) || 
+                l.id?.toString().includes(val) || 
+                l.creator?.toLowerCase().includes(val)
+            ));
         });
     }
 
+    // Кнопки листов
     listButtons.forEach(button => {
         button.addEventListener('click', () => {
-            if (searchInput) searchInput.value = '';
             currentListId = button.dataset.list;
             localStorage.setItem('currentListId', currentListId);
             loadList(currentListId);
@@ -185,22 +151,17 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    themeButtons.forEach(button => {
-        button.addEventListener('click', () => {
-            const newTheme = button.dataset.theme;
-            setTheme(newTheme);
-            localStorage.setItem('siteTheme', newTheme);
-            themeButtons.forEach(btn => btn.classList.remove('active-theme'));
-            button.classList.add('active-theme');
-        });
-    });
-
+    // Снег
     function createSnowflake() {
-        if (!snowToggle || !snowToggle.checked || !snowContainer) return;
+        if (!snowToggle?.checked) return;
         const snowflake = document.createElement('div');
         snowflake.className = 'snowflake';
-        const size = Math.random() * 5 + 4 + 'px'; 
-        snowflake.style.width = size; snowflake.style.height = size;
+        
+        // Используем кастомный размер из настроек
+        const size = (Math.random() * (currentSnowSize / 2) + Number(currentSnowSize)) + 'px';
+        
+        snowflake.style.width = size; 
+        snowflake.style.height = size;
         snowflake.style.left = Math.random() * 100 + 'vw';
         snowflake.style.animationDuration = Math.random() * 3 + 4 + 's';
         snowflake.style.opacity = Math.random() * 0.6 + 0.4;
@@ -208,6 +169,11 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => snowflake.remove(), 7000);
     }
     setInterval(createSnowflake, 150);
+
+    // Загрузка данных для поиска
+    Object.values(listMap).forEach(item => {
+        fetch(item.file).then(r => r.json()).then(data => globalData = [...globalData, ...data]);
+    });
 
     loadList(currentListId);
 });
