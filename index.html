@@ -9,9 +9,7 @@
     <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script>
-        window.MathJax = {
-            tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] }
-        };
+        window.MathJax = { tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] } };
     </script>
 </head>
 <body class="theme-dark">
@@ -22,17 +20,17 @@
             <input type="checkbox" id="snow-toggle">
             <span class="snow-slider"></span>
         </label>
-        <span class="snow-text">СНЕГ</span>
+        <span class="snow-text">SNOW</span>
         
         <div class="settings-container">
-            <img src="setting.ico" alt="set" id="settings-btn" style="width:16px; height:16px; cursor:pointer; opacity:0.6; margin-left:5px;">
+            <img src="setting.ico" alt="⚙️" id="settings-btn" class="setting-icon-img">
             <div id="settings-menu" class="settings-popup">
-                <div class="s-item">
-                    <span>РАЗМЕР</span>
+                <div class="s-control">
+                    <span>SIZE</span>
                     <input type="range" id="snowSizeRange" min="2" max="25" value="5">
                 </div>
-                <div class="s-item">
-                    <span>ПРОЗРАЧНОСТЬ</span>
+                <div class="s-control">
+                    <span>OPACITY</span>
                     <input type="range" id="opacityRange" min="0.1" max="1" step="0.1" value="0.9">
                 </div>
             </div>
@@ -42,11 +40,11 @@
     <header>
         <h1 class="main-title">TPLL LIST</h1>
         <div class="link-container">
-            <a href="https://t.me/HardestTiktokLevelList" target="_blank" class="channel-link">КАНАЛ ЛИСТА</a>
+            <a href="https://t.me/HardestTiktokLevelList" target="_blank" class="channel-link">OFFICIAL CHANNEL</a>
         </div>
         
         <div class="list-switcher">
-            <button data-list="levels" class="list-button">TPLL</button>
+            <button data-list="levels" class="list-button active-list">TPLL</button>
             <button data-list="ppll" class="list-button">PPLL</button>
             <button data-list="sll" class="list-button">SLL</button>
             <button data-list="ill" class="list-button">ILL</button>
@@ -56,8 +54,8 @@
         </div>
         
         <div class="theme-switcher">
-            <button data-theme="light" class="theme-button">Светлая</button>
-            <button data-theme="dark" class="theme-button active-theme">Темная</button>
+            <button data-theme="dark" class="theme-button active-theme">DARK</button>
+            <button data-theme="light" class="theme-button">LIGHT</button>
         </div>
     </header>
 
