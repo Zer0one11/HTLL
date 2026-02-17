@@ -19,14 +19,33 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let currentSnowSize = localStorage.getItem('snowSize') || '5';
     let currentOpacity = localStorage.getItem('panelOpacity') || '0.01';
+    let currentTheme = localStorage.getItem('siteTheme') || 'dark';
 
-    // Применяем настройки
+    // Функция применения темы
+    function applyTheme(themeName) {
+        document.body.className = `theme-${themeName}`;
+        localStorage.setItem('siteTheme', themeName);
+        
+        // Обновляем визуальное состояние кнопок
+        document.querySelectorAll('.theme-button').forEach(btn => {
+            btn.classList.toggle('active-theme', btn.dataset.theme === themeName);
+        });
+    }
+
+    // Инициализация
+    applyTheme(currentTheme);
     document.documentElement.style.setProperty('--panel-opacity', currentOpacity);
-    document.body.className = `theme-${localStorage.getItem('siteTheme') || 'dark'}`;
     if(opacityRange) opacityRange.value = currentOpacity;
     if(snowSizeRange) snowSizeRange.value = currentSnowSize;
 
-    // Меню
+    // Навешиваем клики на кнопки тем
+    document.querySelectorAll('.theme-button').forEach(btn => {
+        btn.addEventListener('click', () => {
+            applyTheme(btn.dataset.theme);
+        });
+    });
+
+    // Настройки
     settingsBtn.addEventListener('click', (e) => {
         e.stopPropagation();
         settingsMenu.classList.toggle('active');
@@ -73,7 +92,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         <li class="detail-line"><span class="detail-label">FPS:</span> ${formatLatex(level.fps)}</li>
                         <li class="detail-line"><span class="detail-label">ID:</span> ${level.id}</li> 
                         <li class="detail-line"><span class="detail-label">FV:</span> ${level.fv}</li> 
-                        ${level.type && level.type !== "none" ? `<li class="detail-line"><span class="detail-label">Type:</span> ${formatLatex(level.type)}</li>` : ''}
+                        ${level.type && level.type !== "none" ? `<li class="detail-line"><span class="detail-label">TYPE:</span> ${formatLatex(level.type)}</li>` : ''}
                     </ul>`;
                 listElement.appendChild(li);
             });
@@ -82,7 +101,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     document.querySelectorAll('.list-button').forEach(btn => btn.addEventListener('click', function() {
-        loadList(this.dataset.list);
+        const lid = this.dataset.list;
+        localStorage.setItem('currentListId', lid);
+        loadList(lid);
         document.querySelectorAll('.list-button').forEach(b => b.classList.remove('active-list'));
         this.classList.add('active-list');
     }));
