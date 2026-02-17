@@ -1,74 +1,84 @@
 :root {
     --color-accent: #ffffff;
-    --bg-card: #111111;
+    --bg-body: #000000;
     --panel-opacity: 0.9;
 }
 
+.theme-light {
+    --color-accent: #000000;
+    --bg-body: #f0f0f0;
+}
+
 body {
-    background-color: #000000;
-    color: #ffffff;
+    margin: 0; padding: 0;
+    background-color: var(--bg-body);
+    color: var(--color-accent);
     font-family: 'Montserrat', sans-serif;
-    text-align: center;
+    transition: background 0.3s ease;
 }
 
-/* Кнопки как на скрине — овальные капсулы */
+.wrapper { max-width: 800px; margin: 0 auto; padding: 20px; }
+
+header { padding-top: 40px; margin-bottom: 40px; }
+
+/* КНОПКА СНЕГА */
+.top-controls { display: flex; align-items: center; justify-content: flex-start; gap: 10px; margin-bottom: 20px; }
+.switch { position: relative; width: 40px; height: 20px; }
+.switch input { opacity: 0; width: 0; height: 0; }
+.slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #333; transition: .4s; border-radius: 20px; }
+.slider:before { position: absolute; content: ""; height: 14px; width: 14px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
+input:checked + .slider { background-color: #555; }
+input:checked + .slider:before { transform: translateX(20px); }
+.control-label { font-family: 'Oswald'; font-size: 0.7rem; letter-spacing: 1px; }
+
+/* ЗАГОЛОВКИ */
+.main-title { font-family: 'Oswald'; font-size: 4.5rem; font-weight: 900; margin: 0; line-height: 1; text-transform: uppercase; }
+.official-link { display: inline-block; color: var(--color-accent); font-weight: 700; text-decoration: underline; margin-top: 10px; opacity: 0.8; font-family: 'Oswald'; }
+
+/* КНОПКИ-КАПСУЛЫ */
+.list-selector, .theme-selector { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 25px; }
 .list-button, .theme-button {
-    background: transparent;
-    border: 1px solid #333;
-    color: #888;
-    padding: 8px 18px;
-    border-radius: 50px; /* Овалы */
-    font-family: 'Oswald';
-    cursor: pointer;
-    transition: 0.2s;
+    background: transparent; border: 1.5px solid #222; color: #666;
+    padding: 8px 22px; border-radius: 50px; font-family: 'Oswald';
+    font-size: 1rem; cursor: pointer; transition: 0.2s;
+}
+.active-list, .active-theme { background: #ffffff !important; color: #000000 !important; border-color: #ffffff; }
+
+/* ПОИСК */
+.search-container { margin-top: 30px; }
+#levelSearch {
+    width: 100%; padding: 18px 30px; border-radius: 50px; border: none;
+    background: #111; color: #fff; font-size: 1.1rem; outline: none; box-sizing: border-box; font-family: 'Oswald';
 }
 
-.active-list, .active-theme {
-    background: #ffffff !important;
-    color: #000000 !important;
-    border-color: #ffffff;
-}
-
-/* Карточки уровней */
+/* КАРТОЧКИ УРОВНЕЙ */
+#levelList { list-style: none; padding: 0; margin-top: 40px; }
 .level-item {
     background: rgba(17, 17, 17, var(--panel-opacity));
-    border-radius: 30px; /* Большое закругление как на скрине */
-    padding: 30px;
-    margin-bottom: 20px;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    text-align: left;
-    position: relative;
-    overflow: hidden;
+    border-radius: 30px; padding: 35px; margin-bottom: 25px;
+    display: flex; flex-direction: column; align-items: flex-start;
+    text-align: left; position: relative;
 }
-
-/* Белая полоска слева */
 .level-item::before {
-    content: '';
-    position: absolute;
-    left: 0; top: 15%; bottom: 15%;
-    width: 6px;
-    background: #ffffff;
-    border-radius: 0 10px 10px 0;
+    content: ''; position: absolute; left: 0; top: 15%; bottom: 15%;
+    width: 8px; background: #ffffff; border-radius: 0 10px 10px 0;
 }
 
-.level-name {
-    font-size: 2.2rem;
-    font-weight: 900;
-    margin-bottom: 5px;
-}
+.level-number { font-family: 'Oswald'; font-size: 2.5rem; font-weight: 900; opacity: 0.2; position: absolute; left: 35px; top: 30px; }
+.level-title-group { margin-left: 60px; }
+.level-name { font-size: 2.4rem; font-weight: 900; color: #fff; text-decoration: none; display: block; }
+.level-creator { font-size: 1.1rem; color: #777; font-weight: 600; margin-top: -5px; display: block; }
 
-/* Ползунки настроек (минимализм) */
-.custom-settings {
-    display: flex;
-    justify-content: center;
-    gap: 30px;
-    margin-top: 15px;
-    font-family: 'Oswald';
-    font-size: 0.7rem;
-    color: #555;
-}
+.level-details { list-style: none; padding: 0; margin-top: 25px; margin-left: 60px; }
+.detail-line { margin-bottom: 8px; font-size: 1.1rem; font-weight: 600; }
+.detail-label { color: #555; text-transform: uppercase; margin-right: 10px; font-size: 0.9rem; font-weight: 900; }
 
+/* ПОЛЗУНКИ НАСТРОЕК */
+.custom-settings { display: flex; justify-content: center; gap: 40px; margin-top: 20px; font-family: 'Oswald'; font-size: 0.75rem; color: #444; }
 .s-group { display: flex; flex-direction: column; align-items: center; gap: 5px; }
-input[type="range"] { accent-color: #fff; width: 80px; }
+input[type="range"] { accent-color: #fff; width: 100px; cursor: pointer; }
+
+/* СНЕГ */
+#snow-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; }
+.snowflake { position: absolute; background: white; border-radius: 50%; top: -10px; animation: fall linear infinite; }
+@keyframes fall { to { transform: translateY(105vh); } }
