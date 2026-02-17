@@ -4,7 +4,7 @@
     --color-text: #ffffff;
     --color-accent: #888;
     --blur-val: blur(12px);
-    --panel-opacity: 0.01; /* Изначально маленькая прозрачность */
+    --panel-opacity: 0.01; 
 }
 
 body.theme-light {
@@ -56,7 +56,7 @@ header { max-width: 800px; margin: 40px auto 10px; text-align: center; }
 .level-details { display: flex; flex-direction: column; gap: 6px; list-style: none; padding: 0; }
 .detail-label { font-weight: 700; font-size: 0.75rem; color: var(--color-accent); text-transform: uppercase; margin-right: 8px; }
 
-/* UI НАСТРОЕК — ТЕПЕРЬ ABSOLUTE */
+/* UI НАСТРОЕК - STATIC (НЕ ЕЗДИТ ЗА ЭКРАНОМ) */
 .snow-ui-static {
     position: absolute; 
     top: 25px; left: 25px;
@@ -68,11 +68,11 @@ header { max-width: 800px; margin: 40px auto 10px; text-align: center; }
 }
 
 .setting-icon-img { 
-    width: 20px; /* Увеличил размер */
+    width: 20px; 
     height: 20px; 
     cursor: pointer; 
     opacity: 0.8; 
-    filter: invert(1); /* Сделал белой */
+    filter: invert(1); /* Белая иконка */
     transition: 0.3s;
 }
 
@@ -84,20 +84,35 @@ header { max-width: 800px; margin: 40px auto 10px; text-align: center; }
 .settings-popup.active { display: flex; }
 .s-control { display: flex; flex-direction: column; gap: 5px; font-size: 0.7rem; font-weight: 900; color: #888; }
 
-/* СНЕЖИНКИ И КНОПКИ */
+/* СНЕЖИНКИ */
+#snow-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: -1; }
+
+.snowflake { 
+    position: absolute; 
+    background: #fff; /* Белый снег по умолчанию */
+    border-radius: 50%; 
+    top: -10px; 
+    animation: fall linear forwards; 
+}
+
+/* ФИКС: Черный снег для светлой темы */
+body.theme-light .snowflake {
+    background: #000 !important;
+}
+
+@keyframes fall { to { transform: translateY(105vh); } }
+
+/* КНОПКИ ПЕРЕКЛЮЧЕНИЯ */
+.list-button, .theme-button {
+    background: transparent; border: 1px solid rgba(128, 128, 128, 0.2);
+    color: inherit; padding: 6px 14px; border-radius: 30px; cursor: pointer; margin: 3px; font-size: 0.8rem;
+}
+.active-theme, .active-list { background: var(--color-text) !important; color: var(--bg-main) !important; }
+
+/* Свичер снега */
 .snow-text { font-family: 'Oswald', sans-serif; font-size: 0.8rem; }
 .snow-switch { position: relative; display: inline-block; width: 34px; height: 18px; }
 .snow-switch input { opacity: 0; width: 0; height: 0; }
 .snow-slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(128, 128, 128, 0.3); transition: .4s; border-radius: 34px; }
 .snow-slider:before { position: absolute; content: ""; height: 12px; width: 12px; left: 3px; bottom: 3px; background-color: #888; transition: .4s; border-radius: 50%; }
 input:checked + .snow-slider:before { transform: translateX(16px); background-color: #fff; }
-
-#snow-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: -1; }
-.snowflake { position: absolute; background: #fff; border-radius: 50%; top: -10px; animation: fall linear forwards; }
-@keyframes fall { to { transform: translateY(105vh); } }
-
-.list-button, .theme-button {
-    background: transparent; border: 1px solid rgba(128, 128, 128, 0.2);
-    color: inherit; padding: 6px 14px; border-radius: 30px; cursor: pointer; margin: 3px; font-size: 0.8rem;
-}
-.active-theme, .active-list { background: var(--color-text) !important; color: var(--bg-main) !important; }
