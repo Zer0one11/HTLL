@@ -17,51 +17,58 @@ document.addEventListener('DOMContentLoaded', () => {
         'icl': { file: 'icl.json', title: 'ICL LIST' }
     };
 
+    // Читаем сохраненные значения или ставим дефолты
     let currentSnowSize = localStorage.getItem('snowSize') || '5';
     let currentOpacity = localStorage.getItem('panelOpacity') || '0.01';
     let currentTheme = localStorage.getItem('siteTheme') || 'dark';
+    let currentListId = localStorage.getItem('currentListId') || 'levels';
 
-    // Функция применения темы
+    // 1. Применяем прозрачность панелей
+    function applyOpacity(val) {
+        document.documentElement.style.setProperty('--panel-opacity', val);
+        if (opacityRange) opacityRange.value = val;
+        localStorage.setItem('panelOpacity', val);
+    }
+
+    // 2. Применяем размер снега
+    function applySnowSize(val) {
+        currentSnowSize = val;
+        if (snowSizeRange) snowSizeRange.value = val;
+        localStorage.setItem('snowSize', val);
+    }
+
+    // 3. Применяем тему
     function applyTheme(themeName) {
         document.body.className = `theme-${themeName}`;
         localStorage.setItem('siteTheme', themeName);
-        
-        // Обновляем визуальное состояние кнопок
         document.querySelectorAll('.theme-button').forEach(btn => {
             btn.classList.toggle('active-theme', btn.dataset.theme === themeName);
         });
     }
 
-    // Инициализация
+    // Инициализация при старте
     applyTheme(currentTheme);
-    document.documentElement.style.setProperty('--panel-opacity', currentOpacity);
-    if(opacityRange) opacityRange.value = currentOpacity;
-    if(snowSizeRange) snowSizeRange.value = currentSnowSize;
+    applyOpacity(currentOpacity);
+    applySnowSize(currentSnowSize);
 
-    // Навешиваем клики на кнопки тем
+    // Слушатели для настроек
+    opacityRange.addEventListener('input', (e) => applyOpacity(e.target.value));
+    snowSizeRange.addEventListener('input', (e) => applySnowSize(e.target.value));
+
+    // Кнопки тем
     document.querySelectorAll('.theme-button').forEach(btn => {
-        btn.addEventListener('click', () => {
-            applyTheme(btn.dataset.theme);
-        });
+        btn.addEventListener('click', () => applyTheme(btn.dataset.theme));
     });
 
-    // Настройки
+    // Управление меню настроек
     settingsBtn.addEventListener('click', (e) => {
         e.stopPropagation();
         settingsMenu.classList.toggle('active');
     });
     document.addEventListener('click', () => settingsMenu.classList.remove('active'));
+    settingsMenu.addEventListener('click', (e) => e.stopPropagation());
 
-    opacityRange.addEventListener('input', (e) => {
-        document.documentElement.style.setProperty('--panel-opacity', e.target.value);
-        localStorage.setItem('panelOpacity', e.target.value);
-    });
-
-    snowSizeRange.addEventListener('input', (e) => {
-        currentSnowSize = e.target.value;
-        localStorage.setItem('snowSize', currentSnowSize);
-    });
-
+    // Форматирование Latex
     function formatLatex(text) {
         if (typeof text !== 'string' || text === "none") return text;
         const hasLatex = text.includes('\\') || text.includes('^') || text.includes('_');
@@ -72,9 +79,12 @@ document.addEventListener('DOMContentLoaded', () => {
         return text;
     }
 
+    // Загрузка списков
     function loadList(listId) {
         const config = listMap[listId];
-        document.querySelector('.main-title').textContent = config.title;
+        const titleEl = document.querySelector('.main-title');
+        if (titleEl) titleEl.textContent = config.title;
+
         fetch(config.file).then(r => r.json()).then(data => {
             listElement.innerHTML = '';
             data.forEach(level => {
@@ -100,14 +110,19 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    document.querySelectorAll('.list-button').forEach(btn => btn.addEventListener('click', function() {
-        const lid = this.dataset.list;
-        localStorage.setItem('currentListId', lid);
-        loadList(lid);
-        document.querySelectorAll('.list-button').forEach(b => b.classList.remove('active-list'));
-        this.classList.add('active-list');
-    }));
+    // Переключатель списков
+    document.querySelectorAll('.list-button').forEach(btn => {
+        if (btn.dataset.list === currentListId) btn.classList.add('active-list');
+        btn.addEventListener('click', function() {
+            const lid = this.dataset.list;
+            localStorage.setItem('currentListId', lid);
+            loadList(lid);
+            document.querySelectorAll('.list-button').forEach(b => b.classList.remove('active-list'));
+            this.classList.add('active-list');
+        });
+    });
 
+    // Снег
     function createSnowflake() {
         if (!snowToggle.checked) return;
         const snowflake = document.createElement('div');
@@ -122,5 +137,5 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     setInterval(createSnowflake, 150);
-    loadList(localStorage.getItem('currentListId') || 'levels');
+    loadList(currentListId);
 });
