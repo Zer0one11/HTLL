@@ -3,62 +3,67 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HTLL LIST</title>
+    <title>HTLL List</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&family=Oswald:wght@500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;700;900&family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>
+        window.MathJax = {
+            tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] }
+        };
+    </script>
 </head>
 <body class="theme-dark">
     <div id="snow-container"></div>
 
-    <div class="wrapper">
-        <header>
-            <div class="top-controls">
-                <label class="switch">
-                    <input type="checkbox" id="snow-toggle" checked>
-                    <span class="slider round"></span>
-                </label>
-                <span class="control-label">SNOW</span>
-            </div>
-
-            <h1 class="main-title">TPLL LIST</h1>
-            <a href="https://t.me/your_channel" target="_blank" class="official-link">OFFICIAL CHANNEL</a>
-
-            <div class="list-selector">
-                <button class="list-button" data-list="levels">TPLL</button>
-                <button class="list-button" data-list="ppll">PPLL</button>
-                <button class="list-button" data-list="sll">SLL</button>
-                <button class="list-button" data-list="ill">ILL</button>
-                <button class="list-button" data-list="inf">INF</button>
-                <button class="list-button" data-list="scl">SCL</button>
-                <button class="list-button" data-list="icl">ICL</button>
-            </div>
-
-            <div class="theme-selector">
-                <button class="theme-button" data-theme="dark">DARK</button>
-                <button class="theme-button" data-theme="light">LIGHT</button>
-            </div>
-
-            <div class="search-container">
-                <input type="text" id="levelSearch" placeholder="ПОИСК ПО НАЗВАНИЮ ИЛИ ID...">
-            </div>
-
-            <div class="custom-settings">
-                <div class="s-group">
-                    <span>SNOW SIZE</span>
+    <div class="snow-ui-fixed">
+        <label class="snow-switch">
+            <input type="checkbox" id="snow-toggle">
+            <span class="snow-slider"></span>
+        </label>
+        <span class="snow-text">СНЕГ</span>
+        
+        <div class="settings-wrapper">
+            <img src="settings.ico" alt="settings" id="settings-icon" class="settings-icon">
+            <div class="settings-popup" id="settings-popup">
+                <div class="setting-control">
+                    <span class="snow-text">РАЗМЕР</span>
                     <input type="range" id="snowSizeRange" min="2" max="25" value="5">
                 </div>
-                <div class="s-group">
-                    <span>OPACITY</span>
+                <div class="setting-control">
+                    <span class="snow-text">ПРОЗРАЧНОСТЬ</span>
                     <input type="range" id="opacityRange" min="0.1" max="1" step="0.1" value="0.9">
                 </div>
             </div>
-        </header>
-
-        <main>
-            <ul id="levelList"></ul>
-        </main>
+        </div>
     </div>
+
+    <header>
+        <h1 class="main-title">TPLL LIST</h1>
+        <div class="link-container">
+            <a href="https://t.me/HardestTiktokLevelList" target="_blank" class="channel-link">КАНАЛ ЛИСТА</a>
+        </div>
+        
+        <div class="list-switcher">
+            <button data-list="levels" class="list-button">TPLL</button>
+            <button data-list="ppll" class="list-button">PPLL</button>
+            <button data-list="sll" class="list-button">SLL</button>
+            <button data-list="ill" class="list-button">ILL</button>
+            <button data-list="inf" class="list-button">INF</button>
+            <button data-list="scl" class="list-button">SCL</button>
+            <button data-list="icl" class="list-button">ICL</button>
+        </div>
+        
+        <div class="theme-switcher">
+            <button data-theme="light" class="theme-button">Светлая</button>
+            <button data-theme="dark" class="theme-button active-theme">Темная</button>
+        </div>
+    </header>
+
+    <main>
+        <ul id="levelList"></ul>
+    </main>
 
     <script src="script.js"></script>
 </body>
