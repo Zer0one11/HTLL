@@ -1,18 +1,16 @@
-/* --- ПЕРЕМЕННЫЕ --- */
 :root {
     --bg-main: #050505;
-    --bg-card: rgba(255, 255, 255, 0.03);
+    --bg-card: rgba(20, 20, 20, 0.9);
     --color-text: #ffffff;
-    --color-accent: #888;
-    --blur-val: blur(12px);
+    --color-accent: #ffffff;
     --panel-opacity: 0.9;
 }
 
 body.theme-light {
-    --bg-main: #ffffff;
-    --bg-card: rgba(0, 0, 0, 0.04);
+    --bg-main: #f0f0f0;
+    --bg-card: rgba(255, 255, 255, 0.9);
     --color-text: #000000;
-    --color-accent: #333333;
+    --color-accent: #000000;
 }
 
 body {
@@ -20,64 +18,102 @@ body {
     background-color: var(--bg-main);
     color: var(--color-text);
     margin: 0; padding: 20px;
-    transition: background 0.4s ease;
+    transition: 0.3s;
 }
 
-header { max-width: 800px; margin: 40px auto 10px; text-align: center; }
-.main-title { font-size: 3.5rem; font-weight: 900; margin-bottom: 5px; letter-spacing: -2px; }
+header { max-width: 800px; margin: 60px auto 40px; text-align: center; }
 
-/* КАРТОЧКИ УРОВНЕЙ — ТЕПЕРЬ КАК НА СКРИНЕ */
-#levelList { max-width: 800px; margin: 0 auto; padding: 0; list-style: none; }
+/* ЗАГОЛОВОК КАК НА СКРИНЕ */
+.main-title {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 5rem;
+    font-weight: 900;
+    margin: 0;
+    line-height: 0.9;
+    letter-spacing: -3px;
+    text-transform: uppercase;
+}
+
+.channel-link {
+    font-family: 'Montserrat', sans-serif;
+    color: var(--color-text);
+    font-weight: 700;
+    text-decoration: underline;
+    font-size: 1.2rem;
+    opacity: 0.8;
+}
+
+/* КАРТОЧКИ УРОВНЕЙ */
+#levelList { max-width: 850px; margin: 0 auto; padding: 0; list-style: none; }
+
 .level-item {
-    background: rgba(20, 20, 20, var(--panel-opacity));
-    backdrop-filter: var(--blur-val);
-    border: 1px solid rgba(128, 128, 128, 0.1);
-    border-left: 5px solid var(--color-accent);
-    border-radius: 20px;
-    padding: 30px;
-    margin-bottom: 25px;
+    background: rgba(20, 20, 20, var(--panel-opacity)) !important;
+    border-radius: 30px;
+    padding: 40px;
+    margin-bottom: 30px;
+    position: relative;
+    overflow: hidden;
     text-align: left;
 }
 
-.level-name { font-size: 2rem; font-weight: 900; display: block; text-decoration: none; color: inherit; margin-bottom: 5px; }
-.level-creator { font-size: 1rem; opacity: 0.6; margin-bottom: 20px; display: block; }
-.level-number { font-size: 2.5rem; font-weight: 900; opacity: 0.2; margin-bottom: 10px; display: block; }
-
-.level-details { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 5px; }
-.detail-line { font-weight: 600; font-size: 1.1rem; }
-.detail-label { font-weight: 900; color: #555; text-transform: uppercase; margin-right: 10px; font-size: 0.8rem; }
-
-/* НАСТРОЙКИ */
-.settings-container { position: relative; display: flex; align-items: center; }
-.settings-popup {
-    display: none; position: absolute; top: 30px; left: 0;
-    background: rgba(15, 15, 15, 0.95); border: 1px solid #333;
-    padding: 15px; border-radius: 12px; z-index: 10001; min-width: 150px;
+/* БЕЛАЯ ПОЛОСА СЛЕВА */
+.level-item::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 15%; bottom: 15%;
+    width: 8px;
+    background: var(--color-accent);
+    border-radius: 0 10px 10px 0;
 }
-.settings-popup.active { display: flex; flex-direction: column; gap: 10px; }
-.s-item { display: flex; flex-direction: column; gap: 5px; }
-.s-item span { font-family: 'Oswald'; font-size: 0.7rem; color: #777; }
-input[type="range"] { accent-color: #fff; cursor: pointer; }
 
-/* СНЕГ UI */
-.snow-ui-fixed {
-    position: absolute; top: 25px; left: 25px; z-index: 10000;
-    display: flex; align-items: center; gap: 10px;
-    background: rgba(128, 128, 128, 0.15); padding: 7px 14px; border-radius: 40px; backdrop-filter: blur(10px);
+.level-number {
+    font-size: 3rem;
+    font-weight: 900;
+    opacity: 0.15;
+    margin-bottom: 10px;
+    display: block;
 }
-.snow-text { font-family: 'Oswald', sans-serif; font-size: 0.8rem; }
-.snow-switch { position: relative; width: 34px; height: 18px; display: inline-block; }
-.snow-switch input { opacity: 0; width: 0; height: 0; }
-.snow-slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(128, 128, 128, 0.3); border-radius: 34px; transition: .4s; }
-.snow-slider:before { position: absolute; content: ""; height: 12px; width: 12px; left: 3px; bottom: 3px; background-color: #888; border-radius: 50%; transition: .4s; }
-input:checked + .snow-slider:before { transform: translateX(16px); background-color: #fff; }
 
-/* КНОПКИ */
+.level-name {
+    font-size: 3.5rem;
+    font-weight: 900;
+    display: block;
+    text-decoration: none;
+    color: inherit;
+    line-height: 1;
+}
+
+.level-creator { font-size: 1.2rem; opacity: 0.6; margin-top: 5px; display: block; margin-bottom: 30px; }
+
+.level-details { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.detail-line { font-size: 1.3rem; font-weight: 700; }
+.detail-label { opacity: 0.5; text-transform: uppercase; margin-right: 15px; font-size: 1rem; }
+
+/* КНОПКИ-КАПСУЛЫ */
 .list-button, .theme-button {
-    background: transparent; border: 1px solid rgba(128, 128, 128, 0.2);
-    color: inherit; padding: 6px 14px; border-radius: 30px; cursor: pointer; margin: 3px; font-size: 0.8rem;
+    background: transparent; border: 1.5px solid rgba(128, 128, 128, 0.3);
+    color: inherit; padding: 10px 24px; border-radius: 50px;
+    cursor: pointer; margin: 5px; font-weight: 700; font-size: 1rem; transition: 0.2s;
 }
-.active-theme, .active-list { background: #fff !important; color: #000 !important; }
+.active-theme, .active-list { background: #fff !important; color: #000 !important; border-color: #fff; }
+
+/* UI СНЕГА И НАСТРОЕК */
+.snow-ui-fixed {
+    position: fixed; top: 20px; left: 20px; z-index: 9999;
+    display: flex; align-items: center; gap: 12px;
+    background: rgba(40, 40, 40, 0.6); padding: 8px 16px; border-radius: 50px; backdrop-filter: blur(10px);
+}
+.setting-icon-img { width: 18px; height: 18px; cursor: pointer; opacity: 0.5; transition: 0.3s; }
+.setting-icon-img:hover { opacity: 1; transform: rotate(45deg); }
+
+.settings-popup {
+    display: none; position: absolute; top: 45px; left: 0;
+    background: rgba(10, 10, 10, 0.95); padding: 20px; border-radius: 20px;
+    border: 1px solid #333; min-width: 180px; flex-direction: column; gap: 15px;
+}
+.settings-popup.active { display: flex; }
+.s-control { display: flex; flex-direction: column; gap: 5px; font-size: 0.8rem; font-weight: 900; color: #555; }
+input[type="range"] { accent-color: #fff; cursor: pointer; }
 
 #snow-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: -1; }
 .snowflake { position: absolute; background: #fff; border-radius: 50%; top: -10px; animation: fall linear forwards; }
