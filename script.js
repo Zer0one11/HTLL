@@ -38,10 +38,19 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentListData = []; 
     let globalData = [];      
     let currentListId = localStorage.getItem('currentListId') || 'levels';
+    let currentTheme = localStorage.getItem('siteTheme') || 'dark';
     
-    setTheme(localStorage.getItem('siteTheme') || 'dark');
+    // Установка темы и ФИКС выделения кнопок тем
+    setTheme(currentTheme);
+    themeButtons.forEach(btn => {
+        if (btn.dataset.theme === currentTheme) {
+            btn.classList.add('active-theme');
+        } else {
+            btn.classList.remove('active-theme');
+        }
+    });
 
-    // ФИКС БАГА ВЫДЕЛЕНИЯ: Синхронизируем кнопки при загрузке
+    // ФИКС выделения кнопок листов
     listButtons.forEach(button => {
         if (button.dataset.list === currentListId) {
             button.classList.add('active-list');
@@ -50,14 +59,14 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Предзагрузка всех данных для глобального поиска по автору/названию/ID
+    // Предзагрузка всех данных
     Object.values(listMap).forEach(item => {
         fetch(item.file + '?t=' + Date.now())
             .then(r => r.json())
             .then(data => {
                 globalData = [...globalData, ...data];
             })
-            .catch(e => console.error("Ошибка предзагрузки:", e));
+            .catch(e => console.error(`Ошибка в файле ${item.file}:`, e));
     });
 
     const snowSaved = localStorage.getItem('snowEnabled');
@@ -68,9 +77,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function setTheme(themeName) { body.className = `theme-${themeName}`; }
 
-    /**
-     * ТВОЙ УЛЬТИМАТИВНЫЙ ФИКС ЛАТЕКСА
-     */
     function formatLatex(text) {
         if (typeof text !== 'string' || text === "none" || text.trim() === "") return text;
         let processed = text;
@@ -89,11 +95,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function render(data) {
         if (!listElement) return;
+        // Очистка кэша MathJax для стабильного выравнивания
         if (window.MathJax && window.MathJax.typesetClear) {
             window.MathJax.typesetClear([listElement]);
         }
         listElement.innerHTML = '';
         
+        // Стабильная отрисовка
         data.forEach(level => {
             const li = document.createElement('li');
             li.className = 'level-item';
@@ -132,16 +140,21 @@ document.addEventListener('DOMContentLoaded', () => {
         if (mainTitle) mainTitle.textContent = config.title;
         
         fetch(config.file + '?t=' + Date.now())
-            .then(r => r.json())
+            .then(r => {
+                if (!r.ok) throw new Error(`Файл не найден: ${config.file}`);
+                return r.json();
+            })
             .then(data => {
+                // Стабильная сортировка по номеру
                 currentListData = data.sort((a, b) => (parseInt(a.number) || 0) - (parseInt(b.number) || 0));
                 render(currentListData);
+            })
+            .catch(err => {
+                console.error("Ошибка SLL/JSON:", err);
+                listElement.innerHTML = `<p style="color:red; text-align:center;">Ошибка загрузки ${listId}. Проверь запятые в JSON!</p>`;
             });
     }
 
-    /**
-     * ОБНОВЛЕННЫЙ ПОИСК: По названию, ID и АВТОРУ
-     */
     if (searchInput) {
         searchInput.addEventListener('input', (e) => {
             const val = e.target.value.toLowerCase();
@@ -155,7 +168,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const filtered = globalData.filter(l => 
                 (l.name && l.name.toLowerCase().includes(val)) || 
                 (l.id && l.id.toString().includes(val)) ||
-                (l.creator && l.creator.toLowerCase().includes(val)) // Добавлен поиск по автору
+                (l.creator && l.creator.toLowerCase().includes(val))
             );
             render(filtered);
         });
