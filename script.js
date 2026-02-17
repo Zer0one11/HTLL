@@ -1,4 +1,3 @@
-// 1. КОНФИГУРАЦИЯ MATHJAX
 window.MathJax = {
     tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], processEscapes: true },
     options: { skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre'] },
@@ -14,8 +13,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const snowToggle = document.getElementById('snow-toggle');
     const snowContainer = document.getElementById('snow-container');
     const searchInput = document.getElementById('levelSearch');
-    
-    // НОВЫЕ ЭЛЕМЕНТЫ НАСТРОЕК
+    const settingsBtn = document.getElementById('settingsBtn');
+    const settingsMenu = document.getElementById('settingsMenu');
     const snowSizeRange = document.getElementById('snowSizeRange');
     const opacityRange = document.getElementById('opacityRange');
 
@@ -33,37 +32,37 @@ document.addEventListener('DOMContentLoaded', () => {
     let globalData = [];      
     let currentListId = localStorage.getItem('currentListId') || 'levels';
     let currentTheme = localStorage.getItem('siteTheme') || 'dark';
-    
-    // Инициализация темы
-    setTheme(currentTheme);
-    themeButtons.forEach(btn => btn.classList.toggle('active-theme', btn.dataset.theme === currentTheme));
-    listButtons.forEach(btn => btn.classList.toggle('active-list', btn.dataset.list === currentListId));
-
-    // --- ЛОГИКА НОВЫХ НАСТРОЕК ---
-
-    // 1. Прозрачность
-    const savedOpacity = localStorage.getItem('panelOpacity') || '0.9';
-    if (opacityRange) {
-        opacityRange.value = savedOpacity;
-        document.documentElement.style.setProperty('--panel-opacity', savedOpacity);
-        opacityRange.addEventListener('input', (e) => {
-            const val = e.target.value;
-            document.documentElement.style.setProperty('--panel-opacity', val);
-            localStorage.setItem('panelOpacity', val);
-        });
-    }
-
-    // 2. Размер снега
     let currentSnowSize = localStorage.getItem('snowSize') || '5';
-    if (snowSizeRange) {
-        snowSizeRange.value = currentSnowSize;
-        snowSizeRange.addEventListener('input', (e) => {
-            currentSnowSize = e.target.value;
-            localStorage.setItem('snowSize', currentSnowSize);
-        });
-    }
+    let currentOpacity = localStorage.getItem('panelOpacity') || '0.9';
 
-    // --- КОРНЕВЫЕ ФУНКЦИИ ---
+    // Инициализация
+    setTheme(currentTheme);
+    document.documentElement.style.setProperty('--panel-opacity', currentOpacity);
+    if (opacityRange) opacityRange.value = currentOpacity;
+    if (snowSizeRange) snowSizeRange.value = currentSnowSize;
+
+    listButtons.forEach(btn => btn.classList.toggle('active-list', btn.dataset.list === currentListId));
+    themeButtons.forEach(btn => btn.classList.toggle('active-theme', btn.dataset.theme === currentTheme));
+
+    // УПРАВЛЕНИЕ НАСТРОЙКАМИ
+    settingsBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        settingsMenu.classList.toggle('active');
+    });
+
+    document.addEventListener('click', () => settingsMenu.classList.remove('active'));
+    settingsMenu.addEventListener('click', (e) => e.stopPropagation());
+
+    opacityRange.addEventListener('input', (e) => {
+        const val = e.target.value;
+        document.documentElement.style.setProperty('--panel-opacity', val);
+        localStorage.setItem('panelOpacity', val);
+    });
+
+    snowSizeRange.addEventListener('input', (e) => {
+        currentSnowSize = e.target.value;
+        localStorage.setItem('snowSize', currentSnowSize);
+    });
 
     function setTheme(themeName) { body.className = `theme-${themeName}`; }
 
@@ -100,12 +99,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                 </div>
                 <ul class="level-details">
-                    <li class="detail-line"><span class="detail-label">FPS:</span> <span>${formatLatex(level.fps)}</span></li>
+                    <li class="detail-line"><span class="detail-label">FPS:</span> ${formatLatex(level.fps)}</li>
                     <li class="detail-line"><span class="detail-label">ID:</span> ${level.id}</li> 
                     <li class="detail-line"><span class="detail-label">FV:</span> ${level.fv}</li> 
                     ${level.type && level.type !== "none" ? `<li class="detail-line"><span class="detail-label">Type:</span> ${formatLatex(level.type)}</li>` : ''}
-                </ul>
-            `;
+                </ul>`;
             listElement.appendChild(li);
         });
         
@@ -123,10 +121,9 @@ document.addEventListener('DOMContentLoaded', () => {
             .then(data => {
                 currentListData = data.sort((a, b) => (parseInt(a.number) || 0) - (parseInt(b.number) || 0));
                 render(currentListData);
-            }).catch(e => console.error("JSON Error:", e));
+            });
     }
 
-    // Поиск
     if (searchInput) {
         searchInput.addEventListener('input', (e) => {
             const val = e.target.value.toLowerCase();
@@ -140,7 +137,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Кнопки листов
     listButtons.forEach(button => {
         button.addEventListener('click', () => {
             currentListId = button.dataset.list;
@@ -151,17 +147,22 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Снег
+    themeButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const newTheme = button.dataset.theme;
+            setTheme(newTheme);
+            localStorage.setItem('siteTheme', newTheme);
+            themeButtons.forEach(btn => btn.classList.remove('active-theme'));
+            button.classList.add('active-theme');
+        });
+    });
+
     function createSnowflake() {
         if (!snowToggle?.checked) return;
         const snowflake = document.createElement('div');
         snowflake.className = 'snowflake';
-        
-        // Используем кастомный размер из настроек
         const size = (Math.random() * (currentSnowSize / 2) + Number(currentSnowSize)) + 'px';
-        
-        snowflake.style.width = size; 
-        snowflake.style.height = size;
+        snowflake.style.width = size; snowflake.style.height = size;
         snowflake.style.left = Math.random() * 100 + 'vw';
         snowflake.style.animationDuration = Math.random() * 3 + 4 + 's';
         snowflake.style.opacity = Math.random() * 0.6 + 0.4;
@@ -170,7 +171,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     setInterval(createSnowflake, 150);
 
-    // Загрузка данных для поиска
     Object.values(listMap).forEach(item => {
         fetch(item.file).then(r => r.json()).then(data => globalData = [...globalData, ...data]);
     });
