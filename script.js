@@ -25,12 +25,10 @@ document.addEventListener('DOMContentLoaded', () => {
     // ПРИМЕНЕНИЕ НАСТРОЕК
     function applyOpacity(val) {
         document.documentElement.style.setProperty('--panel-opacity', val);
-        if (opacityRange) opacityRange.value = val;
         localStorage.setItem('panelOpacity', val);
     }
     function applySnowSize(val) {
         currentSnowSize = val;
-        if (snowSizeRange) snowSizeRange.value = val;
         localStorage.setItem('snowSize', val);
     }
     function applyTheme(themeName) {
@@ -41,11 +39,14 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    applyTheme(currentTheme);
+    // Установка начальных значений ползунков
+    opacityRange.value = currentOpacity;
+    snowSizeRange.value = currentSnowSize;
     applyOpacity(currentOpacity);
     applySnowSize(currentSnowSize);
+    applyTheme(currentTheme);
 
-    // СЛУШАТЕЛИ НАСТРОЕК
+    // СОБЫТИЯ НАСТРОЕК
     opacityRange.addEventListener('input', (e) => applyOpacity(e.target.value));
     snowSizeRange.addEventListener('input', (e) => applySnowSize(e.target.value));
     
@@ -62,7 +63,6 @@ document.addEventListener('DOMContentLoaded', () => {
         return (needsMath && !text.startsWith('$')) ? `$${text}$` : text;
     }
 
-    // ЗАГРУЗКА СПИСКА
     function loadList(listId) {
         const config = listMap[listId];
         document.querySelector('.main-title').textContent = config.title;
@@ -92,7 +92,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // ПЕРЕКЛЮЧАТЕЛИ СПИСКОВ И ТЕМ
     document.querySelectorAll('.list-button').forEach(btn => {
         if (btn.dataset.list === currentListId) btn.classList.add('active-list');
         btn.onclick = function() {
@@ -108,7 +107,6 @@ document.addEventListener('DOMContentLoaded', () => {
         btn.onclick = () => applyTheme(btn.dataset.theme);
     });
 
-    // СНЕЖИНКИ
     function createSnowflake() {
         if (!snowToggle.checked) return;
         const snowflake = document.createElement('div');
@@ -117,14 +115,13 @@ document.addEventListener('DOMContentLoaded', () => {
         snowflake.style.width = size; snowflake.style.height = size;
         snowflake.style.left = Math.random() * 100 + 'vw';
         snowflake.style.animationDuration = Math.random() * 3 + 4 + 's';
-        snowflake.style.opacity = Math.random();
         snowContainer.appendChild(snowflake);
         setTimeout(() => snowflake.remove(), 7000);
     }
     setInterval(createSnowflake, 150);
     loadList(currentListId);
 
-    // МОДАЛКА РЕКВЕСТОВ
+    // REQUEST MODAL
     const reqModal = document.getElementById('request-modal');
     document.getElementById('open-request-btn').onclick = () => reqModal.style.display = 'flex';
     document.getElementById('close-modal').onclick = () => reqModal.style.display = 'none';
