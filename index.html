@@ -15,6 +15,8 @@
 <body class="theme-dark">
     <div id="snow-container"></div>
 
+    <button id="open-request-btn" class="request-main-btn" style="position: fixed; top: 20px; left: 20px; z-index: 9999; background: #fff; color: #000; border: none; padding: 10px 20px; border-radius: 50px; font-weight: 900; cursor: pointer;">ПОДАТЬ РЕКВЕСТ</button>
+
     <div class="snow-ui-static">
         <label class="snow-switch">
             <input type="checkbox" id="snow-toggle" checked>
@@ -23,8 +25,8 @@
         <span class="snow-text">СНЕГ</span>
         
         <div class="settings-container" style="position: relative; display: flex; align-items: center;">
-            <img src="setting.ico" alt="⚙️" id="settings-btn" class="setting-icon-img">
-            <div id="settings-menu" class="settings-popup">
+            <img src="setting.ico" alt="⚙️" id="settings-btn" class="setting-icon" style="cursor: pointer; width: 24px; height: 24px;">
+            <div id="settings-menu" class="settings-menu">
                 <div class="s-control">
                     <span>SIZE</span>
                     <input type="range" id="snowSizeRange" min="2" max="25" value="5">
@@ -60,9 +62,64 @@
     </header>
 
     <main>
-        <ul id="levelList"></ul>
+        <ul id="levelList" class="level-list"></ul>
     </main>
 
+    <div id="request-modal" class="modal-overlay" style="display:none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 100000; justify-content: center; align-items: center; backdrop-filter: blur(10px);">
+        <div class="modal-content" style="background: #111; padding: 30px; border-radius: 30px; width: 90%; max-width: 400px; border: 1px solid #222;">
+            <div id="request-form-container">
+                <h2 style="margin-top: 0;">NEW REQUEST</h2>
+                <form id="request-form" style="display: flex; flex-direction: column; gap: 10px;">
+                    <input type="text" id="req-nickname" placeholder="Твой ник" required style="padding: 12px; border-radius: 10px; border: 1px solid #333; background: #1a1a1a; color: #fff;">
+                    <input type="text" id="req-level-name" placeholder="Название уровня" required style="padding: 12px; border-radius: 10px; border: 1px solid #333; background: #1a1a1a; color: #fff;">
+                    <select id="req-list" style="padding: 12px; border-radius: 10px; border: 1px solid #333; background: #1a1a1a; color: #fff;">
+                        <option value="levels">TPLL</option>
+                        <option value="ppll">PPLL</option>
+                        <option value="sll">SLL</option>
+                        <option value="ill">ILL</option>
+                        <option value="inf">INF</option>
+                        <option value="scl">SCL</option>
+                        <option value="icl">ICL</option>
+                    </select>
+                    <textarea id="req-info" placeholder="ID и ссылка на видео" required style="padding: 12px; border-radius: 10px; border: 1px solid #333; background: #1a1a1a; color: #fff; height: 80px;"></textarea>
+                    <button type="submit" style="padding: 15px; border-radius: 10px; border: none; background: #fff; color: #000; font-weight: 900; cursor: pointer;">ОТПРАВИТЬ</button>
+                    <button type="button" id="close-modal" style="background: none; border: none; color: #555; cursor: pointer; margin-top: 5px;">Закрыть</button>
+                </form>
+            </div>
+
+            <div id="chat-section" style="display:none;">
+                <h3 id="chat-title">ЧАТ С МОДЕРАТОРОМ</h3>
+                <div id="chat-messages" style="height: 200px; overflow-y: auto; background: #000; padding: 10px; border-radius: 10px; margin-bottom: 10px; font-size: 0.9rem;"></div>
+                <div style="display: flex; gap: 5px;">
+                    <input type="text" id="user-msg" placeholder="Сообщение..." style="flex: 1; padding: 10px; border-radius: 10px; border: 1px solid #333; background: #1a1a1a; color: #fff;">
+                    <button id="send-msg" style="padding: 10px 15px; border-radius: 10px; border: none; background: #fff; font-weight: 900;">></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+      import { getDatabase, ref, push, set, onValue, onChildAdded } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+      const firebaseConfig = {
+        apiKey: "AIzaSyCuO6xuP2AP61bTbiqjho_jzXiDsCzxTCY",
+        authDomain: "htll-request.firebaseapp.com",
+        databaseURL: "https://htll-request-default-rtdb.europe-west1.firebasedatabase.app",
+        projectId: "htll-request",
+        storageBucket: "htll-request.firebasestorage.app",
+        messagingSenderId: "400821777799",
+        appId: "1:400821777799:web:88da4772f63810f67e4f22",
+        measurementId: "G-4W8F8K5TCP"
+      };
+
+      const app = initializeApp(firebaseConfig);
+      const db = getDatabase(app);
+
+      window.db = db;
+      window.dbRefs = { ref, push, set, onValue, onChildAdded };
+    </script>
+    
     <script src="script.js"></script>
 </body>
 </html>
