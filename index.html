@@ -12,6 +12,7 @@
 </head>
 <body class="theme-dark">
     <div id="snow-container"></div>
+
     <button id="open-request-btn" class="request-main-btn">ПОДАТЬ РЕКВЕСТ</button>
 
     <div class="snow-ui-static">
@@ -20,11 +21,11 @@
             <span class="snow-slider"></span>
         </label>
         <span class="snow-text">СНЕГ</span>
-        <div class="settings-container">
-            <img src="setting.ico" alt="⚙️" id="settings-btn" class="setting-icon">
-            <div id="settings-menu" class="settings-menu">
-                <div class="s-control"><span>SIZE</span><input type="range" id="snowSizeRange" min="2" max="25"></div>
-                <div class="s-control"><span>OPACITY</span><input type="range" id="opacityRange" min="0.01" max="0.3" step="0.01"></div>
+        <div class="settings-container" style="position: relative; display: flex; align-items: center;">
+            <img src="setting.ico" alt="⚙️" id="settings-btn" class="setting-icon" style="width:24px; cursor:pointer;">
+            <div id="settings-menu" class="settings-menu" style="position:absolute; top:40px; right:0; background:rgba(0,0,0,0.8); padding:10px; border-radius:10px; display:none;">
+                <div class="s-control"><span>SIZE</span><input type="range" id="snowSizeRange" min="2" max="25" value="5"></div>
+                <div class="s-control"><span>OPACITY</span><input type="range" id="opacityRange" min="0.01" max="0.3" step="0.01" value="0.01"></div>
             </div>
         </div>
     </div>
@@ -52,7 +53,10 @@
     <div id="request-modal" class="modal-overlay">
         <div class="modal-content">
             <div id="request-form-container">
-                <div class="modal-header"><h2>NEW REQUEST</h2><span id="close-modal">&times;</span></div>
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                    <h2 style="margin:0">NEW REQUEST</h2>
+                    <span id="close-modal" style="cursor:pointer; font-size:1.5rem;">&times;</span>
+                </div>
                 <form id="request-form">
                     <input type="text" id="req-nickname" placeholder="Твой ник" required>
                     <input type="text" id="req-level-name" placeholder="Название уровня" required>
@@ -60,20 +64,20 @@
                     <input type="text" id="req-id" placeholder="ID уровня" required>
                     <input type="text" id="req-fps" placeholder="FPS (Latex)" required>
                     <input type="text" id="req-fv" placeholder="First Victor">
-                    <input type="text" id="req-type" placeholder="Type (LPrSS...)">
+                    <input type="text" id="req-type" placeholder="Type">
                     <select id="req-list">
                         <option value="levels">TPLL</option><option value="ppll">PPLL</option>
                         <option value="sll">SLL</option><option value="ill">ILL</option>
                         <option value="inf">INF</option><option value="scl">SCL</option>
                         <option value="icl">ICL</option>
                     </select>
-                    <textarea id="req-showcase" placeholder="Ссылка на Showcase" required></textarea>
-                    <button type="submit" class="submit-request">ОТПРАВИТЬ</button>
+                    <textarea id="req-showcase" placeholder="Showcase Link" required></textarea>
+                    <button type="submit" style="width:100%; padding:15px; border-radius:10px; border:none; background:#fff; color:#000; font-weight:900; cursor:pointer;">ОТПРАВИТЬ</button>
                 </form>
             </div>
             <div id="chat-section" style="display:none;">
-                <div id="chat-messages" style="height:250px; overflow-y:auto; background:#000; padding:10px; border-radius:15px; margin-bottom:10px;"></div>
-                <div style="display:flex; gap:5px;"><input type="text" id="user-msg" placeholder="Сообщение..."><button id="send-msg" style="padding:10px; background:#fff; border:none; border-radius:10px;">></button></div>
+                <div id="chat-messages" style="height:200px; overflow-y:auto; margin-bottom:10px; border-bottom:1px solid #333;"></div>
+                <div style="display:flex; gap:5px;"><input type="text" id="user-msg" placeholder="Message..."><button id="send-msg">></button></div>
             </div>
         </div>
     </div>
