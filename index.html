@@ -6,12 +6,18 @@
     <title>HTLL List</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&family=Oswald:wght@500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
+    
     <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-    <script>window.MathJax = { tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] } };</script>
+    <script>
+        window.MathJax = {
+            tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] }
+        };
+    </script>
 </head>
 <body class="theme-dark">
     <div id="snow-container"></div>
+
     <button id="open-request-btn" class="request-main-btn">ПОДАТЬ РЕКВЕСТ</button>
 
     <div class="snow-ui-static">
@@ -20,18 +26,29 @@
             <span class="snow-slider"></span>
         </label>
         <span class="snow-text">СНЕГ</span>
-        <div class="settings-container" style="position: relative;">
+        
+        <div class="settings-container" style="position: relative; display: flex; align-items: center;">
             <img src="setting.ico" alt="⚙️" id="settings-btn" class="setting-icon">
+            
             <div id="settings-menu" class="settings-menu">
-                <div class="s-control"><span>SIZE</span><input type="range" id="snowSizeRange" min="2" max="25"></div>
-                <div class="s-control"><span>OPACITY</span><input type="range" id="opacityRange" min="0.01" max="0.3" step="0.01"></div>
+                <div class="s-control">
+                    <span>РАЗМЕР СНЕЖИНОК</span>
+                    <input type="range" id="snowSizeRange" min="2" max="25" value="5">
+                </div>
+                <div class="s-control">
+                    <span>ПРОЗРАЧНОСТЬ КАРТОЧЕК</span>
+                    <input type="range" id="opacityRange" min="0.01" max="0.3" step="0.01" value="0.01">
+                </div>
             </div>
         </div>
     </div>
 
     <header>
         <h1 class="main-title">TPLL LIST</h1>
-        <div class="link-container"><a href="https://t.me/HardestTiktokLevelList" target="_blank" class="channel-link">КАНАЛ ЛИСТА</a></div>
+        <div class="link-container">
+            <a href="https://t.me/HardestTiktokLevelList" target="_blank" class="channel-link">КАНАЛ ЛИСТА</a>
+        </div>
+
         <div class="list-switcher">
             <button data-list="levels" class="list-button">TPLL</button>
             <button data-list="ppll" class="list-button">PPLL</button>
@@ -41,19 +58,24 @@
             <button data-list="scl" class="list-button">SCL</button>
             <button data-list="icl" class="list-button">ICL</button>
         </div>
-        <div class="theme-switcher">
+
+        <div class="theme-switcher" style="margin-top: 15px;">
             <button data-theme="light" class="theme-button">Светлая</button>
             <button data-theme="dark" class="theme-button">Темная</button>
         </div>
     </header>
 
-    <main><ul id="levelList" class="level-list"></ul></main>
+    <main>
+        <ul id="levelList" class="level-list">
+            </ul>
+    </main>
 
     <div id="request-modal" class="modal-overlay">
         <div class="modal-content">
+            
             <div id="request-form-container">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:25px;">
-                    <h2 style="margin:0">NEW REQUEST</h2>
+                    <h2 style="margin:0">НОВАЯ ЗАЯВКА</h2>
                     <span id="close-modal" style="cursor:pointer; font-size:1.8rem; opacity:0.5;">&times;</span>
                 </div>
                 <form id="request-form">
@@ -62,41 +84,62 @@
                     <input type="text" id="req-creator" placeholder="Автор уровня" required>
                     <input type="text" id="req-id" placeholder="ID уровня" required>
                     <input type="text" id="req-fps" placeholder="FPS (например 360)" required>
-                    <input type="text" id="req-fv" placeholder="Кто первым ботнул? (если нет - пусто)">
-                    <input type="text" id="req-type" placeholder="Type (LPrSS...)">
-                    <select id="req-list">
-                        <option value="levels">TPLL</option><option value="ppll">PPLL</option>
-                        <option value="sll">SLL</option><option value="ill">ILL</option>
-                        <option value="inf">INF</option><option value="scl">SCL</option>
-                        <option value="icl">ICL</option>
+                    <input type="text" id="req-fv" placeholder="Кто первым его ботнул? (если нет - пусто)">
+                    <input type="text" id="req-type" placeholder="Type (например, LPrSS)">
+                    
+                    <select id="req-list" style="width: 100%; margin-bottom: 12px; background: #1a1a1c; border: 1px solid #333; color: #fff; padding: 14px; border-radius: 12px;">
+                        <option value="levels">В список TPLL</option>
+                        <option value="ppll">В список PPLL</option>
+                        <option value="sll">В список SLL</option>
+                        <option value="ill">В список ILL</option>
+                        <option value="inf">В список INF</option>
+                        <option value="scl">В список SCL</option>
+                        <option value="icl">В список ICL</option>
                     </select>
-                    <textarea id="req-showcase" placeholder="Ссылка на Showcase видео" required></textarea>
+                    
+                    <textarea id="req-showcase" placeholder="Ссылка на Showcase видео" required style="width: 100%; height: 80px; background: #1a1a1c; border: 1px solid #333; color: #fff; padding: 14px; border-radius: 12px; margin-bottom: 15px; font-family: inherit;"></textarea>
+                    
                     <button type="submit" class="submit-request">ОТПРАВИТЬ ЗАЯВКУ</button>
                 </form>
             </div>
+
             <div id="chat-section" style="display:none;">
-                <div id="chat-messages" style="height:250px; overflow-y:auto; background:#000; padding:15px; border-radius:15px; margin-bottom:15px;"></div>
-                <div style="display:flex; gap:8px;">
-                    <input type="text" id="user-msg" placeholder="Ваше сообщение..." style="margin-bottom:0;">
-                    <button id="send-msg" style="width:50px; border-radius:12px; border:none; background:#fff; font-weight:900;">></button>
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                    <span style="font-weight:900; letter-spacing: 1px;">ВАШ ЧАТ С АДМИНОМ</span>
+                    <button id="delete-chat-user" style="background:none; border:none; color:#ff4444; cursor:pointer; font-weight:700; font-size:0.7rem; text-transform: uppercase;">Удалить чат</button>
+                </div>
+                
+                <div id="chat-messages" style="height:300px; overflow-y:auto; background:#000; padding:15px; border-radius:15px; margin-bottom:15px; border: 1px solid #222;">
+                    </div>
+                
+                <div style="display:flex; gap:10px;">
+                    <input type="text" id="user-msg" placeholder="Напишите сообщение..." style="margin-bottom:0;">
+                    <button id="send-msg" style="width:60px; border-radius:12px; border:none; background:#fff; color:#000; font-weight:900; cursor:pointer;">></button>
                 </div>
             </div>
         </div>
     </div>
 
     <script type="module">
-      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-      import { getDatabase, ref, push, set, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
-      const app = initializeApp({
-        apiKey: "AIzaSyCuO6xuP2AP61bTbiqjho_jzXiDsCzxTCY",
-        authDomain: "htll-request.firebaseapp.com",
-        databaseURL: "https://htll-request-default-rtdb.europe-west1.firebasedatabase.app",
-        projectId: "htll-request",
-        appId: "1:400821777799:web:88da4772f63810f67e4f22"
-      });
-      window.db = getDatabase(app);
-      window.dbRefs = { ref, push, set, onValue };
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getDatabase, ref, push, set, onValue, update, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCuO6xuP2AP61bTbiqjho_jzXiDsCzxTCY",
+            authDomain: "htll-request.firebaseapp.com",
+            databaseURL: "https://htll-request-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "htll-request",
+            appId: "1:400821777799:web:88da4772f63810f67e4f22"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        
+        // Экспортируем в window, чтобы script.js видел Firebase
+        window.db = db;
+        window.dbRefs = { ref, push, set, onValue, update, remove };
     </script>
+
     <script src="script.js"></script>
 </body>
 </html>
