@@ -2,102 +2,231 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HTLL | Admin Dashboard</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Montserrat'; background: #050505; color: #fff; padding: 20px; }
-        .admin-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; max-width: 1200px; margin: 0 auto; }
-        .box { background: rgba(255,255,255,0.03); padding: 20px; border-radius: 20px; border: 1px solid #222; }
-        .req-card { background: #111; padding: 15px; border-radius: 10px; margin-bottom: 10px; border-left: 4px solid #888; cursor: pointer; }
-        .req-card:hover { background: #1a1a1a; }
-        #admin-chat-box { height: 300px; overflow-y: auto; background: #000; padding: 15px; border-radius: 10px; margin-bottom: 10px; }
+        :root { --bg-main: #050505; --bg-card: rgba(255, 255, 255, 0.03); --accent: #888; }
+        body { font-family: 'Montserrat', sans-serif; background: var(--bg-main); color: #fff; margin: 0; padding: 20px; }
+        
+        /* Меню переключения */
+        .admin-nav { display: flex; gap: 20px; margin-bottom: 30px; border-bottom: 1px solid #222; padding-bottom: 10px; }
+        .nav-btn { background: none; border: none; color: #555; font-weight: 900; cursor: pointer; font-size: 1.2rem; }
+        .nav-btn.active { color: #fff; }
+
+        .section { display: none; width: 100%; max-width: 900px; margin: 0 auto; }
+        .section.active { display: block; }
+
+        /* Твои старые стили редактора */
+        .container { background: var(--bg-card); border-radius: 20px; padding: 30px; border: 1px solid rgba(255,255,255,0.1); }
+        input, select, textarea { width: 100%; padding: 12px; margin: 10px 0; background: #111; border: 1px solid #333; color: #fff; border-radius: 10px; box-sizing: border-box; }
+        .btn-save { background: #fff; color: #000; border: none; padding: 15px; border-radius: 10px; font-weight: 900; cursor: pointer; width: 100%; }
+
+        /* Стили реквестов */
+        .req-grid { display: grid; grid-template-columns: 1fr 1.5fr; gap: 20px; }
+        .req-card { background: #111; padding: 15px; border-radius: 10px; margin-bottom: 10px; border: 1px solid #222; cursor: pointer; transition: 0.3s; }
+        .req-card:hover { border-color: #fff; }
+        .chat-box { height: 300px; overflow-y: auto; background: #000; padding: 15px; border-radius: 10px; border: 1px solid #222; margin-bottom: 10px; }
     </style>
 </head>
 <body>
 
-    <div class="admin-grid">
-        <div class="box">
-            <h2>ВХОДЯЩИЕ РЕКВЕСТЫ</h2>
-            <div id="requests-list"></div>
-        </div>
+<div id="authBlock">
+    <div class="container">
+        <h2>LOGIN</h2>
+        <input type="text" id="login" placeholder="Логин">
+        <input type="password" id="pass" placeholder="Пароль">
+        <button class="btn-save" onclick="login()">ВОЙТИ</button>
+    </div>
+</div>
 
-        <div class="box" id="chat-admin-panel" style="display:none;">
-            <h2 id="current-chat-name">ЧАТ</h2>
-            <div id="admin-chat-box"></div>
-            <div style="display:flex; gap:10px;">
-                <input type="text" id="admin-reply" placeholder="Ответить..." style="flex:1; padding:10px; border-radius:10px; background:#1a1a1a; color:#fff; border:1px solid #333;">
-                <button id="admin-send-btn" style="padding:10px 20px; border-radius:10px; border:none; background:#fff; font-weight:900; cursor:pointer;">ОТПРАВИТЬ</button>
-            </div>
-            <br>
-            <button onclick="closeRequest()" style="background: red; color: white; border: none; padding: 10px; border-radius: 10px; width: 100%; cursor: pointer;">ЗАКРЫТЬ РЕКВЕСТ (УДАЛИТЬ)</button>
+<div id="adminWork" style="display:none;">
+    <div class="admin-nav">
+        <button class="nav-btn active" onclick="showTab('editor', this)">EDITOR</button>
+        <button class="nav-btn" onclick="showTab('requests', this)">REQUESTS</button>
+    </div>
+
+    <div id="tab-editor" class="section active">
+        <div class="container">
+            <h2 id="formTitle">Добавить уровень</h2>
+            <select id="fileSelect" onchange="loadData()">
+                <option value="levels.json">TPLL</option>
+                <option value="ppll.json">PPLL</option>
+                <option value="sll.json">SLL</option>
+                <option value="ill.json">ILL</option>
+                <option value="inf.json">INF</option>
+                <option value="scl.json">SCL</option>
+                <option value="icl.json">ICL</option>
+            </select>
+            <form id="editorForm" onsubmit="saveLevel(event)">
+                <input type="hidden" id="editIndex" value="-1">
+                <input type="text" id="num" placeholder="Номер (#)">
+                <input type="text" id="name" placeholder="Название">
+                <input type="text" id="cre" placeholder="Создатель">
+                <input type="text" id="fps" placeholder="FPS (Latex)">
+                <input type="text" id="lvlId" placeholder="ID">
+                <input type="text" id="shw" placeholder="Showcase Link">
+                <button type="submit" class="btn-save">СОХРАНИТЬ В СПИСОК</button>
+            </form>
+            <button class="btn-save" style="margin-top:20px; background: #00ff00;" onclick="saveToGitHub()">ОТПРАВИТЬ НА ГИТХАБ</button>
+            <div id="statusMsg" style="text-align:center; margin-top:10px;"></div>
+            <div id="levelList" style="margin-top:30px;"></div>
         </div>
     </div>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getDatabase, ref, onValue, push, set, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+    <div id="tab-requests" class="section">
+        <div class="req-grid">
+            <div class="container" id="requests-container">
+                <h3>Входящие</h3>
+                <div id="admin-req-list"></div>
+            </div>
+            <div class="container" id="admin-chat-view" style="display:none;">
+                <h3 id="chat-with">Чат</h3>
+                <div id="admin-chat-box" class="chat-box"></div>
+                <div style="display:flex; gap:10px;">
+                    <input type="text" id="admin-msg-input" placeholder="Ваш ответ...">
+                    <button onclick="sendAdminMsg()" style="padding:10px; background:#fff; border:none; border-radius:10px; font-weight:900;">></button>
+                </div>
+                <button onclick="deleteRequest()" style="background:red; border:none; color:#fff; padding:10px; border-radius:10px; width:100%; margin-top:10px; cursor:pointer;">ЗАКРЫТЬ/УДАЛИТЬ</button>
+            </div>
+        </div>
+    </div>
+</div>
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyCuO6xuP2AP61bTbiqjho_jzXiDsCzxTCY",
-            authDomain: "htll-request.firebaseapp.com",
-            databaseURL: "https://htll-request-default-rtdb.europe-west1.firebasedatabase.app",
-            projectId: "htll-request",
-            appId: "1:400821777799:web:88da4772f63810f67e4f22"
-        };
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getDatabase, ref, onValue, push, set, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-        const app = initializeApp(firebaseConfig);
-        const db = getDatabase(app);
-        let activeId = null;
+    const firebaseConfig = {
+        apiKey: "AIzaSyCuO6xuP2AP61bTbiqjho_jzXiDsCzxTCY",
+        authDomain: "htll-request.firebaseapp.com",
+        databaseURL: "https://htll-request-default-rtdb.europe-west1.firebasedatabase.app",
+        projectId: "htll-request",
+        appId: "1:400821777799:web:88da4772f63810f67e4f22"
+    };
 
-        // Загрузка заявок
-        onValue(ref(db, 'requests'), (snapshot) => {
-            const list = document.getElementById('requests-list');
-            list.innerHTML = '';
-            const data = snapshot.val();
-            for (let id in data) {
-                const r = data[id];
-                const card = document.createElement('div');
-                card.className = 'req-card';
-                card.innerHTML = `<strong>${r.nickname}</strong><br>${r.level} [${r.list}]`;
-                card.onclick = () => openChat(id, r.nickname);
-                list.appendChild(card);
-            }
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    window.adminDB = db; window.dbFuncs = { ref, onValue, push, set, remove };
+
+    // Загрузка реквестов
+    onValue(ref(db, 'requests'), (snap) => {
+        const list = document.getElementById('admin-req-list');
+        list.innerHTML = '';
+        const data = snap.val();
+        if(!data) { list.innerHTML = 'Нет заявок'; return; }
+        Object.keys(data).forEach(id => {
+            const r = data[id];
+            const div = document.createElement('div');
+            div.className = 'req-card';
+            div.innerHTML = `<strong>${r.nickname}</strong><br>${r.level} (${r.list})`;
+            div.onclick = () => openChat(id, r.nickname);
+            list.appendChild(div);
         });
+    });
+</script>
 
-        window.openChat = (id, name) => {
-            activeId = id;
-            document.getElementById('chat-admin-panel').style.display = 'block';
-            document.getElementById('current-chat-name').innerText = "ЧАТ С: " + name;
-            
-            const chatBox = document.getElementById('admin-chat-box');
-            onValue(ref(db, `chats/${id}`), (snap) => {
-                chatBox.innerHTML = '';
-                const msgs = snap.val();
-                for (let mId in msgs) {
-                    const m = msgs[mId];
-                    const div = document.createElement('div');
-                    div.style.color = m.role === 'admin' ? '#fff' : '#aaa';
-                    div.innerHTML = `<strong>${m.role === 'admin' ? 'МЫ' : 'ИГРОК'}:</strong> ${m.text}`;
-                    chatBox.appendChild(div);
-                }
-                chatBox.scrollTop = chatBox.scrollHeight;
+<script>
+    // --- ТВОЯ СТАРАЯ ЛОГИКА АВТОРИЗАЦИИ И РЕДАКТОРА ---
+    let currentData = [];
+    let sessionUser = "", sessionPass = "";
+
+    function login() {
+        sessionUser = document.getElementById('login').value;
+        sessionPass = document.getElementById('pass').value;
+        document.getElementById('authBlock').style.display = 'none';
+        document.getElementById('adminWork').style.display = 'block';
+        loadData();
+    }
+
+    function showTab(tab, btn) {
+        document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById('tab-' + tab).classList.add('active');
+        btn.classList.add('active');
+    }
+
+    async function loadData() {
+        const file = document.getElementById('fileSelect').value;
+        const res = await fetch(`/api/update?fileName=${file}`);
+        const json = await res.json();
+        currentData = JSON.parse(json.content);
+        render();
+    }
+
+    function render() {
+        const list = document.getElementById('levelList');
+        list.innerHTML = '';
+        currentData.forEach((item, i) => {
+            const div = document.createElement('div');
+            div.className = 'req-card';
+            div.innerHTML = `<b>#${item.number}</b> ${item.name} <button onclick="edit(${i})">EDIT</button>`;
+            list.appendChild(div);
+        });
+    }
+
+    function saveLevel(e) {
+        e.preventDefault();
+        const idx = document.getElementById('editIndex').value;
+        const obj = {
+            number: document.getElementById('num').value,
+            name: document.getElementById('name').value,
+            creator: document.getElementById('cre').value,
+            fps: document.getElementById('fps').value,
+            id: document.getElementById('lvlId').value,
+            showcase: document.getElementById('shw').value
+        };
+        if(idx === "-1") currentData.push(obj);
+        else currentData[idx] = obj;
+        render();
+    }
+
+    async function saveToGitHub() {
+        const file = document.getElementById('fileSelect').value;
+        const res = await fetch('/api/update', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ login: sessionUser, password: sessionPass, fileName: file, newData: currentData })
+        });
+        alert(res.ok ? "СОХРАНЕНО НА ГИТ!" : "ОШИБКА");
+    }
+
+    // --- ЛОГИКА ЧАТА В АДМИНКЕ ---
+    let activeChatId = null;
+    function openChat(id, name) {
+        activeChatId = id;
+        document.getElementById('admin-chat-view').style.display = 'block';
+        document.getElementById('chat-with').innerText = "Чат с: " + name;
+        const { ref, onValue } = window.dbFuncs;
+        onValue(ref(window.adminDB, `chats/${id}`), (snap) => {
+            const box = document.getElementById('admin-chat-box');
+            box.innerHTML = '';
+            const msgs = snap.val();
+            if(msgs) Object.values(msgs).forEach(m => {
+                const d = document.createElement('div');
+                d.style.color = m.role === 'admin' ? '#fff' : '#888';
+                d.innerHTML = `<b>${m.role === 'admin' ? 'Я' : 'ИГРОК'}:</b> ${m.text}`;
+                box.appendChild(d);
             });
-        };
+            box.scrollTop = box.scrollHeight;
+        });
+    }
 
-        document.getElementById('admin-send-btn').onclick = () => {
-            const inp = document.getElementById('admin-reply');
-            if(!inp.value || !activeId) return;
-            push(ref(db, `chats/${activeId}`), { role: 'admin', text: inp.value, time: Date.now() });
-            inp.value = '';
-        };
+    function sendAdminMsg() {
+        const inp = document.getElementById('admin-msg-input');
+        if(!inp.value || !activeChatId) return;
+        const { ref, push } = window.dbFuncs;
+        push(ref(window.adminDB, `chats/${activeChatId}`), { role: 'admin', text: inp.value, time: Date.now() });
+        inp.value = '';
+    }
 
-        window.closeRequest = () => {
-            if(confirm("Удалить реквест и чат?")) {
-                remove(ref(db, `requests/${activeId}`));
-                remove(ref(db, `chats/${activeId}`));
-                document.getElementById('chat-admin-panel').style.display = 'none';
-            }
-        };
-    </script>
+    function deleteRequest() {
+        if(!confirm("Удалить заявку и закрыть чат?")) return;
+        const { ref, remove } = window.dbFuncs;
+        remove(ref(window.adminDB, `requests/${activeChatId}`));
+        remove(ref(window.adminDB, `chats/${activeChatId}`));
+        document.getElementById('admin-chat-view').style.display = 'none';
+    }
+</script>
 </body>
 </html>
