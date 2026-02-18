@@ -2,288 +2,102 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HTLL | Admin Dashboard</title>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&family=Oswald:wght@500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --bg-main: #050505;
-            --bg-card: rgba(255, 255, 255, 0.03);
-            --color-text: #ffffff;
-            --accent: #888;
-            --border-white: rgba(255, 255, 255, 0.1);
-        }
-
-        body {
-            font-family: 'Montserrat', sans-serif;
-            background-color: var(--bg-main);
-            color: var(--color-text);
-            margin: 0; padding: 20px;
-            display: flex; flex-direction: column; align-items: center;
-        }
-
-        .container {
-            width: 100%; max-width: 900px;
-            background: var(--bg-card);
-            backdrop-filter: blur(12px);
-            border-radius: 20px;
-            padding: 40px;
-            border: 1px solid rgba(255,255,255,0.05);
-            margin-top: 20px;
-            box-sizing: border-box;
-        }
-
-        h1 { font-family: 'Oswald', sans-serif; text-transform: uppercase; letter-spacing: 2px; text-align: center; margin-bottom: 30px; }
-
-        .level-form {
-            display: grid; 
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); 
-            gap: 15px;
-            background: rgba(255,255,255,0.02); 
-            padding: 25px; 
-            border-radius: 15px; 
-            margin-bottom: 30px;
-            border: 1px solid var(--border-white);
-        }
-
-        input, select {
-            width: 100%; 
-            box-sizing: border-box;
-            background: rgba(0,0,0,0.5); 
-            border: 1px solid var(--border-white);
-            color: #fff; 
-            padding: 14px; 
-            border-radius: 10px; 
-            font-family: inherit;
-            outline: none;
-            transition: 0.3s;
-        }
-
-        input:focus { border-color: #fff; }
-
-        .btn {
-            padding: 14px 24px; border: none; border-radius: 10px; cursor: pointer;
-            font-weight: 700; text-transform: uppercase; transition: 0.3s; font-family: 'Oswald', sans-serif;
-        }
-
-        .btn-primary { background: #fff; color: #000; grid-column: 1 / -1; margin-top: 10px; }
-        .btn-primary:hover { background: #ccc; transform: translateY(-2px); }
-
-        .btn-sync { background: #00ff00; color: #000; font-weight: 900; width: 100%; margin-bottom: 25px; box-shadow: 0 0 15px rgba(0,255,0,0.2); }
-        .btn-sync:hover { box-shadow: 0 0 25px rgba(0,255,0,0.4); }
-
-        .btn-del { background: #ff4444; color: #fff; padding: 8px 15px; font-size: 11px; }
-
-        .level-row {
-            display: flex; align-items: center; justify-content: space-between;
-            background: rgba(255,255,255,0.02); padding: 18px; border-radius: 12px;
-            margin-bottom: 12px; cursor: pointer; transition: 0.2s; border: 1px solid transparent;
-        }
-        .level-row:hover { background: rgba(255,255,255,0.05); border-color: #555; }
-        
-        .row-info { display: flex; align-items: center; gap: 15px; }
-        .row-number { font-weight: 900; color: #fff; font-size: 1.1rem; min-width: 40px; }
-
-        #auth-screen { text-align: center; margin-top: 100px; }
-        #admin-panel { display: none; width: 100%; max-width: 900px; }
-        
-        .status-msg { text-align: center; margin-top: 15px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; }
-        
-        .logout-btn { align-self: flex-start; background: none; border: 1px solid #333; color: #555; font-size: 11px; padding: 6px 12px; margin-bottom: 10px; cursor: pointer; border-radius: 6px; transition: 0.3s; }
-        .logout-btn:hover { color: #fff; border-color: #fff; }
+        body { font-family: 'Montserrat'; background: #050505; color: #fff; padding: 20px; }
+        .admin-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; max-width: 1200px; margin: 0 auto; }
+        .box { background: rgba(255,255,255,0.03); padding: 20px; border-radius: 20px; border: 1px solid #222; }
+        .req-card { background: #111; padding: 15px; border-radius: 10px; margin-bottom: 10px; border-left: 4px solid #888; cursor: pointer; }
+        .req-card:hover { background: #1a1a1a; }
+        #admin-chat-box { height: 300px; overflow-y: auto; background: #000; padding: 15px; border-radius: 10px; margin-bottom: 10px; }
     </style>
 </head>
 <body>
 
-    <div id="auth-screen" class="container" style="max-width: 400px;">
-        <h1>ADMIN ACCESS</h1>
-        <input type="text" id="login" placeholder="Login">
-        <input type="password" id="password" placeholder="Password">
-        <button class="btn btn-primary" onclick="manualLogin()" style="width: 100%;">Войти</button>
-    </div>
+    <div class="admin-grid">
+        <div class="box">
+            <h2>ВХОДЯЩИЕ РЕКВЕСТЫ</h2>
+            <div id="requests-list"></div>
+        </div>
 
-    <div id="admin-panel">
-        <button class="logout-btn" onclick="logout()">ВЫЙТИ ИЗ АККАУНТА</button>
-        <div class="container">
-            <h1>HTLL DASHBOARD</h1>
-            
-            <select id="fileSelect" onchange="loadList()" style="margin-bottom: 15px;">
-                <option value="levels.json">TPLL (Main)</option>
-                <option value="ppll.json">PPLL</option>
-                <option value="sll.json">SLL</option>
-                <option value="ill.json">ILL</option>
-                <option value="inf.json">INF</option>
-                <option value="scl.json">SCL</option>
-                <option value="icl.json">ICL</option>
-            </select>
-            <button class="btn btn-sync" onclick="saveToGitHub()">СИНХРОНИЗИРОВАТЬ НА GITHUB</button>
-
-            <h3 id="formTitle" style="text-align: center;">Добавить новый уровень</h3>
-            <div class="level-form" id="editorForm">
-                <input type="hidden" id="editIndex" value="-1">
-                <input type="number" id="inpNum" placeholder="Место (#)">
-                <input type="text" id="inpName" placeholder="Название">
-                <input type="text" id="inpCreator" placeholder="Автор">
-                <input type="text" id="inpFPS" placeholder="FPS (\\ для LaTeX)">
-                <input type="text" id="inpID" placeholder="ID">
-                <input type="text" id="inpFV" placeholder="FV">
-                <input type="text" id="inpType" placeholder="Тип">
-                <input type="text" id="inpShowcase" placeholder="Showcase URL">
-                <button class="btn btn-primary" onclick="addOrUpdate()" id="submitBtn">Применить и сдвинуть топ</button>
-                <button class="btn" onclick="resetForm()" style="grid-column: 1/-1; background: transparent; color: #555; border: 1px solid #222; margin-top: 5px;">Очистить форму</button>
+        <div class="box" id="chat-admin-panel" style="display:none;">
+            <h2 id="current-chat-name">ЧАТ</h2>
+            <div id="admin-chat-box"></div>
+            <div style="display:flex; gap:10px;">
+                <input type="text" id="admin-reply" placeholder="Ответить..." style="flex:1; padding:10px; border-radius:10px; background:#1a1a1a; color:#fff; border:1px solid #333;">
+                <button id="admin-send-btn" style="padding:10px 20px; border-radius:10px; border:none; background:#fff; font-weight:900; cursor:pointer;">ОТПРАВИТЬ</button>
             </div>
-
-            <div id="listContainer"></div>
-            <div id="statusMsg" class="status-msg"></div>
+            <br>
+            <button onclick="closeRequest()" style="background: red; color: white; border: none; padding: 10px; border-radius: 10px; width: 100%; cursor: pointer;">ЗАКРЫТЬ РЕКВЕСТ (УДАЛИТЬ)</button>
         </div>
     </div>
 
-<script>
-    let currentData = [];
-    let sessionUser = "";
-    let sessionPass = "";
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getDatabase, ref, onValue, push, set, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-    // МАССИВ С НОВЫМ ПОЛЬЗОВАТЕЛЕМ
-    const USERS = [
-        { user: 'HELFZz', pass: 'creep000' },
-        { user: 'Curruser54', pass: '546111' },
-        { user: 'ByHanseLLL', pass: '11540hanse' },
-        { user: 'decidableset043', pass: 'hellonigga1991' }
-    ];
-
-    window.onload = () => {
-        const u = localStorage.getItem('at_u'), p = localStorage.getItem('at_p');
-        if (u && p) checkAuth(u, p, true);
-    };
-
-    function manualLogin() {
-        checkAuth(document.getElementById('login').value, document.getElementById('password').value, false);
-    }
-
-    function checkAuth(l, p, isAuto) {
-        const found = USERS.find(u => u.user === l && u.pass === p);
-        if (found) {
-            sessionUser = l; sessionPass = p;
-            localStorage.setItem('at_u', l); localStorage.setItem('at_p', p);
-            document.getElementById('auth-screen').style.display = 'none';
-            document.getElementById('admin-panel').style.display = 'block';
-            loadList();
-        } else if (!isAuto) alert("Ошибка доступа");
-    }
-
-    function logout() { localStorage.clear(); location.reload(); }
-
-    async function loadList() {
-        const status = document.getElementById('statusMsg');
-        status.innerText = "ЗАГРУЗКА...";
-        const res = await fetch(`/api/update?fileName=${document.getElementById('fileSelect').value}`);
-        const result = await res.json();
-        currentData = JSON.parse(result.content);
-        status.innerText = "";
-        render();
-    }
-
-    function render() {
-        const container = document.getElementById('listContainer');
-        container.innerHTML = '';
-        currentData.sort((a, b) => parseInt(a.number) - parseInt(b.number));
-        currentData.forEach((item, i) => {
-            const row = document.createElement('div');
-            row.className = 'level-row';
-            row.onclick = () => editLevel(i);
-            row.innerHTML = `
-                <div class="row-info">
-                    <span class="row-number">#${item.number}</span>
-                    <div>
-                        <div style="font-weight:700">${item.name}</div>
-                        <div style="font-size:12px; color:var(--accent)">by ${item.creator}</div>
-                    </div>
-                </div>
-                <button class="btn btn-del" onclick="deleteLevel(event, ${i})">УДАЛИТЬ</button>
-            `;
-            container.appendChild(row);
-        });
-    }
-
-    function addOrUpdate() {
-        const idx = parseInt(document.getElementById('editIndex').value);
-        const newNum = parseInt(document.getElementById('inpNum').value);
-        
-        if(!newNum || !document.getElementById('inpName').value) {
-            alert("Заполни хотя бы название и номер!");
-            return;
-        }
-
-        const level = {
-            number: newNum.toString(),
-            name: document.getElementById('inpName').value,
-            creator: document.getElementById('inpCreator').value,
-            fps: document.getElementById('inpFPS').value,
-            id: document.getElementById('inpID').value,
-            fv: document.getElementById('inpFV').value,
-            type: document.getElementById('inpType').value,
-            showcase: document.getElementById('inpShowcase').value
+        const firebaseConfig = {
+            apiKey: "AIzaSyCuO6xuP2AP61bTbiqjho_jzXiDsCzxTCY",
+            authDomain: "htll-request.firebaseapp.com",
+            databaseURL: "https://htll-request-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "htll-request",
+            appId: "1:400821777799:web:88da4772f63810f67e4f22"
         };
 
-        let tempData = [...currentData];
-        if (idx !== -1) tempData.splice(idx, 1);
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        let activeId = null;
 
-        tempData.forEach(item => {
-            let itemNum = parseInt(item.number);
-            if (itemNum >= newNum) item.number = (itemNum + 1).toString();
+        // Загрузка заявок
+        onValue(ref(db, 'requests'), (snapshot) => {
+            const list = document.getElementById('requests-list');
+            list.innerHTML = '';
+            const data = snapshot.val();
+            for (let id in data) {
+                const r = data[id];
+                const card = document.createElement('div');
+                card.className = 'req-card';
+                card.innerHTML = `<strong>${r.nickname}</strong><br>${r.level} [${r.list}]`;
+                card.onclick = () => openChat(id, r.nickname);
+                list.appendChild(card);
+            }
         });
 
-        tempData.push(level);
-        currentData = tempData;
-        resetForm();
-        render();
-    }
-
-    function editLevel(i) {
-        const item = currentData[i];
-        document.getElementById('editIndex').value = i;
-        document.getElementById('inpNum').value = item.number;
-        document.getElementById('inpName').value = item.name;
-        document.getElementById('inpCreator').value = item.creator;
-        document.getElementById('inpFPS').value = item.fps;
-        document.getElementById('inpID').value = item.id;
-        document.getElementById('inpFV').value = item.fv;
-        document.getElementById('inpType').value = item.type;
-        document.getElementById('inpShowcase').value = item.showcase;
-        document.getElementById('formTitle').innerText = "Изменение уровня #" + item.number;
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-
-    function resetForm() {
-        document.getElementById('editIndex').value = "-1";
-        document.querySelectorAll('#editorForm input').forEach(i => i.value = "");
-        document.getElementById('formTitle').innerText = "Добавить новый уровень";
-    }
-
-    function deleteLevel(e, i) {
-        e.stopPropagation();
-        if (confirm("Удалить уровень?")) { currentData.splice(i, 1); render(); }
-    }
-
-    async function saveToGitHub() {
-        const status = document.getElementById('statusMsg');
-        status.innerText = "СОХРАНЕНИЕ..."; status.style.color = "white";
-        try {
-            const res = await fetch('/api/update', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    login: sessionUser, password: sessionPass,
-                    fileName: document.getElementById('fileSelect').value, newData: currentData
-                })
+        window.openChat = (id, name) => {
+            activeId = id;
+            document.getElementById('chat-admin-panel').style.display = 'block';
+            document.getElementById('current-chat-name').innerText = "ЧАТ С: " + name;
+            
+            const chatBox = document.getElementById('admin-chat-box');
+            onValue(ref(db, `chats/${id}`), (snap) => {
+                chatBox.innerHTML = '';
+                const msgs = snap.val();
+                for (let mId in msgs) {
+                    const m = msgs[mId];
+                    const div = document.createElement('div');
+                    div.style.color = m.role === 'admin' ? '#fff' : '#aaa';
+                    div.innerHTML = `<strong>${m.role === 'admin' ? 'МЫ' : 'ИГРОК'}:</strong> ${m.text}`;
+                    chatBox.appendChild(div);
+                }
+                chatBox.scrollTop = chatBox.scrollHeight;
             });
-            const result = await res.json();
-            if (result.success) {
-                status.innerText = "ГОТОВО!"; status.style.color = "#00ff00";
-                setTimeout(() => { status.innerText = ""; }, 3000);
-            } else throw new Error();
-        } catch (err) { status.innerText = "ОШИБКА!"; status.style.color = "#ff4444"; }
-    }
-</script>
+        };
+
+        document.getElementById('admin-send-btn').onclick = () => {
+            const inp = document.getElementById('admin-reply');
+            if(!inp.value || !activeId) return;
+            push(ref(db, `chats/${activeId}`), { role: 'admin', text: inp.value, time: Date.now() });
+            inp.value = '';
+        };
+
+        window.closeRequest = () => {
+            if(confirm("Удалить реквест и чат?")) {
+                remove(ref(db, `requests/${activeId}`));
+                remove(ref(db, `chats/${activeId}`));
+                document.getElementById('chat-admin-panel').style.display = 'none';
+            }
+        };
+    </script>
 </body>
 </html>
