@@ -65,7 +65,7 @@ document.addEventListener('DOMContentLoaded', () => {
             data.forEach(level => {
                 const li = document.createElement('li');
                 li.className = 'level-item';
-                // ТУТ: showcase встроен в название (a href)
+                // Встраиваем ссылку в название и выводим поля в столбик
                 li.innerHTML = `
                     <div class="level-header">
                         <span class="level-number">#${level.number}</span>
@@ -77,8 +77,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     <ul class="level-details">
                         <li><span class="detail-label">ID:</span> ${level.id}</li>
                         <li><span class="detail-label">FPS:</span> ${formatLatex(level.fps)}</li>
-                        <li><span class="detail-label">FV:</span> ${level.fv || 'None'}</li>
-                        <li><span class="detail-label">TYPE:</span> ${level.type || 'None'}</li>
+                        ${level.fv ? `<li><span class="detail-label">FV:</span> ${level.fv}</li>` : ''}
+                        ${level.type ? `<li><span class="detail-label">TYPE:</span> ${level.type}</li>` : ''}
                     </ul>`;
                 listElement.appendChild(li);
             });
@@ -111,8 +111,10 @@ document.addEventListener('DOMContentLoaded', () => {
     setInterval(createSnowflake, 150);
     loadList(currentListId);
 
+    // Логика модалки реквестов
     const reqModal = document.getElementById('request-modal');
-    document.getElementById('open-request-btn').onclick = () => reqModal.style.display = 'flex';
+    const openBtn = document.getElementById('open-request-btn');
+    if(openBtn) openBtn.onclick = () => reqModal.style.display = 'flex';
     document.getElementById('close-modal').onclick = () => reqModal.style.display = 'none';
 
     document.getElementById('request-form').onsubmit = async (e) => {
@@ -148,8 +150,9 @@ document.addEventListener('DOMContentLoaded', () => {
             const m = snap.val();
             const div = document.createElement('div');
             div.style.textAlign = m.role === 'admin' ? 'left' : 'right';
-            div.style.color = m.role === 'admin' ? '#888' : '#fff';
-            div.innerHTML = `<div style="font-size:0.7rem; opacity:0.5">${m.role === 'admin' ? 'MOD' : 'YOU'}</div>${m.text}`;
+            div.style.marginBottom = '10px';
+            div.innerHTML = `<div style="font-size:0.7rem; opacity:0.5; color:#888">${m.role === 'admin' ? 'MOD' : 'YOU'}</div>
+                             <div style="display:inline-block; background:${m.role === 'admin' ? '#222' : '#333'}; padding:8px 12px; border-radius:10px">${m.text}</div>`;
             chatBox.appendChild(div);
             chatBox.scrollTop = chatBox.scrollHeight;
         });
