@@ -42,15 +42,17 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Инициализация
     applyTheme(currentTheme);
     applyOpacity(currentOpacity);
     applySnowSize(currentSnowSize);
 
-    // Слушатели настроек
     opacityRange.addEventListener('input', (e) => applyOpacity(e.target.value));
     snowSizeRange.addEventListener('input', (e) => applySnowSize(e.target.value));
-    settingsBtn.onclick = (e) => { e.stopPropagation(); settingsMenu.classList.toggle('active'); };
+    
+    settingsBtn.onclick = (e) => {
+        e.stopPropagation();
+        settingsMenu.classList.toggle('active');
+    };
     document.onclick = () => settingsMenu.classList.remove('active');
     settingsMenu.onclick = (e) => e.stopPropagation();
 
@@ -59,18 +61,17 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     function formatLatex(text) {
-        if (typeof text !== 'string' || text === "none") return text;
-        const hasLatex = text.includes('\\') || text.includes('^') || text.includes('_');
-        if (hasLatex && !text.startsWith('$')) return `$${text}$`;
-        return text;
+        if (!text || text === "none" || text === "") return "None";
+        if (typeof text !== 'string') return text;
+        const needsMath = text.includes('\\') || text.includes('^') || text.includes('_');
+        return (needsMath && !text.startsWith('$')) ? `$${text}$` : text;
     }
 
     function loadList(listId) {
         const config = listMap[listId];
-        const titleEl = document.querySelector('.main-title');
-        if (titleEl) titleEl.textContent = config.title;
+        document.querySelector('.main-title').textContent = config.title;
 
-        fetch(config.file).then(r => r.json()).then(data => {
+        fetch(config.file + '?t=' + Date.now()).then(r => r.json()).then(data => {
             listElement.innerHTML = '';
             data.forEach(level => {
                 const li = document.createElement('li');
@@ -84,8 +85,10 @@ document.addEventListener('DOMContentLoaded', () => {
                         </div>
                     </div>
                     <ul class="level-details">
+                        <li><span class="detail-label">ID:</span> ${level.id}</li>
                         <li><span class="detail-label">FPS:</span> ${formatLatex(level.fps)}</li>
-                        <li><span class="detail-label">ID:</span> ${level.id}</li> 
+                        <li><span class="detail-label">FV:</span> ${level.fv || 'None'}</li>
+                        <li><span class="detail-label">TYPE:</span> ${level.type || 'None'}</li>
                     </ul>`;
                 listElement.appendChild(li);
             });
@@ -104,7 +107,6 @@ document.addEventListener('DOMContentLoaded', () => {
         };
     });
 
-    // СНЕГ
     function createSnowflake() {
         if (!snowToggle.checked) return;
         const snowflake = document.createElement('div');
@@ -119,7 +121,7 @@ document.addEventListener('DOMContentLoaded', () => {
     setInterval(createSnowflake, 150);
     loadList(currentListId);
 
-    // --- РЕКВЕСТЫ ---
+    // РЕКВЕСТЫ
     const reqModal = document.getElementById('request-modal');
     document.getElementById('open-request-btn').onclick = () => reqModal.style.display = 'flex';
     document.getElementById('close-modal').onclick = () => reqModal.style.display = 'none';
@@ -128,15 +130,22 @@ document.addEventListener('DOMContentLoaded', () => {
         e.preventDefault();
         const { ref, push, set } = window.dbRefs;
         const reqId = push(ref(window.db, 'requests')).key;
+        
         const data = {
             id: reqId,
             nickname: document.getElementById('req-nickname').value,
             level: document.getElementById('req-level-name').value,
+            creator: document.getElementById('req-creator').value,
+            lvlId: document.getElementById('req-id').value,
+            fps: document.getElementById('req-fps').value,
+            fv: document.getElementById('req-fv').value || 'None',
+            type: document.getElementById('req-type').value || 'None',
             list: document.getElementById('req-list').value,
-            info: document.getElementById('req-info').value,
+            showcase: document.getElementById('req-showcase').value,
             status: 'pending',
             timestamp: Date.now()
         };
+
         await set(ref(window.db, 'requests/' + reqId), data);
         document.getElementById('request-form-container').style.display = 'none';
         document.getElementById('chat-section').style.display = 'block';
@@ -149,8 +158,9 @@ document.addEventListener('DOMContentLoaded', () => {
         onChildAdded(ref(window.db, `chats/${reqId}`), (snap) => {
             const m = snap.val();
             const div = document.createElement('div');
-            div.className = m.role === 'admin' ? 'msg-admin' : 'msg-user';
-            div.innerText = (m.role === 'admin' ? 'MOD: ' : 'YOU: ') + m.text;
+            div.style.textAlign = m.role === 'admin' ? 'left' : 'right';
+            div.style.color = m.role === 'admin' ? '#888' : '#fff';
+            div.innerHTML = `<div style="font-size:0.7rem; opacity:0.5">${m.role === 'admin' ? 'MOD' : 'YOU'}</div>${m.text}`;
             chatBox.appendChild(div);
             chatBox.scrollTop = chatBox.scrollHeight;
         });
