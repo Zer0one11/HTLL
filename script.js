@@ -1,4 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
+    // 1. ЭЛЕМЕНТЫ UI
     const listElement = document.getElementById('levelList');
     const snowToggle = document.getElementById('snow-toggle');
     const snowContainer = document.getElementById('snow-container');
@@ -8,13 +9,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const opacityRange = document.getElementById('opacityRange');
     const reqModal = document.getElementById('request-modal');
 
+    // 2. СОСТОЯНИЕ
     let currentSnowSize = localStorage.getItem('snowSize') || '5';
     let currentOpacity = localStorage.getItem('panelOpacity') || '0.01';
     let currentTheme = localStorage.getItem('siteTheme') || 'dark';
     let currentListId = localStorage.getItem('currentListId') || 'levels';
     let myReqId = localStorage.getItem('myRequestID');
 
-    // ПРИМЕНЕНИЕ НАСТРОЕК
+    // 3. ФУНКЦИИ НАСТРОЕК
     function applyOpacity(val) {
         document.documentElement.style.setProperty('--panel-opacity', val);
         localStorage.setItem('panelOpacity', val);
@@ -26,42 +28,41 @@ document.addEventListener('DOMContentLoaded', () => {
     function applyTheme(themeName) {
         document.body.className = `theme-${themeName}`;
         localStorage.setItem('siteTheme', themeName);
-        document.querySelectorAll('.theme-button').forEach(btn => btn.classList.toggle('active-theme', btn.dataset.theme === themeName));
+        document.querySelectorAll('.theme-button').forEach(btn => {
+            btn.classList.toggle('active-theme', btn.dataset.theme === themeName);
+        });
     }
 
+    // Инициализация стилей
     applyOpacity(currentOpacity);
     applySnowSize(currentSnowSize);
     applyTheme(currentTheme);
     opacityRange.value = currentOpacity;
     snowSizeRange.value = currentSnowSize;
 
-    // УВЕДОМЛЕНИЯ
-    if (myReqId) {
-        setTimeout(() => {
-            const { ref, onValue, update } = window.dbRefs;
-            onValue(ref(window.db, `requests/${myReqId}`), (snap) => {
-                const data = snap.val();
-                if (data && data.hasUnread) {
-                    showNotification("Админ ответил на твою заявку!");
-                    update(ref(window.db, `requests/${myReqId}`), { hasUnread: false });
-                }
-            });
-        }, 2000);
+    // 4. ФОРМАТИРОВАНИЕ LATEX (ФИКС)
+    function formatLatex(text) {
+        if (!text || text === "none" || text === "") return "None";
+        // Проверяем, не обернут ли уже текст в $
+        if (text.toString().includes('\\') || text.toString().includes('^')) {
+            if (!text.toString().startsWith('$')) {
+                return `$${text}$`;
+            }
+        }
+        return text;
     }
 
-    function showNotification(text) {
-        const t = document.createElement('div');
-        t.style = "position:fixed; bottom:20px; right:20px; background:#fff; color:#000; padding:15px 25px; border-radius:12px; font-weight:900; z-index:10000; cursor:pointer;";
-        t.innerText = text;
-        t.onclick = () => { reqModal.style.display='flex'; t.remove(); };
-        document.body.appendChild(t);
-        setTimeout(() => t.remove(), 8000);
-    }
-
-    // ЗАГРУЗКА ЛИСТА
-    function loadList(listId) {
-        const listMap = { 'levels': 'levels.json', 'ppll': 'ppll.json', 'sll': 'sll.json', 'ill': 'ill.json', 'inf': 'inf.json', 'scl': 'scl.json', 'icl': 'icl.json' };
-        fetch(listMap[listId] + '?t=' + Date.now()).then(r => r.json()).then(data => {
+    // 5. ЗАГРУЗКА СПИСКА
+    async function loadList(listId) {
+        const listMap = { 
+            'levels': 'levels.json', 'ppll': 'ppll.json', 'sll': 'sll.json', 
+            'ill': 'ill.json', 'inf': 'inf.json', 'scl': 'scl.json', 'icl': 'icl.json' 
+        };
+        
+        try {
+            const response = await fetch(listMap[listId] + '?t=' + Date.now());
+            const data = await response.json();
+            
             listElement.innerHTML = '';
             data.forEach(level => {
                 const li = document.createElement('li');
@@ -70,45 +71,79 @@ document.addEventListener('DOMContentLoaded', () => {
                     <div class="level-header">
                         <span class="level-number">#${level.number}</span>
                         <div class="level-title-group">
-                            <a href="${level.showcase}" target="_blank" class="level-name">${level.name}</a>
+                            <a href="${level.showcase}" target="_blank" class="level-name">${formatLatex(level.name)}</a>
                             <span class="level-creator">by ${level.creator}</span>
                         </div>
                     </div>
                     <ul class="level-details">
                         <li><span class="detail-label">ID:</span> ${level.id}</li>
-                        <li><span class="detail-label">FPS:</span> ${level.fps}</li>
-                        ${level.fv ? `<li><span class="detail-label">Botter:</span> ${level.fv}</li>` : ''}
+                        <li><span class="detail-label">FPS:</span> ${formatLatex(level.fps)}</li>
+                        ${level.fv ? `<li><span class="detail-label">Botter:</span> ${formatLatex(level.fv)}</li>` : ''}
                         ${level.type ? `<li><span class="detail-label">TYPE:</span> ${level.type}</li>` : ''}
                     </ul>`;
                 listElement.appendChild(li);
             });
-        });
+
+            // Перерисовка LaTeX после добавления элементов
+            if (window.MathJax && window.MathJax.typesetPromise) {
+                window.MathJax.typesetPromise();
+            }
+        } catch (e) {
+            console.error("Ошибка загрузки списка:", e);
+        }
     }
 
-    // ЧАТ ПОЛЬЗОВАТЕЛЯ
+    // 6. УВЕДОМЛЕНИЯ
+    if (myReqId) {
+        const checkUnread = () => {
+            const { ref, onValue, update } = window.dbRefs;
+            onValue(ref(window.db, `requests/${myReqId}`), (snap) => {
+                const data = snap.val();
+                if (data && data.hasUnread) {
+                    showNotification("Админ ответил на твою заявку!");
+                    update(ref(window.db, `requests/${myReqId}`), { hasUnread: false });
+                }
+            });
+        };
+        setTimeout(checkUnread, 2000);
+    }
+
+    function showNotification(text) {
+        const t = document.createElement('div');
+        t.style = "position:fixed; bottom:20px; right:20px; background:#fff; color:#000; padding:15px 25px; border-radius:12px; font-weight:900; z-index:10000; cursor:pointer; box-shadow: 0 5px 15px rgba(0,0,0,0.3);";
+        t.innerText = text;
+        t.onclick = () => {
+            reqModal.style.display = 'flex';
+            document.getElementById('request-form-container').style.display = 'none';
+            document.getElementById('chat-section').style.display = 'block';
+            initUserChat(myReqId);
+            t.remove();
+        };
+        document.body.appendChild(t);
+        setTimeout(() => t.remove(), 8000);
+    }
+
+    // 7. ЛОГИКА ЧАТА И МОДАЛКИ (ФИКС ОТКРЫТИЯ)
     function initUserChat(reqId) {
         const { ref, push, onValue, remove } = window.dbRefs;
         const chatBox = document.getElementById('chat-messages');
         
         onValue(ref(window.db, `chats/${reqId}`), (snap) => {
             chatBox.innerHTML = '';
-            if(!snap.exists()) {
-                // Если админ удалил чат, сбрасываем локально
-                localStorage.removeItem('myRequestID');
-                location.reload();
+            if(!snap.exists() && myReqId) {
+                // Если записи нет в базе, но ID в браузере остался — чистим
                 return;
             }
             snap.forEach(mSnap => {
                 const m = mSnap.val();
                 const div = document.createElement('div');
-                div.style = `text-align:${m.role==='admin'?'left':'right'}; margin-bottom:10px;`;
-                div.innerHTML = `<div style="display:inline-block; background:${m.role==='admin'?'#222':'#fff'}; color:${m.role==='admin'?'#fff':'#000'}; padding:8px 12px; border-radius:10px;">${m.text}</div>`;
+                div.style = `text-align:${m.role==='admin'?'left':'right'}; margin-bottom:12px;`;
+                div.innerHTML = `<div style="display:inline-block; background:${m.role==='admin'?'#222':'#fff'}; color:${m.role==='admin'?'#fff':'#000'}; padding:10px 15px; border-radius:12px; font-size:0.9rem; max-width:80%;">${m.text}</div>`;
                 chatBox.appendChild(div);
             });
             chatBox.scrollTop = chatBox.scrollHeight;
         });
 
-        // Кнопка удаления чата пользователем
         document.getElementById('delete-chat-user').onclick = async () => {
             if(confirm("Удалить твой чат навсегда?")) {
                 await remove(ref(window.db, `requests/${reqId}`));
@@ -120,16 +155,36 @@ document.addEventListener('DOMContentLoaded', () => {
 
         document.getElementById('send-msg').onclick = () => {
             const inp = document.getElementById('user-msg');
-            if(inp.value) push(ref(window.db, `chats/${reqId}`), { role: 'user', text: inp.value, timestamp: Date.now() });
-            inp.value = '';
+            if(inp.value.trim()) {
+                push(ref(window.db, `chats/${reqId}`), { role: 'user', text: inp.value, timestamp: Date.now() });
+                inp.value = '';
+            }
         };
     }
 
-    // ОТПРАВКА ЗАЯВКИ
+    // Кнопка открытия модалки
+    document.getElementById('open-request-btn').onclick = () => {
+        if (myReqId) {
+            document.getElementById('request-form-container').style.display = 'none';
+            document.getElementById('chat-section').style.display = 'block';
+            initUserChat(myReqId);
+        } else {
+            document.getElementById('request-form-container').style.display = 'block';
+            document.getElementById('chat-section').style.display = 'none';
+        }
+        reqModal.style.display = 'flex';
+    };
+
+    document.getElementById('close-modal').onclick = () => {
+        reqModal.style.display = 'none';
+    };
+
+    // 8. ОТПРАВКА ФОРМЫ
     document.getElementById('request-form').onsubmit = async (e) => {
         e.preventDefault();
         const { ref, push, set } = window.dbRefs;
         const rId = push(ref(window.db, 'requests')).key;
+        
         const data = {
             id: rId,
             nickname: document.getElementById('req-nickname').value,
@@ -141,30 +196,53 @@ document.addEventListener('DOMContentLoaded', () => {
             type: document.getElementById('req-type').value || 'None',
             list: document.getElementById('req-list').value,
             showcase: document.getElementById('req-showcase').value,
-            hasUnread: false
+            hasUnread: false,
+            timestamp: Date.now()
         };
+
         await set(ref(window.db, 'requests/' + rId), data);
         localStorage.setItem('myRequestID', rId);
-        location.reload();
+        myReqId = rId; // Обновляем локальную переменную
+        
+        document.getElementById('request-form-container').style.display = 'none';
+        document.getElementById('chat-section').style.display = 'block';
+        initUserChat(rId);
     };
 
-    // UI КНОПКИ
-    document.getElementById('open-request-btn').onclick = () => {
-        if (myReqId) {
-            document.getElementById('request-form-container').style.display = 'none';
-            document.getElementById('chat-section').style.display = 'block';
-            initUserChat(myReqId);
-        }
-        reqModal.style.display = 'flex';
+    // 9. СОБЫТИЯ UI
+    settingsBtn.onclick = (e) => { 
+        e.stopPropagation(); 
+        settingsMenu.classList.toggle('active'); 
     };
-    document.getElementById('close-modal').onclick = () => reqModal.style.display = 'none';
     
-    settingsBtn.onclick = (e) => { e.stopPropagation(); settingsMenu.classList.toggle('active'); };
     opacityRange.oninput = (e) => applyOpacity(e.target.value);
     snowSizeRange.oninput = (e) => applySnowSize(e.target.value);
     
-    document.querySelectorAll('.list-button').forEach(b => b.onclick = () => { loadList(b.dataset.list); });
-    document.querySelectorAll('.theme-button').forEach(b => b.onclick = () => applyTheme(b.dataset.theme));
+    document.querySelectorAll('.list-button').forEach(b => {
+        b.onclick = () => {
+            document.querySelectorAll('.list-button').forEach(btn => btn.classList.remove('active-list'));
+            b.classList.add('active-list');
+            loadList(b.dataset.list);
+        };
+    });
 
+    document.querySelectorAll('.theme-button').forEach(b => {
+        b.onclick = () => applyTheme(b.dataset.theme);
+    });
+
+    // 10. СНЕЖИНКИ
+    function createSnowflake() {
+        if (!snowToggle.checked) return;
+        const sf = document.createElement('div');
+        sf.className = 'snowflake';
+        const size = (Math.random() * (currentSnowSize / 2) + Number(currentSnowSize)) + 'px';
+        sf.style.width = size; sf.style.height = size;
+        sf.style.left = Math.random() * 100 + 'vw';
+        sf.style.animationDuration = Math.random() * 3 + 4 + 's';
+        snowContainer.appendChild(sf);
+        setTimeout(() => sf.remove(), 7000);
+    }
+    
+    setInterval(createSnowflake, 150);
     loadList(currentListId);
 });
