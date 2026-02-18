@@ -8,7 +8,9 @@
     <link rel="stylesheet" href="style.css">
     <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-    <script>window.MathJax = { tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] } };</script>
+    <script>
+        window.MathJax = { tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] } };
+    </script>
 </head>
 <body class="theme-dark">
     <div id="snow-container"></div>
@@ -22,16 +24,16 @@
         </label>
         <span class="snow-text">СНЕГ</span>
         
-        <div class="settings-container">
+        <div class="settings-container" style="position: relative; display: flex; align-items: center;">
             <img src="setting.ico" alt="⚙️" id="settings-btn" class="setting-icon">
             <div id="settings-menu" class="settings-menu">
                 <div class="s-control">
                     <span>SIZE</span>
-                    <input type="range" id="snowSizeRange" min="2" max="25">
+                    <input type="range" id="snowSizeRange" min="2" max="25" value="5">
                 </div>
                 <div class="s-control">
                     <span>OPACITY</span>
-                    <input type="range" id="opacityRange" min="0.01" max="0.3" step="0.01">
+                    <input type="range" id="opacityRange" min="0.01" max="0.3" step="0.01" value="0.01">
                 </div>
             </div>
         </div>
@@ -73,6 +75,12 @@
                 <form id="request-form">
                     <input type="text" id="req-nickname" placeholder="Твой ник" required>
                     <input type="text" id="req-level-name" placeholder="Название уровня" required>
+                    <input type="text" id="req-creator" placeholder="Автор уровня" required>
+                    <input type="text" id="req-id" placeholder="ID уровня" required>
+                    <input type="text" id="req-fps" placeholder="FPS (Latex)" required>
+                    <input type="text" id="req-fv" placeholder="First Victor">
+                    <input type="text" id="req-type" placeholder="Type (LPrSS, Cage...)">
+                    
                     <select id="req-list">
                         <option value="levels">TPLL</option>
                         <option value="ppll">PPLL</option>
@@ -82,17 +90,18 @@
                         <option value="scl">SCL</option>
                         <option value="icl">ICL</option>
                     </select>
-                    <textarea id="req-info" placeholder="ID и ссылка на видео" required></textarea>
+                    
+                    <textarea id="req-showcase" placeholder="Ссылка на Showcase" required></textarea>
                     <button type="submit" class="submit-request">ОТПРАВИТЬ</button>
                 </form>
             </div>
 
             <div id="chat-section" style="display:none;">
-                <h3 style="margin: 0 0 10px 0; font-size: 0.9rem;">ЧАТ С МОДЕРАТОРОМ</h3>
+                <h3 style="margin-bottom: 10px; font-size: 0.9rem;">ЧАТ С МОДЕРАТОРОМ</h3>
                 <div id="chat-messages" class="chat-box"></div>
-                <div class="chat-input-row">
+                <div style="display: flex; gap: 5px;">
                     <input type="text" id="user-msg" placeholder="Сообщение...">
-                    <button id="send-msg">></button>
+                    <button id="send-msg" style="padding: 10px; background: #fff; border: none; border-radius: 10px;">></button>
                 </div>
             </div>
         </div>
