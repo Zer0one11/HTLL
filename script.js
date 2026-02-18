@@ -22,6 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentTheme = localStorage.getItem('siteTheme') || 'dark';
     let currentListId = localStorage.getItem('currentListId') || 'levels';
 
+    // ПРИМЕНЕНИЕ НАСТРОЕК
     function applyOpacity(val) {
         document.documentElement.style.setProperty('--panel-opacity', val);
         if (opacityRange) opacityRange.value = val;
@@ -44,11 +45,16 @@ document.addEventListener('DOMContentLoaded', () => {
     applyOpacity(currentOpacity);
     applySnowSize(currentSnowSize);
 
+    // СЛУШАТЕЛИ НАСТРОЕК
     opacityRange.addEventListener('input', (e) => applyOpacity(e.target.value));
     snowSizeRange.addEventListener('input', (e) => applySnowSize(e.target.value));
     
-    settingsBtn.onclick = (e) => { e.stopPropagation(); settingsMenu.classList.toggle('active'); };
-    document.onclick = () => settingsMenu.classList.remove('active');
+    settingsBtn.onclick = (e) => { 
+        e.stopPropagation(); 
+        settingsMenu.classList.toggle('active'); 
+    };
+    document.addEventListener('click', () => settingsMenu.classList.remove('active'));
+    settingsMenu.onclick = (e) => e.stopPropagation();
 
     function formatLatex(text) {
         if (!text || text === "none" || text === "") return "None";
@@ -56,6 +62,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return (needsMath && !text.startsWith('$')) ? `$${text}$` : text;
     }
 
+    // ЗАГРУЗКА СПИСКА
     function loadList(listId) {
         const config = listMap[listId];
         document.querySelector('.main-title').textContent = config.title;
@@ -65,7 +72,6 @@ document.addEventListener('DOMContentLoaded', () => {
             data.forEach(level => {
                 const li = document.createElement('li');
                 li.className = 'level-item';
-                // Встраиваем ссылку в название и выводим поля в столбик
                 li.innerHTML = `
                     <div class="level-header">
                         <span class="level-number">#${level.number}</span>
@@ -82,10 +88,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     </ul>`;
                 listElement.appendChild(li);
             });
-            if (window.MathJax?.typesetPromise) MathJax.typesetPromise();
+            if (window.MathJax?.typesetPromise) window.MathJax.typesetPromise();
         });
     }
 
+    // ПЕРЕКЛЮЧАТЕЛИ СПИСКОВ И ТЕМ
     document.querySelectorAll('.list-button').forEach(btn => {
         if (btn.dataset.list === currentListId) btn.classList.add('active-list');
         btn.onclick = function() {
@@ -97,6 +104,11 @@ document.addEventListener('DOMContentLoaded', () => {
         };
     });
 
+    document.querySelectorAll('.theme-button').forEach(btn => {
+        btn.onclick = () => applyTheme(btn.dataset.theme);
+    });
+
+    // СНЕЖИНКИ
     function createSnowflake() {
         if (!snowToggle.checked) return;
         const snowflake = document.createElement('div');
@@ -105,16 +117,16 @@ document.addEventListener('DOMContentLoaded', () => {
         snowflake.style.width = size; snowflake.style.height = size;
         snowflake.style.left = Math.random() * 100 + 'vw';
         snowflake.style.animationDuration = Math.random() * 3 + 4 + 's';
+        snowflake.style.opacity = Math.random();
         snowContainer.appendChild(snowflake);
         setTimeout(() => snowflake.remove(), 7000);
     }
     setInterval(createSnowflake, 150);
     loadList(currentListId);
 
-    // Логика модалки реквестов
+    // МОДАЛКА РЕКВЕСТОВ
     const reqModal = document.getElementById('request-modal');
-    const openBtn = document.getElementById('open-request-btn');
-    if(openBtn) openBtn.onclick = () => reqModal.style.display = 'flex';
+    document.getElementById('open-request-btn').onclick = () => reqModal.style.display = 'flex';
     document.getElementById('close-modal').onclick = () => reqModal.style.display = 'none';
 
     document.getElementById('request-form').onsubmit = async (e) => {
@@ -133,7 +145,6 @@ document.addEventListener('DOMContentLoaded', () => {
             type: document.getElementById('req-type').value || 'None',
             list: document.getElementById('req-list').value,
             showcase: document.getElementById('req-showcase').value,
-            status: 'pending',
             timestamp: Date.now()
         };
 
@@ -144,16 +155,19 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     function initUserChat(reqId) {
-        const { ref, push, onChildAdded } = window.dbRefs;
+        const { ref, push, onValue } = window.dbRefs;
         const chatBox = document.getElementById('chat-messages');
-        onChildAdded(ref(window.db, `chats/${reqId}`), (snap) => {
-            const m = snap.val();
-            const div = document.createElement('div');
-            div.style.textAlign = m.role === 'admin' ? 'left' : 'right';
-            div.style.marginBottom = '10px';
-            div.innerHTML = `<div style="font-size:0.7rem; opacity:0.5; color:#888">${m.role === 'admin' ? 'MOD' : 'YOU'}</div>
-                             <div style="display:inline-block; background:${m.role === 'admin' ? '#222' : '#333'}; padding:8px 12px; border-radius:10px">${m.text}</div>`;
-            chatBox.appendChild(div);
+        onValue(ref(window.db, `chats/${reqId}`), (snap) => {
+            chatBox.innerHTML = '';
+            snap.forEach(mSnap => {
+                const m = mSnap.val();
+                const div = document.createElement('div');
+                div.style.textAlign = m.role === 'admin' ? 'left' : 'right';
+                div.style.marginBottom = '10px';
+                div.innerHTML = `<div style="font-size:0.7rem; opacity:0.5">${m.role === 'admin' ? 'MOD' : 'YOU'}</div>
+                                 <div style="display:inline-block; background:${m.role === 'admin' ? '#222' : '#333'}; padding:8px 12px; border-radius:10px">${m.text}</div>`;
+                chatBox.appendChild(div);
+            });
             chatBox.scrollTop = chatBox.scrollHeight;
         });
         document.getElementById('send-msg').onclick = () => {
