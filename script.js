@@ -27,13 +27,11 @@ document.addEventListener('DOMContentLoaded', () => {
         if (opacityRange) opacityRange.value = val;
         localStorage.setItem('panelOpacity', val);
     }
-
     function applySnowSize(val) {
         currentSnowSize = val;
         if (snowSizeRange) snowSizeRange.value = val;
         localStorage.setItem('snowSize', val);
     }
-
     function applyTheme(themeName) {
         document.body.className = `theme-${themeName}`;
         localStorage.setItem('siteTheme', themeName);
@@ -49,20 +47,11 @@ document.addEventListener('DOMContentLoaded', () => {
     opacityRange.addEventListener('input', (e) => applyOpacity(e.target.value));
     snowSizeRange.addEventListener('input', (e) => applySnowSize(e.target.value));
     
-    settingsBtn.onclick = (e) => {
-        e.stopPropagation();
-        settingsMenu.classList.toggle('active');
-    };
+    settingsBtn.onclick = (e) => { e.stopPropagation(); settingsMenu.classList.toggle('active'); };
     document.onclick = () => settingsMenu.classList.remove('active');
-    settingsMenu.onclick = (e) => e.stopPropagation();
-
-    document.querySelectorAll('.theme-button').forEach(btn => {
-        btn.onclick = () => applyTheme(btn.dataset.theme);
-    });
 
     function formatLatex(text) {
         if (!text || text === "none" || text === "") return "None";
-        if (typeof text !== 'string') return text;
         const needsMath = text.includes('\\') || text.includes('^') || text.includes('_');
         return (needsMath && !text.startsWith('$')) ? `$${text}$` : text;
     }
@@ -76,6 +65,7 @@ document.addEventListener('DOMContentLoaded', () => {
             data.forEach(level => {
                 const li = document.createElement('li');
                 li.className = 'level-item';
+                // ТУТ: showcase встроен в название (a href)
                 li.innerHTML = `
                     <div class="level-header">
                         <span class="level-number">#${level.number}</span>
@@ -121,7 +111,6 @@ document.addEventListener('DOMContentLoaded', () => {
     setInterval(createSnowflake, 150);
     loadList(currentListId);
 
-    // РЕКВЕСТЫ
     const reqModal = document.getElementById('request-modal');
     document.getElementById('open-request-btn').onclick = () => reqModal.style.display = 'flex';
     document.getElementById('close-modal').onclick = () => reqModal.style.display = 'none';
