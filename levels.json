@@ -1,1 +1,232 @@
-[]
+[
+  {
+    "number": "1",
+    "name": "Touching TPLL",
+    "creator": "HELFZz",
+    "fps": "~f_{\\varphi(\\omega,0)}(1.5 \\cdot 10^{10})",
+    "id": "133675189",
+    "fv": "HELFZz",
+    "type": "LPrSS",
+    "showcase": "https://youtu.be/H_uH9xcaW0I?si=8t_4eKtiHXC8dPCG"
+  },
+  {
+    "number": "2",
+    "name": "PHInale",
+    "creator": "necrotikk",
+    "fps": "~f_{\\varphi(\\omega,0)}(33333)",
+    "id": "130929387",
+    "fv": "Prostoeweewe",
+    "type": "LPrSS",
+    "showcase": "https://vm.tiktok.com/ZMDMBYDvN/"
+  },
+  {
+    "number": "3",
+    "name": "Ludomania",
+    "creator": "Osirissssss",
+    "fps": "~f_{\\varphi(\\omega,0)}(777)",
+    "id": "128521809",
+    "fv": "Osirissssss",
+    "type": "LPrSS",
+    "showcase": "https://youtu.be/S96oIJrnkLE?si=PKy3AewU7qunwA5C"
+  },
+  {
+    "number": "4",
+    "name": "Eta Hell",
+    "creator": "Zipin",
+    "fps": "~f_{\\eta_{0}}(10)",
+    "id": "128250639",
+    "fv": "Zipin233",
+    "type": "LPrSS (weak)",
+    "showcase": "нету"
+  },
+  {
+    "number": "5",
+    "name": "ANNIHILATION ",
+    "creator": "dm4k",
+    "fps": "4 \\ cps \\ for \\ f_{\\varepsilon_{0}}(49220) \\ seconds ",
+    "id": "132823727",
+    "fv": "dm4k",
+    "type": "PrSS",
+    "showcase": "Нэ"
+  },
+  {
+    "number": "6",
+    "name": "worm",
+    "creator": "necrotikk ",
+    "fps": "~f_{\\varepsilon_{0}}(33333)",
+    "id": "132426968",
+    "fv": "Prostoeweewe ",
+    "type": "Beklemishev's worm",
+    "showcase": "https://vt.tiktok.com/ZSaqPC29v/"
+  },
+  {
+    "number": "7",
+    "name": "I love 2",
+    "creator": "necrotikk ",
+    "fps": "f_{\\varepsilon_{0}}(9999)",
+    "id": "129825591",
+    "fv": "Prostoeweewe ",
+    "type": "PrSS",
+    "showcase": "Пошёл нахуй"
+  },
+  {
+    "number": "8",
+    "name": "TYPEPPLL",
+    "creator": "Osirissssss",
+    "fps": "~f_{\\varepsilon_{0}}(2281)",
+    "id": "128081281",
+    "fv": "Osirissssss",
+    "type": "PrSS",
+    "showcase": "sam znaesh"
+  },
+  {
+    "number": "9",
+    "name": "Show red",
+    "creator": "Zipin",
+    "fps": "~f_{\\omega^{\\omega}}(9999)",
+    "id": "126916757",
+    "fv": "Zipin233",
+    "type": "PrSS (weak)",
+    "showcase": "нету"
+  },
+  {
+    "number": "10",
+    "name": "The closed road",
+    "creator": "Dawdaddad & Zipin",
+    "fps": "2048 \\ cps \\ for \\ ~f_{\\omega^{\\omega}}(1024) \\ years",
+    "id": "127276566",
+    "fv": "dawdaddad",
+    "type": "PrSS (weak)",
+    "showcase": "https://vm.tiktok.com/ZMATFwqSy/"
+  },
+  {
+    "number": "11",
+    "name": "cYyycq",
+    "creator": "Osirissssss ",
+    "fps": "~f_{\\psi_{0}(\\Omega)}(3)",
+    "id": "132611512",
+    "fv": "Osirissssss ",
+    "type": "PrSS (item)",
+    "showcase": ""
+  },
+  {
+    "number": "12",
+    "name": "Recursion Overload",
+    "creator": "Yebok228228",
+    "fps": "~f_{\\omega^{2}}(6969)",
+    "id": "127524787",
+    "fv": "yebok228228",
+    "type": "Reordered ackermann",
+    "showcase": "Ne ebu ne moy lvl"
+  },
+  {
+    "number": "13",
+    "name": "Pulsewidth",
+    "creator": "Osirissssss",
+    "fps": "60 \\ cps \\ for \\ ~f_{\\omega 496+\\omega}(496) \\ seconds",
+    "id": "116367721",
+    "fv": "Osirissssss",
+    "type": "PPS (Primitive Pair System)",
+    "showcase": "https://vm.tiktok.com/ZMATHATB5/"
+  },
+  {
+    "number": "14",
+    "name": "Recursion Softload",
+    "creator": "Osirissssss",
+    "fps": "~f_{\\omega 2}(6969)",
+    "id": "128122210",
+    "fv": "Osirissssss",
+    "type": "Reordered ackermann",
+    "showcase": "Нету"
+  },
+  {
+    "number": "15",
+    "name": "MEFEDRON NEVER CLEAR ",
+    "creator": "BALLISTIC & dm4k",
+    "fps": "~G_{64}",
+    "id": "132375931",
+    "fv": "dm4k",
+    "type": "Iterated ackermann ",
+    "showcase": ""
+  },
+  {
+    "number": "16",
+    "name": "6e8d",
+    "creator": "Dokazatb",
+    "fps": "~f_{\\omega}(2^{32} \\cdot 10000)",
+    "id": "127701133",
+    "fv": "dokazatb",
+    "type": "Ackermann",
+    "showcase": "https://youtu.be/O93JdiHFYis"
+  },
+  {
+    "number": "17",
+    "name": "Beyond ",
+    "creator": "Wabur & Osirissssss ",
+    "fps": "3 \\ cps \\ for \\ ~2\\{63352\\}3 \\ seconds",
+    "id": "133531576",
+    "fv": "Osirissssss ",
+    "type": "Groupless cage",
+    "showcase": "Ььь"
+  },
+  {
+    "number": "18",
+    "name": "The final",
+    "creator": "Zipin",
+    "fps": "~1488\\{1488\\}1488",
+    "id": "128147531",
+    "fv": "Zipin233",
+    "type": "Encoded cage",
+    "showcase": "сделайте шоукейси"
+  },
+  {
+    "number": "19",
+    "name": "Dry out so easy",
+    "creator": "Прячти",
+    "fps": "~2\\{32\\}22",
+    "id": "128314253",
+    "fv": "Pizzagdpls",
+    "type": "Cage",
+    "showcase": "https://vt.tiktok.com/ZSfNxFqWq/"
+  },
+  {
+    "number": "20",
+    "name": "Black trouble",
+    "creator": "KryXo & oilo",
+    "fps": "~2\\{8\\}6",
+    "id": "130163755",
+    "fv": "KryXo",
+    "type": "Cage",
+    "showcase": "None"
+  },
+  {
+    "number": "21",
+    "name": "ODNAZDI",
+    "creator": "Прячти",
+    "fps": "~2 \\uparrow\\uparrow\\uparrow\\uparrow\\uparrow 10",
+    "id": "127694726",
+    "fv": "Pizzagdpls",
+    "type": "Cage",
+    "showcase": "https://vt.tiktok.com/ZSykktC23/"
+  },
+  {
+    "number": "22",
+    "name": "Black lvl",
+    "creator": "Fluristpl",
+    "fps": "~100 \\uparrow\\uparrow\\uparrow\\uparrow 2^{32}",
+    "id": "128492696",
+    "fv": "Fluristpl",
+    "type": "Cage",
+    "showcase": "https://youtu.be/17EgpvfN090?si=_FMO036Va6CAjqcs"
+  },
+  {
+    "number": "23",
+    "name": "JL NEVER CLEAR",
+    "creator": "Osirissssss",
+    "fps": "~\\ Collatz(837799)",
+    "id": "128715842",
+    "fv": "Osirissssss",
+    "type": "Collatz Conjecture",
+    "showcase": "Netu"
+  }
+]
