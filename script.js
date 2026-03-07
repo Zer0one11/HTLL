@@ -56,7 +56,7 @@ document.addEventListener('DOMContentLoaded', () => {
     async function loadList(listId) {
         const listMap = { 
             'levels': 'levels.json', 'ppll': 'ppll.json', 'sll': 'sll.json', 
-            'ill': 'ill.json', 'icll': 'icll.json', 'scl': 'scl.json', 'icl': 'icl.json' 
+            'ill': 'ill.json', 'inf': 'inf.json', 'scl': 'scl.json', 'icl': 'icl.json' 
         };
         
         try {
