@@ -21,7 +21,7 @@ body {
     margin: 0; padding: 20px;
     transition: background 0.4s ease;
     min-height: 100vh;
-    overflow-x: hidden; /* Чтобы покачивание не создавало горизонтальный скролл */
+    overflow-x: hidden;
 }
 
 header { max-width: 800px; margin: 40px auto 10px; text-align: center; }
@@ -96,46 +96,35 @@ body.theme-light .setting-icon { filter: invert(0); }
     position: absolute; 
     background: #fff; 
     border-radius: 50%; 
-    top: -10px; 
-    animation: fall linear forwards; 
+    top: -20px; 
+    animation: snow-fall linear forwards; 
 }
-body.theme-light .snowflake { background: #000 !important; }
+@keyframes snow-fall { to { top: 110vh; } }
 
-/* ЛИСТЬЯ САКУРЫ (Исправленные) */
+/* ЛИСТЬЯ САКУРЫ - ФИНАЛЬНЫЙ ФИКС */
 .sakura-leaf {
     position: absolute;
     top: -100px;
-    background-size: contain; /* Чтобы текстура не обрезалась */
-    background-repeat: no-repeat;
-    background-position: center;
+    background-size: contain !important;
+    background-repeat: no-repeat !important;
+    background-position: center !important;
     pointer-events: none;
     z-index: -1;
-    /* Анимация: падение (fall-down) и покачивание (sway) */
-    animation: fall-down linear forwards, sway ease-in-out infinite;
+    display: block !important;
+    /* Разделяем анимации: падение по top и покачивание по transform */
+    animation: sakura-move-down linear forwards, sakura-sway-new ease-in-out infinite;
 }
 
-/* АНИМАЦИИ */
-@keyframes fall-down {
-    0% {
-        transform: translateY(0) rotate(0deg);
-        opacity: 0;
-    }
+@keyframes sakura-move-down {
+    0% { top: -100px; opacity: 0; }
     10% { opacity: 1; }
     90% { opacity: 1; }
-    100% {
-        /* Идем строго вниз (+110vh) */
-        transform: translateY(110vh) rotate(360deg);
-        opacity: 0;
-    }
+    100% { top: 110vh; opacity: 0; }
 }
 
-@keyframes sway {
-    0%, 100% { margin-left: 0; }
-    50% { margin-left: 80px; } /* Амплитуда покачивания */
-}
-
-@keyframes fall { /* Для старого снега */
-    to { transform: translateY(105vh); }
+@keyframes sakura-sway-new {
+    0%, 100% { transform: translateX(0) rotate(0deg); }
+    50% { transform: translateX(80px) rotate(180deg); }
 }
 
 /* МЕНЮ НАСТРОЕК */
@@ -150,9 +139,9 @@ body.theme-light .snowflake { background: #000 !important; }
 .s-control span { display: block; margin-bottom: 8px; opacity: 0.6; }
 .s-control input[type="range"] { width: 100%; accent-color: #fff; }
 
-.effect-selector { display: flex; flex-direction: column; gap: 5px; }
-.effect-selector label { display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 0.8rem; }
-.effect-selector input { accent-color: #fff; }
+.effect-selector { display: flex; flex-direction: column; gap: 8px; }
+.effect-selector label { display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 0.8rem; }
+.effect-selector input { accent-color: #fff; margin: 0; }
 
 /* КНОПКИ */
 .list-button, .theme-button {
