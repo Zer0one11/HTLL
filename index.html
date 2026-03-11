@@ -3,278 +3,143 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HTLL | Admin Dashboard</title>
+    <title>HTLL List</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&family=Oswald:wght@500&display=swap" rel="stylesheet">
-    <style>
-        :root { --bg-main: #050505; --bg-card: rgba(255, 255, 255, 0.03); --color-text: #ffffff; --accent: #888; --border-white: rgba(255, 255, 255, 0.1); }
-        body { font-family: 'Montserrat', sans-serif; background-color: var(--bg-main); color: var(--color-text); margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
-        
-        /* ВКЛАДКИ */
-        .admin-tabs { display: flex; gap: 10px; width: 100%; max-width: 900px; margin-bottom: 20px; }
-        .tab-btn { flex: 1; padding: 15px; background: #111; border: 1px solid #222; color: #555; cursor: pointer; border-radius: 12px; font-weight: 900; text-transform: uppercase; transition: 0.3s; font-family: 'Oswald'; }
-        .tab-btn.active { background: #fff; color: #000; border-color: #fff; }
-
-        .container { width: 100%; max-width: 900px; background: var(--bg-card); backdrop-filter: blur(12px); border-radius: 20px; padding: 30px; border: 1px solid rgba(255,255,255,0.05); box-sizing: border-box; }
-        
-        /* РЕДАКТОР */
-        .level-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; background: rgba(255,255,255,0.02); padding: 20px; border-radius: 15px; margin-bottom: 20px; border: 1px solid var(--border-white); }
-        input, select { width: 100%; box-sizing: border-box; background: rgba(0,0,0,0.5); border: 1px solid var(--border-white); color: #fff; padding: 12px; border-radius: 10px; outline: none; }
-        .btn { padding: 12px 20px; border: none; border-radius: 10px; cursor: pointer; font-weight: 700; text-transform: uppercase; font-family: 'Oswald'; }
-        .btn-primary { background: #fff; color: #000; }
-        .btn-sync { background: #00ff00; color: #000; width: 100%; margin-bottom: 20px; font-weight: 900; }
-        .level-row { display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.02); padding: 15px; border-radius: 12px; margin-bottom: 10px; cursor: pointer; }
-
-        /* РЕКВЕСТЫ (ВЕРТИКАЛЬНЫЙ СПИСОК) */
-        .req-container { display: flex; flex-direction: column; gap: 20px; }
-        .req-list { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 10px; white-space: nowrap; }
-        .req-item { min-width: 150px; padding: 15px; background: #111; border: 1px solid #222; border-radius: 12px; cursor: pointer; text-align: center; }
-        .req-item.active { background: #fff; color: #000; border-color: #fff; }
-        .req-item.unread { border-color: #ff4444; }
-
-        /* ОКНО ЧАТА ПОД СПИСКОМ */
-        .chat-view { background: #0a0a0a; border-radius: 20px; padding: 25px; border: 1px solid #222; width: 100%; box-sizing: border-box; }
-        .full-info { background: #111; padding: 20px; border-radius: 12px; margin-bottom: 15px; font-size: 0.85rem; line-height: 1.6; border-left: 4px solid #fff; }
-        .full-info b { color: #888; text-transform: uppercase; font-size: 0.7rem; display: block; }
-        .chat-box { height: 300px; overflow-y: auto; background: #000; padding: 15px; border-radius: 12px; margin-bottom: 15px; display: flex; flex-direction: column; gap: 10px; border: 1px solid #111; }
-        .msg { max-width: 80%; padding: 10px 15px; border-radius: 10px; font-size: 0.9rem; }
-        .msg.admin { background: #fff; color: #000; align-self: flex-end; }
-        .msg.user { background: #222; color: #fff; align-self: flex-start; }
-        
-        .logout-btn { background: none; border: 1px solid #333; color: #444; cursor: pointer; margin-bottom: 10px; font-size: 10px; }
-    </style>
+    <link rel="stylesheet" href="style.css">
+    
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>
+        window.MathJax = {
+            tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] }
+        };
+    </script>
 </head>
-<body>
+<body class="theme-dark">
+    <div id="snow-container"></div>
 
-    <div id="auth-screen" class="container" style="max-width: 400px; margin-top: 100px;">
-        <h1>ADMIN ACCESS</h1>
-        <input type="text" id="login" placeholder="Login">
-        <input type="password" id="password" placeholder="Password" style="margin-top:10px">
-        <button class="btn btn-primary" onclick="manualLogin()" style="width: 100%; margin-top:15px">Войти</button>
-    </div>
+    <button id="open-request-btn" class="request-main-btn">ПОДАТЬ РЕКВЕСТ</button>
 
-    <div id="admin-panel" style="display:none; width:100%; max-width:900px;">
-        <div class="admin-tabs">
-            <button id="tab-editor-btn" class="tab-btn active" onclick="switchTab('editor')">Список Уровней</button>
-            <button id="tab-req-btn" class="tab-btn" onclick="switchTab('req')">Реквесты</button>
-        </div>
-        <button class="logout-btn" onclick="logout()">LOGOUT</button>
-
-        <div id="section-editor" class="container">
-            <select id="fileSelect" onchange="loadList()" style="margin-bottom: 15px;">
-                <option value="levels.json">TPLL (Main)</option>
-                <option value="ppll.json">PPLL</option>
-                <option value="sll.json">SLL</option>
-                <option value="ill.json">ILL</option>
-                <option value="inf.json">ICLL</option>
-                <option value="scl.json">SCL</option>
-                <option value="icl.json">ICL</option>
-            </select>
-            <button class="btn btn-sync" onclick="saveToGitHub()">СИНХРОНИЗИРОВАТЬ С GITHUB</button>
-            <div class="level-form" id="editorForm">
-                <input type="hidden" id="editIndex" value="-1">
-                <input type="number" id="inpNum" placeholder="Место">
-                <input type="text" id="inpName" placeholder="Название">
-                <input type="text" id="inpCreator" placeholder="Автор">
-                <input type="text" id="inpFPS" placeholder="FPS">
-                <input type="text" id="inpID" placeholder="ID">
-                <input type="text" id="inpFV" placeholder="Botter">
-                <input type="text" id="inpType" placeholder="Тип">
-                <input type="text" id="inpShowcase" placeholder="URL">
-                <button class="btn btn-primary" onclick="addOrUpdate()" style="grid-column: 1/-1;">Сохранить уровень</button>
-            </div>
-            <div id="listContainer"></div>
-        </div>
-
-        <div id="section-req" class="container" style="display:none;">
-            <div class="req-container">
-                <h3 style="margin-top:0; font-family:'Oswald';">Активные заявки</h3>
-                <div class="req-list" id="fb-req-list">
-                    </div>
-
-                <div id="fb-chat-view" class="chat-view" style="display:none;">
-                    <div id="fb-full-info" class="full-info">
-                        </div>
-                    <div class="chat-box" id="fb-chat-box"></div>
-                    <div style="display:flex; gap:10px;">
-                        <input type="text" id="fb-input" placeholder="Введите ответ...">
-                        <button class="btn btn-primary" id="fb-send">></button>
-                    </div>
-                    <button onclick="deleteCurrentChat()" style="background:none; border:none; color:#ff4444; cursor:pointer; font-size:10px; margin-top:15px; font-weight:900;">УДАЛИТЬ ЗАЯВКУ НАВСЕГДА</button>
+    <div class="snow-ui-static">
+        <label class="snow-switch">
+            <input type="checkbox" id="snow-toggle" checked>
+            <span class="snow-slider"></span>
+        </label>
+        <span class="snow-text">СНЕГ</span>
+        
+        <div class="settings-container" style="position: relative; display: flex; align-items: center;">
+            <img src="setting.ico" alt="⚙️" id="settings-btn" class="setting-icon">
+            
+            <div id="settings-menu" class="settings-menu">
+                <div class="s-control">
+                    <span>РАЗМЕР СНЕЖИНОК</span>
+                    <input type="range" id="snowSizeRange" min="2" max="25" value="5">
+                </div>
+                <div class="s-control">
+                    <span>ПРОЗРАЧНОСТЬ КАРТОЧЕК</span>
+                    <input type="range" id="opacityRange" min="0.01" max="0.3" step="0.01" value="0.01">
                 </div>
             </div>
         </div>
-        <div id="statusMsg" style="text-align:center; margin-top:15px; font-weight:900;"></div>
     </div>
 
-<script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getDatabase, ref, onValue, push, update, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+    <header>
+        <h1 class="main-title">TPLL LIST</h1>
+        <div class="link-container">
+            <a href="https://t.me/HardestTiktokLevelList" target="_blank" class="channel-link">КАНАЛ ЛИСТА</a>
+        </div>
 
-    const firebaseConfig = {
-        apiKey: "AIzaSyCuO6xuP2AP61bTbiqjho_jzXiDsCzxTCY",
-        authDomain: "htll-request.firebaseapp.com",
-        databaseURL: "https://htll-request-default-rtdb.europe-west1.firebasedatabase.app",
-        projectId: "htll-request",
-        appId: "1:400821777799:web:88da4772f63810f67e4f22"
-    };
+        <div class="list-switcher">
+            <button data-list="levels" class="list-button">TPLL</button>
+            <button data-list="ppll" class="list-button">PPLL</button>
+            <button data-list="sll" class="list-button">SLL</button>
+            <button data-list="ill" class="list-button">ILL</button>
+            <button data-list="inf" class="list-button">ICLL</button>
+            <button data-list="scl" class="list-button">SCL</button>
+            <button data-list="icl" class="list-button">ICL</button>
+        </div>
 
-    const app = initializeApp(firebaseConfig);
-    const db = getDatabase(app);
-    let activeChatId = null;
+        <div class="theme-switcher" style="margin-top: 15px;">
+            <button data-theme="light" class="theme-button">Светлая</button>
+            <button data-theme="dark" class="theme-button">Темная</button>
+        </div>
+    </header>
 
-    // Смена вкладок
-    window.switchTab = (target) => {
-        document.getElementById('section-editor').style.display = target === 'editor' ? 'block' : 'none';
-        document.getElementById('section-req').style.display = target === 'req' ? 'block' : 'none';
-        document.getElementById('tab-editor-btn').classList.toggle('active', target === 'editor');
-        document.getElementById('tab-req-btn').classList.toggle('active', target === 'req');
-    };
+    <main>
+        <ul id="levelList" class="level-list">
+            </ul>
+    </main>
 
-    // Firebase: Список заявок
-    onValue(ref(db, 'requests'), (snapshot) => {
-        const list = document.getElementById('fb-req-list');
-        list.innerHTML = '';
-        snapshot.forEach((child) => {
-            const req = child.val();
-            const div = document.createElement('div');
-            div.className = `req-item ${activeChatId === req.id ? 'active' : ''} ${req.hasUnread ? 'unread' : ''}`;
-            div.innerHTML = `<b>${req.level}</b><br><small>${req.nickname}</small>`;
-            div.onclick = () => openChat(req);
-            list.appendChild(div);
-        });
-    });
+    <div id="request-modal" class="modal-overlay">
+        <div class="modal-content">
+            
+            <div id="request-form-container">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:25px;">
+                    <h2 style="margin:0">НОВАЯ ЗАЯВКА</h2>
+                    <span id="close-modal" style="cursor:pointer; font-size:1.8rem; opacity:0.5;">&times;</span>
+                </div>
+                <form id="request-form">
+                    <input type="text" id="req-nickname" placeholder="Твой ник" required>
+                    <input type="text" id="req-level-name" placeholder="Название уровня" required>
+                    <input type="text" id="req-creator" placeholder="Автор уровня" required>
+                    <input type="text" id="req-id" placeholder="ID уровня" required>
+                    <input type="text" id="req-fps" placeholder="FPS (например 360)" required>
+                    <input type="text" id="req-fv" placeholder="Кто первым его ботнул? (если нет - пусто)">
+                    <input type="text" id="req-type" placeholder="Type (например, LPrSS)">
+                    
+                    <select id="req-list" style="width: 100%; margin-bottom: 12px; background: #1a1a1c; border: 1px solid #333; color: #fff; padding: 14px; border-radius: 12px;">
+                        <option value="levels">В список TPLL</option>
+                        <option value="ppll">В список PPLL</option>
+                        <option value="sll">В список SLL</option>
+                        <option value="ill">В список ILL</option>
+                        <option value="icll">В список ICLL</option>
+                        <option value="scl">В список SCL</option>
+                        <option value="icl">В список ICL</option>
+                    </select>
+                    
+                    <textarea id="req-showcase" placeholder="Ссылка на Showcase видео" required style="width: 100%; height: 80px; background: #1a1a1c; border: 1px solid #333; color: #fff; padding: 14px; border-radius: 12px; margin-bottom: 15px; font-family: inherit;"></textarea>
+                    
+                    <button type="submit" class="submit-request">ОТПРАВИТЬ ЗАЯВКУ</button>
+                </form>
+            </div>
 
-    function openChat(req) {
-        activeChatId = req.id;
-        document.getElementById('fb-chat-view').style.display = 'block';
-        
-        // ВСЯ ИНФОРМАЦИЯ ОТ ЮЗЕРА ПОД СПИСКОМ
-        document.getElementById('fb-full-info').innerHTML = `
-            <div><b>Игрок / Ник</b> ${req.nickname}</div>
-            <div style="margin-top:10px;"><b>Уровень</b> ${req.level} (by ${req.creator})</div>
-            <div style="margin-top:10px;"><b>Тех. Данные</b> ID: ${req.lvlId} | FPS: ${req.fps} | Botter: ${req.fv} | Type: ${req.type}</div>
-            <div style="margin-top:10px;"><b>Список</b> ${req.list} | <a href="${req.showcase}" target="_blank" style="color:#fff">Showcase Link</a></div>
-        `;
+            <div id="chat-section" style="display:none;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                    <span style="font-weight:900; letter-spacing: 1px;">ВАШ ЧАТ С АДМИНОМ</span>
+                    <button id="delete-chat-user" style="background:none; border:none; color:#ff4444; cursor:pointer; font-weight:700; font-size:0.7rem; text-transform: uppercase;">Удалить чат</button>
+                </div>
+                
+                <div id="chat-messages" style="height:300px; overflow-y:auto; background:#000; padding:15px; border-radius:15px; margin-bottom:15px; border: 1px solid #222;">
+                    </div>
+                
+                <div style="display:flex; gap:10px;">
+                    <input type="text" id="user-msg" placeholder="Напишите сообщение..." style="margin-bottom:0;">
+                    <button id="send-msg" style="width:60px; border-radius:12px; border:none; background:#fff; color:#000; font-weight:900; cursor:pointer;">></button>
+                </div>
+            </div>
+        </div>
+    </div>
 
-        onValue(ref(db, `chats/${req.id}`), (snap) => {
-            const box = document.getElementById('fb-chat-box');
-            box.innerHTML = '';
-            snap.forEach(mSnap => {
-                const m = mSnap.val();
-                const d = document.createElement('div');
-                d.className = `msg ${m.role}`;
-                d.innerText = m.text;
-                box.appendChild(d);
-            });
-            box.scrollTop = box.scrollHeight;
-        });
-    }
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getDatabase, ref, push, set, onValue, update, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-    document.getElementById('fb-send').onclick = async () => {
-        const inp = document.getElementById('fb-input');
-        if(!inp.value || !activeChatId) return;
-        await push(ref(db, `chats/${activeChatId}`), { role: 'admin', text: inp.value, timestamp: Date.now() });
-        await update(ref(db, `requests/${activeChatId}`), { hasUnread: true });
-        inp.value = '';
-    };
-
-    window.deleteCurrentChat = async () => {
-        if(confirm("Удалить всё?")) {
-            await remove(ref(db, `requests/${activeChatId}`));
-            await remove(ref(db, `chats/${activeChatId}`));
-            document.getElementById('fb-chat-view').style.display = 'none';
-            activeChatId = null;
-        }
-    };
-</script>
-
-<script>
-    // ТВОЙ ОРИГИНАЛЬНЫЙ СКРИПТ РЕДАКТОРА
-    let currentData = [];
-    let sessionUser = "", sessionPass = "";
-    const USERS = [{user:'HELFZz',pass:'creep000'},{user:'Curruser54',pass:'546111'},
-{user:'bomboloni',pass:'1322jksl5'},{user:'ByHanseLLL',pass:'11540hanse'},
-{user:'flim',pass:'Gdr.JSON1345'},{user:'decidableset043',pass:'hellonigga1991'}];
-    
-    window.onload = () => { 
-        const u = localStorage.getItem('at_u'), p = localStorage.getItem('at_p'); 
-        if (u && p) checkAuth(u, p, true); 
-    };
-
-    function manualLogin() { checkAuth(document.getElementById('login').value, document.getElementById('password').value, false); }
-    function logout() { localStorage.clear(); location.reload(); }
-
-    function checkAuth(l, p, isAuto) {
-        const found = USERS.find(u => u.user === l && u.pass === p);
-        if (found) {
-            sessionUser = l; sessionPass = p;
-            localStorage.setItem('at_u', l); localStorage.setItem('at_p', p);
-            document.getElementById('auth-screen').style.display = 'none';
-            document.getElementById('admin-panel').style.display = 'block';
-            loadList();
-        } else if (!isAuto) alert("Ошибка доступа");
-    }
-
-    async function loadList() {
-        const status = document.getElementById('statusMsg'); status.innerText = "ЗАГРУЗКА...";
-        try {
-            const res = await fetch(`/api/update?fileName=${document.getElementById('fileSelect').value}`);
-            const result = await res.json();
-            currentData = JSON.parse(result.content);
-            status.innerText = ""; render();
-        } catch(e) { status.innerText = "ОШИБКА FETCH"; }
-    }
-
-    function render() {
-        const container = document.getElementById('listContainer'); container.innerHTML = '';
-        currentData.sort((a,b)=>parseInt(a.number)-parseInt(b.number));
-        currentData.forEach((item, i) => {
-            const row = document.createElement('div'); row.className = 'level-row';
-            row.onclick = () => editLevel(i);
-            row.innerHTML = `<div><b>#${item.number}</b> ${item.name}</div><button class="btn" style="background:#ff4444; padding:5px; font-size:10px" onclick="deleteLevel(event, ${i})">X</button>`;
-            container.appendChild(row);
-        });
-    }
-
-    function addOrUpdate() {
-        const idx = parseInt(document.getElementById('editIndex').value);
-        const newNum = parseInt(document.getElementById('inpNum').value);
-        const level = {
-            number: newNum.toString(), name: document.getElementById('inpName').value,
-            creator: document.getElementById('inpCreator').value, fps: document.getElementById('inpFPS').value,
-            id: document.getElementById('inpID').value, fv: document.getElementById('inpFV').value,
-            type: document.getElementById('inpType').value, showcase: document.getElementById('inpShowcase').value
+        const firebaseConfig = {
+            apiKey: "AIzaSyCuO6xuP2AP61bTbiqjho_jzXiDsCzxTCY",
+            authDomain: "htll-request.firebaseapp.com",
+            databaseURL: "https://htll-request-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "htll-request",
+            appId: "1:400821777799:web:88da4772f63810f67e4f22"
         };
-        if (idx !== -1) currentData.splice(idx, 1);
-        currentData.forEach(item => { if (parseInt(item.number) >= newNum) item.number = (parseInt(item.number) + 1).toString(); });
-        currentData.push(level); 
-        resetForm(); render();
-    }
 
-    function editLevel(i) {
-        const item = currentData[i]; document.getElementById('editIndex').value = i;
-        document.getElementById('inpNum').value = item.number; document.getElementById('inpName').value = item.name;
-        document.getElementById('inpCreator').value = item.creator; document.getElementById('inpFPS').value = item.fps;
-        document.getElementById('inpID').value = item.id; document.getElementById('inpFV').value = item.fv;
-        document.getElementById('inpType').value = item.type; document.getElementById('inpShowcase').value = item.showcase;
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        
+        // Экспортируем в window, чтобы script.js видел Firebase
+        window.db = db;
+        window.dbRefs = { ref, push, set, onValue, update, remove };
+    </script>
 
-    function resetForm() { document.getElementById('editIndex').value="-1"; document.querySelectorAll('#editorForm input').forEach(i=>i.value=""); }
-
-    async function saveToGitHub() {
-        const status = document.getElementById('statusMsg'); status.innerText = "СОХРАНЕНИЕ...";
-        const res = await fetch('/api/update', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ login: sessionUser, password: sessionPass, fileName: document.getElementById('fileSelect').value, newData: currentData })
-        });
-        const result = await res.json();
-        status.innerText = result.success ? "ГОТОВО!" : "ОШИБКА!";
-        setTimeout(() => status.innerText = "", 3000);
-    }
-
-    function deleteLevel(e, i) { e.stopPropagation(); if (confirm("Удалить?")) { currentData.splice(i, 1); render(); } }
-</script>
+    <script src="script.js"></script>
 </body>
 </html>
