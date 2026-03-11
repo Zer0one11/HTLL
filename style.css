@@ -21,7 +21,7 @@ body {
     margin: 0; padding: 20px;
     transition: background 0.4s ease;
     min-height: 100vh;
-    overflow-x: hidden; /* Чтобы листья не создавали полосу прокрутки при покачивании */
+    overflow-x: hidden; /* Чтобы покачивание не создавало горизонтальный скролл */
 }
 
 header { max-width: 800px; margin: 40px auto 10px; text-align: center; }
@@ -47,7 +47,6 @@ header { max-width: 800px; margin: 40px auto 10px; text-align: center; }
     margin-bottom: 20px;
     position: relative;
     overflow: hidden;
-    transition: transform 0.2s;
 }
 
 .level-item::before {
@@ -71,7 +70,7 @@ header { max-width: 800px; margin: 40px auto 10px; text-align: center; }
 .setting-icon { 
     width: 24px; height: 24px; cursor: pointer; 
     filter: invert(1);
-    transition: transform 0.3s;
+    transition: transform 0.3s ease;
 }
 .setting-icon:hover { transform: rotate(90deg); }
 body.theme-light .setting-icon { filter: invert(0); }
@@ -88,7 +87,6 @@ body.theme-light .setting-icon { filter: invert(0); }
     text-transform: uppercase; letter-spacing: 1px;
     transition: all 0.3s;
 }
-.request-main-btn:hover { background: var(--color-text); color: var(--bg-main); transform: scale(1.05); }
 
 /* ЭФФЕКТЫ */
 #snow-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: -1; }
@@ -103,32 +101,44 @@ body.theme-light .setting-icon { filter: invert(0); }
 }
 body.theme-light .snowflake { background: #000 !important; }
 
-/* Листья сакуры */
+/* ЛИСТЬЯ САКУРЫ (Исправленные) */
 .sakura-leaf {
     position: absolute;
-    top: -50px;
-    background-size: contain;
+    top: -100px;
+    background-size: contain; /* Чтобы текстура не обрезалась */
     background-repeat: no-repeat;
+    background-position: center;
     pointer-events: none;
-    /* Две анимации: падение вниз и покачивание влево-вправо */
-    animation: sakura-fall linear forwards, sakura-sway ease-in-out infinite;
+    z-index: -1;
+    /* Анимация: падение (fall-down) и покачивание (sway) */
+    animation: fall-down linear forwards, sway ease-in-out infinite;
 }
 
-@keyframes fall { to { transform: translateY(105vh); } }
-
-@keyframes sakura-fall {
-    0% { transform: translateY(0) rotate(0deg); opacity: 0; }
+/* АНИМАЦИИ */
+@keyframes fall-down {
+    0% {
+        transform: translateY(0) rotate(0deg);
+        opacity: 0;
+    }
     10% { opacity: 1; }
     90% { opacity: 1; }
-    100% { transform: translateY(110vh) rotate(360deg); opacity: 0; }
+    100% {
+        /* Идем строго вниз (+110vh) */
+        transform: translateY(110vh) rotate(360deg);
+        opacity: 0;
+    }
 }
 
-@keyframes sakura-sway {
+@keyframes sway {
     0%, 100% { margin-left: 0; }
-    50% { margin-left: 60px; } /* Амплитуда покачивания */
+    50% { margin-left: 80px; } /* Амплитуда покачивания */
 }
 
-/* НАСТРОЙКИ */
+@keyframes fall { /* Для старого снега */
+    to { transform: translateY(105vh); }
+}
+
+/* МЕНЮ НАСТРОЕК */
 .snow-ui-static { position: fixed; top: 20px; right: 20px; display: flex; align-items: center; gap: 10px; z-index: 1000; }
 .settings-menu {
     position: absolute; top: 45px; right: 0; background: #111; padding: 20px;
@@ -137,26 +147,19 @@ body.theme-light .snowflake { background: #000 !important; }
 }
 .settings-menu.active { display: block; }
 .s-control { margin-bottom: 15px; font-size: 0.75rem; font-weight: 900; color: #eee; }
-.s-control span { display: block; margin-bottom: 8px; opacity: 0.6; text-transform: uppercase; }
-.s-control input[type="range"] { width: 100%; accent-color: #fff; cursor: pointer; }
+.s-control span { display: block; margin-bottom: 8px; opacity: 0.6; }
+.s-control input[type="range"] { width: 100%; accent-color: #fff; }
 
-/* ЭФФЕКТЫ (РАДИО) */
-.effect-selector { display: flex; flex-direction: column; gap: 8px; }
-.effect-selector label {
-    display: flex; align-items: center; gap: 10px;
-    cursor: pointer; font-size: 0.8rem; opacity: 0.8;
-    transition: opacity 0.2s;
-}
-.effect-selector label:hover { opacity: 1; }
-.effect-selector input[type="radio"] { accent-color: #fff; margin: 0; }
+.effect-selector { display: flex; flex-direction: column; gap: 5px; }
+.effect-selector label { display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 0.8rem; }
+.effect-selector input { accent-color: #fff; }
 
-/* ПЕРЕКЛЮЧАТЕЛИ */
+/* КНОПКИ */
 .list-button, .theme-button {
     background: transparent; border: 1px solid rgba(128, 128, 128, 0.2);
     color: inherit; padding: 8px 16px; border-radius: 30px; cursor: pointer; margin: 4px; font-size: 0.8rem;
     font-weight: 700; transition: all 0.2s;
 }
-.list-button:hover { border-color: #fff; }
 .active-theme, .active-list { background: var(--color-text) !important; color: var(--bg-main) !important; border-color: var(--color-text) !important; }
 
 /* МОДАЛКА */
@@ -167,19 +170,14 @@ body.theme-light .snowflake { background: #000 !important; }
 }
 .modal-content {
     background: #0f0f11; padding: 35px; border-radius: 25px; width: 90%; max-width: 400px;
-    border: 1px solid rgba(255,255,255,0.08); box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+    border: 1px solid rgba(255,255,255,0.1);
 }
-
-.modal-content input, .modal-content textarea, .modal-content select {
+.modal-content input, .modal-content select, .modal-content textarea {
     width: 100%; margin-bottom: 12px; background: #1a1a1c; border: 1px solid #333;
     color: #fff; padding: 14px; border-radius: 12px; font-family: inherit; box-sizing: border-box;
-    transition: border 0.3s;
 }
-.modal-content input:focus { border-color: #fff; outline: none; }
 .submit-request {
     width: 100%; padding: 16px; border-radius: 12px; border: none;
     background: #fff; color: #000; font-weight: 900; cursor: pointer;
-    transition: transform 0.2s;
 }
-.submit-request:active { transform: scale(0.98); }
-    
+
