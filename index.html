@@ -21,18 +21,20 @@
     <button id="open-request-btn" class="request-main-btn">ПОДАТЬ РЕКВЕСТ</button>
 
     <div class="snow-ui-static">
-        <label class="snow-switch">
-            <input type="checkbox" id="snow-toggle" checked>
-            <span class="snow-slider"></span>
-        </label>
-        <span class="snow-text">СНЕГ</span>
-        
         <div class="settings-container" style="position: relative; display: flex; align-items: center;">
             <img src="setting.ico" alt="⚙️" id="settings-btn" class="setting-icon">
             
             <div id="settings-menu" class="settings-menu">
                 <div class="s-control">
-                    <span>РАЗМЕР СНЕЖИНОК</span>
+                    <span>ЭФФЕКТЫ ФОНА</span>
+                    <div class="effect-selector" style="display: flex; flex-direction: column; gap: 5px; margin-top: 5px;">
+                        <label><input type="radio" name="effect" value="none"> НЕТ</label>
+                        <label><input type="radio" name="effect" value="snow" checked> СНЕГ</label>
+                        <label><input type="radio" name="effect" value="sakura"> САКУРА</label>
+                    </div>
+                </div>
+                <div class="s-control" id="snow-size-ctrl">
+                    <span>РАЗМЕР ЧАСТИЦ</span>
                     <input type="range" id="snowSizeRange" min="2" max="25" value="5">
                 </div>
                 <div class="s-control">
@@ -66,13 +68,11 @@
     </header>
 
     <main>
-        <ul id="levelList" class="level-list">
-            </ul>
+        <ul id="levelList" class="level-list"></ul>
     </main>
 
     <div id="request-modal" class="modal-overlay">
         <div class="modal-content">
-            
             <div id="request-form-container">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:25px;">
                     <h2 style="margin:0">НОВАЯ ЗАЯВКА</h2>
@@ -109,8 +109,7 @@
                     <button id="delete-chat-user" style="background:none; border:none; color:#ff4444; cursor:pointer; font-weight:700; font-size:0.7rem; text-transform: uppercase;">Удалить чат</button>
                 </div>
                 
-                <div id="chat-messages" style="height:300px; overflow-y:auto; background:#000; padding:15px; border-radius:15px; margin-bottom:15px; border: 1px solid #222;">
-                    </div>
+                <div id="chat-messages" style="height:300px; overflow-y:auto; background:#000; padding:15px; border-radius:15px; margin-bottom:15px; border: 1px solid #222;"></div>
                 
                 <div style="display:flex; gap:10px;">
                     <input type="text" id="user-msg" placeholder="Напишите сообщение..." style="margin-bottom:0;">
@@ -135,7 +134,6 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
         
-        // Экспортируем в window, чтобы script.js видел Firebase
         window.db = db;
         window.dbRefs = { ref, push, set, onValue, update, remove };
     </script>
