@@ -21,6 +21,7 @@ body {
     margin: 0; padding: 20px;
     transition: background 0.4s ease;
     min-height: 100vh;
+    overflow-x: hidden; /* Чтобы листья не создавали полосу прокрутки при покачивании */
 }
 
 header { max-width: 800px; margin: 40px auto 10px; text-align: center; }
@@ -46,6 +47,7 @@ header { max-width: 800px; margin: 40px auto 10px; text-align: center; }
     margin-bottom: 20px;
     position: relative;
     overflow: hidden;
+    transition: transform 0.2s;
 }
 
 .level-item::before {
@@ -69,7 +71,9 @@ header { max-width: 800px; margin: 40px auto 10px; text-align: center; }
 .setting-icon { 
     width: 24px; height: 24px; cursor: pointer; 
     filter: invert(1);
+    transition: transform 0.3s;
 }
+.setting-icon:hover { transform: rotate(90deg); }
 body.theme-light .setting-icon { filter: invert(0); }
 
 /* КНОПКА РЕКВЕСТА */
@@ -86,7 +90,7 @@ body.theme-light .setting-icon { filter: invert(0); }
 }
 .request-main-btn:hover { background: var(--color-text); color: var(--bg-main); transform: scale(1.05); }
 
-/* ЭФФЕКТЫ (СНЕГ И САКУРА) */
+/* ЭФФЕКТЫ */
 #snow-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: -1; }
 
 /* Снежинки */
@@ -102,83 +106,55 @@ body.theme-light .snowflake { background: #000 !important; }
 /* Листья сакуры */
 .sakura-leaf {
     position: absolute;
-    top: -100px; /* Повыше, чтобы плавнее входили */
+    top: -50px;
     background-size: contain;
     background-repeat: no-repeat;
-    /* Скорость падения (Duration) мы задаем в JS, тут только типы анимаций */
-    animation-name: sakura-fall, sakura-sway;
-    animation-timing-function: linear, ease-in-out;
-    animation-iteration-count: forwards, infinite;
-    /* Убираем задержку, чтобы они сразу падали, а не ждали */
-    animation-delay: 0s; 
+    pointer-events: none;
+    /* Две анимации: падение вниз и покачивание влево-вправо */
+    animation: sakura-fall linear forwards, sakura-sway ease-in-out infinite;
 }
 
-@keyframes fall { 
-    to { transform: translateY(105vh); } 
-}
+@keyframes fall { to { transform: translateY(105vh); } }
 
-/* Основная анимация падения и сильного вращения */
 @keyframes sakura-fall {
-    0% {
-        transform: translateY(0) rotateX(0deg) rotateY(0deg);
-        opacity: 0;
-    }
-    15% { opacity: 1; }
-    85% { opacity: 1; }
-    100% {
-        /* Падение до низа + сильное вращение по всем осям для хаоса */
-        transform: translateY(105vh) rotateX(540deg) rotateY(720deg) rotateZ(180deg);
-        opacity: 0;
-    }
+    0% { transform: translateY(0) rotate(0deg); opacity: 0; }
+    10% { opacity: 1; }
+    90% { opacity: 1; }
+    100% { transform: translateY(110vh) rotate(360deg); opacity: 0; }
 }
 
-/* Дополнительная анимация покачивания влево-вправо */
 @keyframes sakura-sway {
-    0% {
-        margin-left: 0;
-    }
-    50% {
-        /* Амплитуда покачивания вправо */
-        margin-left: 50px;
-    }
-    100% {
-        margin-left: 0;
-    }
+    0%, 100% { margin-left: 0; }
+    50% { margin-left: 60px; } /* Амплитуда покачивания */
 }
 
 /* НАСТРОЙКИ */
 .snow-ui-static { position: fixed; top: 20px; right: 20px; display: flex; align-items: center; gap: 10px; z-index: 1000; }
 .settings-menu {
-    position: absolute; top: 45px; right: 0; background: #111; padding: 18px;
-    border-radius: 20px; border: 1px solid #333; display: none; min-width: 200px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    position: absolute; top: 45px; right: 0; background: #111; padding: 20px;
+    border-radius: 20px; border: 1px solid #333; display: none; min-width: 220px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.6);
 }
 .settings-menu.active { display: block; }
 .s-control { margin-bottom: 15px; font-size: 0.75rem; font-weight: 900; color: #eee; }
-.s-control span { display: block; margin-bottom: 8px; opacity: 0.6; }
+.s-control span { display: block; margin-bottom: 8px; opacity: 0.6; text-transform: uppercase; }
 .s-control input[type="range"] { width: 100%; accent-color: #fff; cursor: pointer; }
 
-/* Стили для выбора эффектов в меню */
+/* ЭФФЕКТЫ (РАДИО) */
+.effect-selector { display: flex; flex-direction: column; gap: 8px; }
 .effect-selector label {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    cursor: pointer;
-    margin-bottom: 4px;
-    font-size: 0.8rem;
+    display: flex; align-items: center; gap: 10px;
+    cursor: pointer; font-size: 0.8rem; opacity: 0.8;
     transition: opacity 0.2s;
 }
-.effect-selector label:hover { opacity: 0.7; }
-.effect-selector input[type="radio"] {
-    margin: 0;
-    accent-color: #fff;
-}
+.effect-selector label:hover { opacity: 1; }
+.effect-selector input[type="radio"] { accent-color: #fff; margin: 0; }
 
-/* КНОПКИ ПЕРЕКЛЮЧЕНИЯ ЛИСТОВ */
+/* ПЕРЕКЛЮЧАТЕЛИ */
 .list-button, .theme-button {
     background: transparent; border: 1px solid rgba(128, 128, 128, 0.2);
-    color: inherit; padding: 6px 14px; border-radius: 30px; cursor: pointer; margin: 3px; font-size: 0.8rem;
-    transition: all 0.2s;
+    color: inherit; padding: 8px 16px; border-radius: 30px; cursor: pointer; margin: 4px; font-size: 0.8rem;
+    font-weight: 700; transition: all 0.2s;
 }
 .list-button:hover { border-color: #fff; }
 .active-theme, .active-list { background: var(--color-text) !important; color: var(--bg-main) !important; border-color: var(--color-text) !important; }
@@ -186,11 +162,24 @@ body.theme-light .snowflake { background: #000 !important; }
 /* МОДАЛКА */
 .modal-overlay {
     display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0,0,0,0.9); backdrop-filter: blur(15px); z-index: 9999;
+    background: rgba(0,0,0,0.85); backdrop-filter: blur(10px); z-index: 9999;
     justify-content: center; align-items: center;
 }
 .modal-content {
-    background: #0f0f11; padding: 40px; border-radius: 30px; width: 95%; max-width: 420px;
-    border: 1px solid rgba(255,255,255,0.1); box-sizing: border-box;
+    background: #0f0f11; padding: 35px; border-radius: 25px; width: 90%; max-width: 400px;
+    border: 1px solid rgba(255,255,255,0.08); box-shadow: 0 20px 50px rgba(0,0,0,0.5);
 }
 
+.modal-content input, .modal-content textarea, .modal-content select {
+    width: 100%; margin-bottom: 12px; background: #1a1a1c; border: 1px solid #333;
+    color: #fff; padding: 14px; border-radius: 12px; font-family: inherit; box-sizing: border-box;
+    transition: border 0.3s;
+}
+.modal-content input:focus { border-color: #fff; outline: none; }
+.submit-request {
+    width: 100%; padding: 16px; border-radius: 12px; border: none;
+    background: #fff; color: #000; font-weight: 900; cursor: pointer;
+    transition: transform 0.2s;
+}
+.submit-request:active { transform: scale(0.98); }
+    
