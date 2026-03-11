@@ -21,6 +21,7 @@ body {
     margin: 0; padding: 20px;
     transition: background 0.4s ease;
     min-height: 100vh;
+    overflow-x: hidden;
 }
 
 header { max-width: 800px; margin: 40px auto 10px; text-align: center; }
@@ -102,27 +103,33 @@ body.theme-light .snowflake { background: #000 !important; }
 /* Листья сакуры */
 .sakura-leaf {
     position: absolute;
-    top: -50px;
-    background-size: contain;
+    top: -100px;
+    background-size: contain; /* ЧТОБЫ НЕ ОБРЕЗАЛОСЬ */
     background-repeat: no-repeat;
-    animation: sakura-fall linear forwards;
+    background-position: center;
+    animation: sakura-fall linear forwards, sakura-sway ease-in-out infinite;
 }
 
 @keyframes fall { 
-    to { transform: translateY(105vh); } 
+    to { transform: translateY(110vh); } 
 }
 
 @keyframes sakura-fall {
     0% {
-        transform: translateY(0) rotate(0deg) translateX(0);
+        transform: translateY(0) rotate(0deg);
         opacity: 0;
     }
     10% { opacity: 1; }
     90% { opacity: 1; }
     100% {
-        transform: translateY(105vh) rotate(540deg) translateX(100px);
+        transform: translateY(110vh) rotate(540deg);
         opacity: 0;
     }
+}
+
+@keyframes sakura-sway {
+    0%, 100% { margin-left: 0; }
+    50% { margin-left: 50px; }
 }
 
 /* НАСТРОЙКИ */
@@ -137,7 +144,7 @@ body.theme-light .snowflake { background: #000 !important; }
 .s-control span { display: block; margin-bottom: 8px; opacity: 0.6; }
 .s-control input[type="range"] { width: 100%; accent-color: #fff; cursor: pointer; }
 
-/* Стили для выбора эффектов в меню */
+/* Выбор эффектов */
 .effect-selector label {
     display: flex;
     align-items: center;
@@ -147,11 +154,7 @@ body.theme-light .snowflake { background: #000 !important; }
     font-size: 0.8rem;
     transition: opacity 0.2s;
 }
-.effect-selector label:hover { opacity: 0.7; }
-.effect-selector input[type="radio"] {
-    margin: 0;
-    accent-color: #fff;
-}
+.effect-selector input[type="radio"] { accent-color: #fff; }
 
 /* КНОПКИ ПЕРЕКЛЮЧЕНИЯ ЛИСТОВ */
 .list-button, .theme-button {
@@ -159,7 +162,6 @@ body.theme-light .snowflake { background: #000 !important; }
     color: inherit; padding: 6px 14px; border-radius: 30px; cursor: pointer; margin: 3px; font-size: 0.8rem;
     transition: all 0.2s;
 }
-.list-button:hover { border-color: #fff; }
 .active-theme, .active-list { background: var(--color-text) !important; color: var(--bg-main) !important; border-color: var(--color-text) !important; }
 
 /* МОДАЛКА */
@@ -172,3 +174,4 @@ body.theme-light .snowflake { background: #000 !important; }
     background: #0f0f11; padding: 40px; border-radius: 30px; width: 95%; max-width: 420px;
     border: 1px solid rgba(255,255,255,0.1); box-sizing: border-box;
 }
+
