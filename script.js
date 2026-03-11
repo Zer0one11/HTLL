@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let activeEffect = localStorage.getItem('activeEffect') || 'snow';
     let myReqId = localStorage.getItem('myRequestID');
 
-    // Твои названия файлов из папки res
+    // Твои файлы сакуры из папки res
     const sakuraFiles = [
         '1000452088-removebg-preview.png', '1000452089-removebg-preview.png',
         '1000452090-removebg-preview.png', '1000452091-removebg-preview.png',
@@ -42,24 +42,25 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Инициализация
+    // Инициализация стилей
     applyOpacity(currentOpacity);
     applySnowSize(currentSnowSize);
     applyTheme(currentTheme);
-    if (opacityRange) opacityRange.value = currentOpacity;
-    if (snowSizeRange) snowSizeRange.value = currentSnowSize;
+    opacityRange.value = currentOpacity;
+    snowSizeRange.value = currentSnowSize;
 
-    // 4. ФОРМАТИРОВАНИЕ ТЕКСТА
+    // 4. ФОРМАТИРОВАНИЕ LATEX
     function formatLatex(text) {
         if (!text || text === "none" || text === "") return "None";
-        let str = text.toString();
-        if (str.includes('\\') || str.includes('^')) {
-            return str.startsWith('$') ? str : `$${str}$`;
+        if (text.toString().includes('\\') || text.toString().includes('^')) {
+            if (!text.toString().startsWith('$')) {
+                return `$${text}$`;
+            }
         }
-        return str;
+        return text;
     }
 
-    // 5. ЗАГРУЗКА СПИСКА УРОВНЕЙ
+    // 5. ЗАГРУЗКА СПИСКА
     async function loadList(listId) {
         const listMap = { 
             'levels': 'levels.json', 'ppll': 'ppll.json', 'sll': 'sll.json', 
@@ -95,11 +96,41 @@ document.addEventListener('DOMContentLoaded', () => {
                 window.MathJax.typesetPromise();
             }
         } catch (e) {
-            console.error("Ошибка загрузки:", e);
+            console.error("Ошибка загрузки списка:", e);
         }
     }
 
-    // 6. СИСТЕМА ЧАТА (FIREBASE)
+    // 6. УВЕДОМЛЕНИЯ
+    if (myReqId) {
+        const checkUnread = () => {
+            const { ref, onValue, update } = window.dbRefs;
+            onValue(ref(window.db, `requests/${myReqId}`), (snap) => {
+                const data = snap.val();
+                if (data && data.hasUnread) {
+                    showNotification("Админ ответил на твою заявку!");
+                    update(ref(window.db, `requests/${myReqId}`), { hasUnread: false });
+                }
+            });
+        };
+        setTimeout(checkUnread, 2000);
+    }
+
+    function showNotification(text) {
+        const t = document.createElement('div');
+        t.style = "position:fixed; bottom:20px; right:20px; background:#fff; color:#000; padding:15px 25px; border-radius:12px; font-weight:900; z-index:10000; cursor:pointer; box-shadow: 0 5px 15px rgba(0,0,0,0.3);";
+        t.innerText = text;
+        t.onclick = () => {
+            reqModal.style.display = 'flex';
+            document.getElementById('request-form-container').style.display = 'none';
+            document.getElementById('chat-section').style.display = 'block';
+            initUserChat(myReqId);
+            t.remove();
+        };
+        document.body.appendChild(t);
+        setTimeout(() => t.remove(), 8000);
+    }
+
+    // 7. ЛОГИКА ЧАТА И МОДАЛКИ
     function initUserChat(reqId) {
         const { ref, push, onValue, remove } = window.dbRefs;
         const chatBox = document.getElementById('chat-messages');
@@ -116,6 +147,15 @@ document.addEventListener('DOMContentLoaded', () => {
             chatBox.scrollTop = chatBox.scrollHeight;
         });
 
+        document.getElementById('delete-chat-user').onclick = async () => {
+            if(confirm("Удалить твой чат навсегда?")) {
+                await remove(ref(window.db, `requests/${reqId}`));
+                await remove(ref(window.db, `chats/${reqId}`));
+                localStorage.removeItem('myRequestID');
+                location.reload();
+            }
+        };
+
         document.getElementById('send-msg').onclick = () => {
             const inp = document.getElementById('user-msg');
             if(inp.value.trim()) {
@@ -125,87 +165,117 @@ document.addEventListener('DOMContentLoaded', () => {
         };
     }
 
-    // 7. ОБРАБОТКА ЭФФЕКТОВ (СНЕГ / САКУРА)
+    document.getElementById('open-request-btn').onclick = () => {
+        if (myReqId) {
+            document.getElementById('request-form-container').style.display = 'none';
+            document.getElementById('chat-section').style.display = 'block';
+            initUserChat(myReqId);
+        } else {
+            document.getElementById('request-form-container').style.display = 'block';
+            document.getElementById('chat-section').style.display = 'none';
+        }
+        reqModal.style.display = 'flex';
+    };
+
+    document.getElementById('close-modal').onclick = () => { reqModal.style.display = 'none'; };
+
+    // 8. ОТПРАВКА ФОРМЫ
+    document.getElementById('request-form').onsubmit = async (e) => {
+        e.preventDefault();
+        const { ref, push, set } = window.dbRefs;
+        const rId = push(ref(window.db, 'requests')).key;
+        
+        const data = {
+            id: rId,
+            nickname: document.getElementById('req-nickname').value,
+            level: document.getElementById('req-level-name').value,
+            creator: document.getElementById('req-creator').value,
+            lvlId: document.getElementById('req-id').value,
+            fps: document.getElementById('req-fps').value,
+            fv: document.getElementById('req-fv').value || 'None',
+            type: document.getElementById('req-type').value || 'None',
+            list: document.getElementById('req-list').value,
+            showcase: document.getElementById('req-showcase').value,
+            hasUnread: false,
+            timestamp: Date.now()
+        };
+
+        await set(ref(window.db, 'requests/' + rId), data);
+        localStorage.setItem('myRequestID', rId);
+        myReqId = rId;
+        
+        document.getElementById('request-form-container').style.display = 'none';
+        document.getElementById('chat-section').style.display = 'block';
+        initUserChat(rId);
+    };
+
+    // 9. СОБЫТИЯ UI
+    settingsBtn.onclick = (e) => { 
+        e.stopPropagation(); 
+        settingsMenu.classList.toggle('active'); 
+    };
+    
+    opacityRange.oninput = (e) => applyOpacity(e.target.value);
+    snowSizeRange.oninput = (e) => applySnowSize(e.target.value);
+    
+    document.querySelectorAll('.list-button').forEach(b => {
+        b.onclick = () => {
+            document.querySelectorAll('.list-button').forEach(btn => btn.classList.remove('active-list'));
+            b.classList.add('active-list');
+            loadList(b.dataset.list);
+        };
+    });
+
+    document.querySelectorAll('.theme-button').forEach(b => {
+        b.onclick = () => applyTheme(b.dataset.theme);
+    });
+
+    // Обработка выбора эффекта
+    document.querySelectorAll('input[name="effect"]').forEach(radio => {
+        radio.addEventListener('change', (e) => {
+            activeEffect = e.target.value;
+            localStorage.setItem('activeEffect', activeEffect);
+            snowContainer.innerHTML = ''; // Чистим контейнер при смене
+        });
+    });
+
+    // 10. ГЕНЕРАЦИЯ ЧАСТИЦ (СНЕГ / САКУРА)
     function createParticle() {
         if (activeEffect === 'none') return;
         
         const p = document.createElement('div');
         const startX = Math.random() * 100;
-        
+        const duration = Math.random() * 3 + 4;
+        const sizeValue = (Math.random() * (currentSnowSize / 2) + Number(currentSnowSize));
+
         if (activeEffect === 'snow') {
             p.className = 'snowflake';
-            const size = (Math.random() * (currentSnowSize / 2) + Number(currentSnowSize));
-            p.style.width = size + 'px';
-            p.style.height = size + 'px';
-            const duration = Math.random() * 3 + 2; 
-            p.style.animationDuration = duration + 's';
-            p.style.left = startX + 'vw';
-            setTimeout(() => p.remove(), duration * 1000);
+            p.style.width = sizeValue + 'px';
+            p.style.height = sizeValue + 'px';
         } else if (activeEffect === 'sakura') {
             p.className = 'sakura-leaf';
             const randomImg = sakuraFiles[Math.floor(Math.random() * sakuraFiles.length)];
-            const size = (Math.random() * 15 + 20); // Листья покрупнее
-            
             p.style.backgroundImage = `url('res/${randomImg}')`;
-            p.style.width = size + 'px';
-            p.style.height = size + 'px';
-            p.style.left = startX + 'vw';
-            
-            // Медленное падение: от 7 до 12 секунд
-            const fallDuration = Math.random() * 5 + 7;
-            // Рандомная задержка покачивания, чтобы не все сразу
-            const swayDelay = Math.random() * -5; 
-            
-            p.style.animationDuration = `${fallDuration}s, 4s`; 
-            p.style.animationDelay = `0s, ${swayDelay}s`;
-            
-            setTimeout(() => p.remove(), fallDuration * 1000);
+            p.style.width = (sizeValue * 2.5) + 'px'; // Листья чуть крупнее снега
+            p.style.height = (sizeValue * 2.5) + 'px';
         }
-        
+
+        p.style.left = startX + 'vw';
+        p.style.animationDuration = duration + 's';
         snowContainer.appendChild(p);
+        
+        setTimeout(() => p.remove(), duration * 1000);
     }
-
-    // 8. СОБЫТИЯ И ИНИЦИАЛИЗАЦИЯ
-    if (settingsBtn) {
-        settingsBtn.onclick = (e) => { 
-            e.stopPropagation(); 
-            settingsMenu.classList.toggle('active'); 
-        };
-    }
-
-    if (opacityRange) opacityRange.oninput = (e) => applyOpacity(e.target.value);
-    if (snowSizeRange) snowSizeRange.oninput = (e) => applySnowSize(e.target.value);
-
-    // Слушатель радио-кнопок эффектов
-    document.querySelectorAll('input[name="effect"]').forEach(radio => {
-        radio.addEventListener('change', (e) => {
-            activeEffect = e.target.value;
-            localStorage.setItem('activeEffect', activeEffect);
-            snowContainer.innerHTML = ''; 
-        });
-    });
-
-    // Восстанавливаем выбранный эффект
+    
+    // Инициализация эффекта
     const savedEffect = localStorage.getItem('activeEffect') || 'snow';
-    const activeRadio = document.querySelector(`input[name="effect"][value="${savedEffect}"]`);
-    if (activeRadio) {
-        activeRadio.checked = true;
+    const effectRadio = document.querySelector(`input[name="effect"][value="${savedEffect}"]`);
+    if (effectRadio) {
+        effectRadio.checked = true;
         activeEffect = savedEffect;
     }
 
-    // Переключение листов
-    document.querySelectorAll('.list-button').forEach(b => {
-        b.onclick = () => {
-            document.querySelectorAll('.list-button').forEach(btn => btn.classList.remove('active-list'));
-            b.classList.add('active-list');
-            currentListId = b.dataset.list;
-            localStorage.setItem('currentListId', currentListId);
-            loadList(currentListId);
-        };
-    });
-
-    // Запуск циклов
-    setInterval(createParticle, 400); // Создаем частицу каждые 0.4 сек
+    setInterval(createParticle, 200);
     loadList(currentListId);
 });
 
