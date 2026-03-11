@@ -48,7 +48,6 @@ header { max-width: 800px; margin: 40px auto 10px; text-align: center; }
     overflow: hidden;
 }
 
-/* ПОЛОСКА СЛЕВА */
 .level-item::before {
     content: '';
     position: absolute;
@@ -66,14 +65,14 @@ header { max-width: 800px; margin: 40px auto 10px; text-align: center; }
 .level-details { list-style: none; padding: 0; margin: 10px 0 0 0; font-size: 0.85rem; opacity: 0.8; }
 .detail-label { font-weight: 700; color: var(--color-accent); }
 
-/* ИКОНКА НАСТРОЕК (ИНВЕРСИЯ) */
+/* ИКОНКА НАСТРОЕК */
 .setting-icon { 
     width: 24px; height: 24px; cursor: pointer; 
-    filter: invert(1); /* Делает черную иконку белой в темной теме */
+    filter: invert(1);
 }
 body.theme-light .setting-icon { filter: invert(0); }
 
-/* КНОПКА РЕКВЕСТА (СТИЛЬНАЯ) */
+/* КНОПКА РЕКВЕСТА */
 .request-main-btn {
     position: fixed; top: 20px; left: 20px; z-index: 1000;
     background: rgba(var(--bg-card-raw), 0.1);
@@ -87,7 +86,83 @@ body.theme-light .setting-icon { filter: invert(0); }
 }
 .request-main-btn:hover { background: var(--color-text); color: var(--bg-main); transform: scale(1.05); }
 
-/* МОДАЛКА ВНУТРИ */
+/* ЭФФЕКТЫ (СНЕГ И САКУРА) */
+#snow-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: -1; }
+
+/* Снежинки */
+.snowflake { 
+    position: absolute; 
+    background: #fff; 
+    border-radius: 50%; 
+    top: -10px; 
+    animation: fall linear forwards; 
+}
+body.theme-light .snowflake { background: #000 !important; }
+
+/* Листья сакуры */
+.sakura-leaf {
+    position: absolute;
+    top: -50px;
+    background-size: contain;
+    background-repeat: no-repeat;
+    animation: sakura-fall linear forwards;
+}
+
+@keyframes fall { 
+    to { transform: translateY(105vh); } 
+}
+
+@keyframes sakura-fall {
+    0% {
+        transform: translateY(0) rotate(0deg) translateX(0);
+        opacity: 0;
+    }
+    10% { opacity: 1; }
+    90% { opacity: 1; }
+    100% {
+        transform: translateY(105vh) rotate(540deg) translateX(100px);
+        opacity: 0;
+    }
+}
+
+/* НАСТРОЙКИ */
+.snow-ui-static { position: fixed; top: 20px; right: 20px; display: flex; align-items: center; gap: 10px; z-index: 1000; }
+.settings-menu {
+    position: absolute; top: 45px; right: 0; background: #111; padding: 18px;
+    border-radius: 20px; border: 1px solid #333; display: none; min-width: 200px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+.settings-menu.active { display: block; }
+.s-control { margin-bottom: 15px; font-size: 0.75rem; font-weight: 900; color: #eee; }
+.s-control span { display: block; margin-bottom: 8px; opacity: 0.6; }
+.s-control input[type="range"] { width: 100%; accent-color: #fff; cursor: pointer; }
+
+/* Стили для выбора эффектов в меню */
+.effect-selector label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    margin-bottom: 4px;
+    font-size: 0.8rem;
+    transition: opacity 0.2s;
+}
+.effect-selector label:hover { opacity: 0.7; }
+.effect-selector input[type="radio"] {
+    margin: 0;
+    accent-color: #fff;
+}
+
+/* КНОПКИ ПЕРЕКЛЮЧЕНИЯ ЛИСТОВ */
+.list-button, .theme-button {
+    background: transparent; border: 1px solid rgba(128, 128, 128, 0.2);
+    color: inherit; padding: 6px 14px; border-radius: 30px; cursor: pointer; margin: 3px; font-size: 0.8rem;
+    transition: all 0.2s;
+}
+.list-button:hover { border-color: #fff; }
+.active-theme, .active-list { background: var(--color-text) !important; color: var(--bg-main) !important; border-color: var(--color-text) !important; }
+
+/* МОДАЛКА */
 .modal-overlay {
     display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
     background: rgba(0,0,0,0.9); backdrop-filter: blur(15px); z-index: 9999;
@@ -97,35 +172,4 @@ body.theme-light .setting-icon { filter: invert(0); }
     background: #0f0f11; padding: 40px; border-radius: 30px; width: 95%; max-width: 420px;
     border: 1px solid rgba(255,255,255,0.1); box-sizing: border-box;
 }
-.modal-content h2 { font-weight: 900; margin-top: 0; letter-spacing: -1px; }
-.modal-content input, .modal-content select, .modal-content textarea {
-    width: 100%; margin-bottom: 12px; background: #1a1a1c; border: 1px solid #333;
-    color: #fff; padding: 14px; border-radius: 12px; font-family: inherit; box-sizing: border-box;
-    transition: border 0.3s;
-}
-.modal-content input:focus { border-color: #fff; outline: none; }
-.submit-request {
-    width: 100%; padding: 16px; border-radius: 12px; border: none;
-    background: #fff; color: #000; font-weight: 900; cursor: pointer;
-}
 
-/* СНЕЖИНКИ И НАСТРОЙКИ */
-#snow-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: -1; }
-.snowflake { position: absolute; background: #fff; border-radius: 50%; top: -10px; animation: fall linear forwards; }
-body.theme-light .snowflake { background: #000 !important; }
-@keyframes fall { to { transform: translateY(105vh); } }
-
-.snow-ui-static { position: fixed; top: 20px; right: 20px; display: flex; align-items: center; gap: 10px; z-index: 1000; }
-.settings-menu {
-    position: absolute; top: 45px; right: 0; background: #111; padding: 15px;
-    border-radius: 15px; border: 1px solid #333; display: none; min-width: 160px;
-}
-.settings-menu.active { display: block; }
-.s-control { margin-bottom: 10px; font-size: 0.7rem; font-weight: 900; }
-.s-control input { width: 100%; }
-
-.list-button, .theme-button {
-    background: transparent; border: 1px solid rgba(128, 128, 128, 0.2);
-    color: inherit; padding: 6px 14px; border-radius: 30px; cursor: pointer; margin: 3px; font-size: 0.8rem;
-}
-.active-theme, .active-list { background: var(--color-text) !important; color: var(--bg-main) !important; }
