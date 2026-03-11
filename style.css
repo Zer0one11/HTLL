@@ -102,26 +102,47 @@ body.theme-light .snowflake { background: #000 !important; }
 /* Листья сакуры */
 .sakura-leaf {
     position: absolute;
-    top: -50px;
+    top: -100px; /* Повыше, чтобы плавнее входили */
     background-size: contain;
     background-repeat: no-repeat;
-    animation: sakura-fall linear forwards;
+    /* Скорость падения (Duration) мы задаем в JS, тут только типы анимаций */
+    animation-name: sakura-fall, sakura-sway;
+    animation-timing-function: linear, ease-in-out;
+    animation-iteration-count: forwards, infinite;
+    /* Убираем задержку, чтобы они сразу падали, а не ждали */
+    animation-delay: 0s; 
 }
 
 @keyframes fall { 
     to { transform: translateY(105vh); } 
 }
 
+/* Основная анимация падения и сильного вращения */
 @keyframes sakura-fall {
     0% {
-        transform: translateY(0) rotate(0deg) translateX(0);
+        transform: translateY(0) rotateX(0deg) rotateY(0deg);
         opacity: 0;
     }
-    10% { opacity: 1; }
-    90% { opacity: 1; }
+    15% { opacity: 1; }
+    85% { opacity: 1; }
     100% {
-        transform: translateY(105vh) rotate(540deg) translateX(100px);
+        /* Падение до низа + сильное вращение по всем осям для хаоса */
+        transform: translateY(105vh) rotateX(540deg) rotateY(720deg) rotateZ(180deg);
         opacity: 0;
+    }
+}
+
+/* Дополнительная анимация покачивания влево-вправо */
+@keyframes sakura-sway {
+    0% {
+        margin-left: 0;
+    }
+    50% {
+        /* Амплитуда покачивания вправо */
+        margin-left: 50px;
+    }
+    100% {
+        margin-left: 0;
     }
 }
 
