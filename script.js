@@ -14,7 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentTheme = localStorage.getItem('siteTheme') || 'dark';
     let currentListId = localStorage.getItem('currentListId') || 'levels';
     
-    // Определяем, какой эффект сейчас активен (по умолчанию сакура, если хочешь)
+    // По умолчанию ставим сакуру, если не выбрано иное
     let activeEffect = localStorage.getItem('activeEffect') || 'sakura';
 
     const sakuraFiles = [
@@ -43,62 +43,102 @@ document.addEventListener('DOMContentLoaded', () => {
     applySnowSize(currentSnowSize);
     applyTheme(currentTheme);
 
-    // 4. ГЕНЕРАЦИЯ ЧАСТИЦ (ТВОЙ СТАРЫЙ РАБОЧИЙ МЕТОД)
+    // 4. ГЕНЕРАЦИЯ ЧАСТИЦ (ФИНАЛЬНАЯ ЛОГИКА)
     function createParticle() {
-        if (!snowToggle.checked) return; // Проверка галочки "СНЕГ" (или эффекты)
+        if (!snowToggle.checked) return; 
 
         const p = document.createElement('div');
         const startX = Math.random() * 100;
-        
+        const duration = Math.random() * 5 + 7; // Медленное падение (7-12 сек)
+
         if (activeEffect === 'snow') {
             p.className = 'snowflake';
             const size = (Math.random() * (currentSnowSize / 2) + Number(currentSnowSize)) + 'px';
-            p.style.width = size; p.style.height = size;
+            p.style.width = size; 
+            p.style.height = size;
             p.style.left = startX + 'vw';
             p.style.animationDuration = (Math.random() * 3 + 2) + 's';
         } else {
             p.className = 'sakura-leaf';
             const randomImg = sakuraFiles[Math.floor(Math.random() * sakuraFiles.length)];
-            const size = (Math.random() * 15 + 20) + 'px';
+            const size = (Math.random() * 15 + 25) + 'px';
             
             p.style.backgroundImage = `url('res/${randomImg}')`;
-            p.style.width = size; p.style.height = size;
+            p.style.width = size; 
+            p.style.height = size;
             p.style.left = startX + 'vw';
             
-            // Скорость падения (7-12 секунд)
-            const duration = (Math.random() * 5 + 7) + 's';
-            p.style.animationDuration = duration;
+            // Задаем только время. Названия анимаций берем из CSS.
+            p.style.animationDuration = `${duration}s, 4s`;
         }
 
         snowContainer.appendChild(p);
         
-        // Удаление после завершения анимации (через 12 сек макс)
-        setTimeout(() => { p.remove(); }, 12000);
+        // Удаляем строго после того, как частица улетит за экран
+        setTimeout(() => { p.remove(); }, duration * 1000 + 1000);
     }
 
-    // 5. ИНТЕРВАЛ
+    // 5. ИНТЕРВАЛ (РАЗ В 0.3 СЕКУНДЫ)
     setInterval(createParticle, 300);
 
-    // 6. ОСТАЛЬНАЯ ЛОГИКА (Settings / List)
+    // 6. ОБРАБОТКА ВЫБОРА ЭФФЕКТА
+    document.querySelectorAll('input[name="effect"]').forEach(radio => {
+        radio.addEventListener('change', (e) => {
+            activeEffect = e.target.value;
+            localStorage.setItem('activeEffect', activeEffect);
+            snowContainer.innerHTML = ''; // Очищаем экран при смене
+        });
+    });
+
+    // 7. ЗАГРУЗКА СПИСКА УРОВНЕЙ
+    async function loadList(listId) {
+        const listMap = { 
+            'levels': 'levels.json', 'ppll': 'ppll.json', 'sll': 'sll.json', 
+            'ill': 'ill.json', 'inf': 'inf.json', 'scl': 'scl.json', 'icl': 'icl.json' 
+        };
+        
+        try {
+            const response = await fetch(listMap[listId] + '?t=' + Date.now());
+            const data = await response.json();
+            
+            listElement.innerHTML = '';
+            data.forEach(level => {
+                const li = document.createElement('li');
+                li.className = 'level-item';
+                li.innerHTML = `
+                    <div class="level-header">
+                        <span class="level-number">#${level.number}</span>
+                        <div class="level-title-group">
+                            <a href="${level.showcase}" target="_blank" class="level-name">${level.name}</a>
+                            <span class="level-creator">by ${level.creator}</span>
+                        </div>
+                    </div>`;
+                listElement.appendChild(li);
+            });
+        } catch (e) {
+            console.error("Ошибка загрузки списка:", e);
+        }
+    }
+
+    // 8. СОБЫТИЯ UI
     if (settingsBtn) {
         settingsBtn.onclick = (e) => {
             e.stopPropagation();
             settingsMenu.classList.toggle('active');
         };
     }
-    
-    // Кнопки эффектов (если добавил их в HTML)
-    document.querySelectorAll('input[name="effect"]').forEach(radio => {
-        radio.addEventListener('change', (e) => {
-            activeEffect = e.target.value;
-            localStorage.setItem('activeEffect', activeEffect);
-            snowContainer.innerHTML = '';
-        });
+
+    if (opacityRange) opacityRange.oninput = (e) => applyOpacity(e.target.value);
+    if (snowSizeRange) snowSizeRange.oninput = (e) => applySnowSize(e.target.value);
+
+    document.querySelectorAll('.list-button').forEach(b => {
+        b.onclick = () => {
+            document.querySelectorAll('.list-button').forEach(btn => btn.classList.remove('active-list'));
+            b.classList.add('active-list');
+            loadList(b.dataset.list);
+        };
     });
 
-    // Загрузка списка уровней (упрощенно из твоего скрипта)
-    async function loadList(listId) {
-        // Твоя логика fetch...
-    }
+    // Загрузка начального списка
     loadList(currentListId);
 });
