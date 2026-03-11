@@ -1,7 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     // 1. ЭЛЕМЕНТЫ UI
     const listElement = document.getElementById('levelList');
-    const snowToggle = document.getElementById('snow-toggle');
     const snowContainer = document.getElementById('snow-container');
     const settingsBtn = document.getElementById('settings-btn');
     const settingsMenu = document.getElementById('settings-menu');
@@ -14,7 +13,17 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentOpacity = localStorage.getItem('panelOpacity') || '0.01';
     let currentTheme = localStorage.getItem('siteTheme') || 'dark';
     let currentListId = localStorage.getItem('currentListId') || 'levels';
+    let activeEffect = localStorage.getItem('activeEffect') || 'snow';
     let myReqId = localStorage.getItem('myRequestID');
+
+    // Твои файлы сакуры из папки res
+    const sakuraFiles = [
+        '1000452088-removebg-preview.png', '1000452089-removebg-preview.png',
+        '1000452090-removebg-preview.png', '1000452091-removebg-preview.png',
+        '1000452092-removebg-preview.png', '1000452093-removebg-preview.png',
+        '1000452094-removebg-preview.png', '1000452095-removebg-preview.png',
+        '1000452096-removebg-preview.png', '1000452097-removebg-preview.png'
+    ];
 
     // 3. ФУНКЦИИ НАСТРОЕК
     function applyOpacity(val) {
@@ -40,10 +49,9 @@ document.addEventListener('DOMContentLoaded', () => {
     opacityRange.value = currentOpacity;
     snowSizeRange.value = currentSnowSize;
 
-    // 4. ФОРМАТИРОВАНИЕ LATEX (ФИКС)
+    // 4. ФОРМАТИРОВАНИЕ LATEX
     function formatLatex(text) {
         if (!text || text === "none" || text === "") return "None";
-        // Проверяем, не обернут ли уже текст в $
         if (text.toString().includes('\\') || text.toString().includes('^')) {
             if (!text.toString().startsWith('$')) {
                 return `$${text}$`;
@@ -84,7 +92,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 listElement.appendChild(li);
             });
 
-            // Перерисовка LaTeX после добавления элементов
             if (window.MathJax && window.MathJax.typesetPromise) {
                 window.MathJax.typesetPromise();
             }
@@ -123,17 +130,13 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => t.remove(), 8000);
     }
 
-    // 7. ЛОГИКА ЧАТА И МОДАЛКИ (ФИКС ОТКРЫТИЯ)
+    // 7. ЛОГИКА ЧАТА И МОДАЛКИ
     function initUserChat(reqId) {
         const { ref, push, onValue, remove } = window.dbRefs;
         const chatBox = document.getElementById('chat-messages');
         
         onValue(ref(window.db, `chats/${reqId}`), (snap) => {
             chatBox.innerHTML = '';
-            if(!snap.exists() && myReqId) {
-                // Если записи нет в базе, но ID в браузере остался — чистим
-                return;
-            }
             snap.forEach(mSnap => {
                 const m = mSnap.val();
                 const div = document.createElement('div');
@@ -162,7 +165,6 @@ document.addEventListener('DOMContentLoaded', () => {
         };
     }
 
-    // Кнопка открытия модалки
     document.getElementById('open-request-btn').onclick = () => {
         if (myReqId) {
             document.getElementById('request-form-container').style.display = 'none';
@@ -175,9 +177,7 @@ document.addEventListener('DOMContentLoaded', () => {
         reqModal.style.display = 'flex';
     };
 
-    document.getElementById('close-modal').onclick = () => {
-        reqModal.style.display = 'none';
-    };
+    document.getElementById('close-modal').onclick = () => { reqModal.style.display = 'none'; };
 
     // 8. ОТПРАВКА ФОРМЫ
     document.getElementById('request-form').onsubmit = async (e) => {
@@ -202,7 +202,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         await set(ref(window.db, 'requests/' + rId), data);
         localStorage.setItem('myRequestID', rId);
-        myReqId = rId; // Обновляем локальную переменную
+        myReqId = rId;
         
         document.getElementById('request-form-container').style.display = 'none';
         document.getElementById('chat-section').style.display = 'block';
@@ -230,19 +230,52 @@ document.addEventListener('DOMContentLoaded', () => {
         b.onclick = () => applyTheme(b.dataset.theme);
     });
 
-    // 10. СНЕЖИНКИ
-    function createSnowflake() {
-        if (!snowToggle.checked) return;
-        const sf = document.createElement('div');
-        sf.className = 'snowflake';
-        const size = (Math.random() * (currentSnowSize / 2) + Number(currentSnowSize)) + 'px';
-        sf.style.width = size; sf.style.height = size;
-        sf.style.left = Math.random() * 100 + 'vw';
-        sf.style.animationDuration = Math.random() * 3 + 4 + 's';
-        snowContainer.appendChild(sf);
-        setTimeout(() => sf.remove(), 7000);
+    // Обработка выбора эффекта
+    document.querySelectorAll('input[name="effect"]').forEach(radio => {
+        radio.addEventListener('change', (e) => {
+            activeEffect = e.target.value;
+            localStorage.setItem('activeEffect', activeEffect);
+            snowContainer.innerHTML = ''; // Чистим контейнер при смене
+        });
+    });
+
+    // 10. ГЕНЕРАЦИЯ ЧАСТИЦ (СНЕГ / САКУРА)
+    function createParticle() {
+        if (activeEffect === 'none') return;
+        
+        const p = document.createElement('div');
+        const startX = Math.random() * 100;
+        const duration = Math.random() * 3 + 4;
+        const sizeValue = (Math.random() * (currentSnowSize / 2) + Number(currentSnowSize));
+
+        if (activeEffect === 'snow') {
+            p.className = 'snowflake';
+            p.style.width = sizeValue + 'px';
+            p.style.height = sizeValue + 'px';
+        } else if (activeEffect === 'sakura') {
+            p.className = 'sakura-leaf';
+            const randomImg = sakuraFiles[Math.floor(Math.random() * sakuraFiles.length)];
+            p.style.backgroundImage = `url('res/${randomImg}')`;
+            p.style.width = (sizeValue * 2.5) + 'px'; // Листья чуть крупнее снега
+            p.style.height = (sizeValue * 2.5) + 'px';
+        }
+
+        p.style.left = startX + 'vw';
+        p.style.animationDuration = duration + 's';
+        snowContainer.appendChild(p);
+        
+        setTimeout(() => p.remove(), duration * 1000);
     }
     
-    setInterval(createSnowflake, 150);
+    // Инициализация эффекта
+    const savedEffect = localStorage.getItem('activeEffect') || 'snow';
+    const effectRadio = document.querySelector(`input[name="effect"][value="${savedEffect}"]`);
+    if (effectRadio) {
+        effectRadio.checked = true;
+        activeEffect = savedEffect;
+    }
+
+    setInterval(createParticle, 200);
     loadList(currentListId);
 });
+
