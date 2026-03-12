@@ -20,9 +20,8 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentListId = localStorage.getItem('currentListId') || 'levels';
     let myReqId = localStorage.getItem('myRequestID');
 
-    // Состояния ВКЛ/ВЫКЛ
-    const isSnowEnabled = localStorage.getItem('snowEnabled') !== 'false'; // дефолт true
-    const isSakuraEnabled = localStorage.getItem('sakuraEnabled') === 'true'; // дефолт false
+    const isSnowEnabled = localStorage.getItem('snowEnabled') !== 'false'; 
+    const isSakuraEnabled = localStorage.getItem('sakuraEnabled') === 'true';
 
     const sakuraTextures = [
         'res/1000452088-removebg-preview.png', 'res/1000452089-removebg-preview.png',
@@ -32,32 +31,40 @@ document.addEventListener('DOMContentLoaded', () => {
         'res/1000452096-removebg-preview.png', 'res/1000452097-removebg-preview.png'
     ];
 
-    // 3. ФУНКЦИИ КОПИРОВАНИЯ
+    // 3. ФУНКЦИЯ КОПИРОВАНИЯ
     window.copyToClipboard = function(text) {
         navigator.clipboard.writeText(text).then(() => {
             const oldNotif = document.querySelector('.copy-notification');
             if (oldNotif) oldNotif.remove();
+            
             const notif = document.createElement('div');
             notif.className = 'copy-notification';
             notif.innerText = `ID ${text} СКОПИРОВАН!`;
             document.body.appendChild(notif);
-            setTimeout(() => notif.remove(), 2000);
+            
+            setTimeout(() => {
+                notif.style.opacity = '0';
+                setTimeout(() => notif.remove(), 500);
+            }, 2000);
         });
     };
 
-    // 4. ФУНКЦИИ НАСТРОЕК
+    // 4. ПРИМЕНЕНИЕ НАСТРОЕК
     function applyOpacity(val) {
         document.documentElement.style.setProperty('--panel-opacity', val);
         localStorage.setItem('panelOpacity', val);
     }
+
     function applySnowSize(val) {
         currentSnowSize = val;
         localStorage.setItem('snowSize', val);
     }
+
     function applySakuraSize(val) {
         currentSakuraSize = val;
         localStorage.setItem('sakuraSize', val);
     }
+
     function applyTheme(themeName) {
         document.body.className = `theme-${themeName}`;
         localStorage.setItem('siteTheme', themeName);
@@ -66,10 +73,8 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Инициализация
+    // Инициализация UI из localStorage
     applyOpacity(currentOpacity);
-    applySnowSize(currentSnowSize);
-    applySakuraSize(currentSakuraSize);
     applyTheme(currentTheme);
     opacityRange.value = currentOpacity;
     snowSizeRange.value = currentSnowSize;
@@ -77,37 +82,40 @@ document.addEventListener('DOMContentLoaded', () => {
     snowToggle.checked = isSnowEnabled;
     sakuraToggle.checked = isSakuraEnabled;
 
-    // Логика переключателей
-    snowToggle.addEventListener('change', () => {
+    // Логика переключателей (включаем что-то одно)
+    snowToggle.onchange = () => {
         if (snowToggle.checked) sakuraToggle.checked = false;
         localStorage.setItem('snowEnabled', snowToggle.checked);
         localStorage.setItem('sakuraEnabled', sakuraToggle.checked);
-    });
-    sakuraToggle.addEventListener('change', () => {
+    };
+    sakuraToggle.onchange = () => {
         if (sakuraToggle.checked) snowToggle.checked = false;
         localStorage.setItem('sakuraEnabled', sakuraToggle.checked);
         localStorage.setItem('snowEnabled', snowToggle.checked);
-    });
+    };
 
     // 5. ФОРМАТИРОВАНИЕ LATEX
     function formatLatex(text) {
         if (!text || text === "none" || text === "") return "None";
-        if (text.toString().includes('\\') || text.toString().includes('^')) {
-            if (!text.toString().startsWith('$')) return `$${text}$`;
+        let str = text.toString();
+        if (str.includes('\\') || str.includes('^') || str.includes('_')) {
+            if (!str.startsWith('$')) return `$${str}$`;
         }
-        return text;
+        return str;
     }
 
-    // 6. ЗАГРУЗКА СПИСКА
+    // 6. ЗАГРУЗКА УРОВНЕЙ
     async function loadList(listId) {
         const listMap = { 
             'levels': 'levels.json', 'ppll': 'ppll.json', 'sll': 'sll.json', 
             'ill': 'ill.json', 'inf': 'inf.json', 'scl': 'scl.json', 'icl': 'icl.json' 
         };
+        
         try {
             const response = await fetch(listMap[listId] + '?t=' + Date.now());
             const data = await response.json();
             listElement.innerHTML = '';
+
             data.forEach(level => {
                 const li = document.createElement('li');
                 li.className = 'level-item';
@@ -121,45 +129,71 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                     <ul class="level-details">
                         <li>
-                            <span class="detail-label">ID:</span> ${level.id}
-                            <img src="res/copybutton.png" class="copy-icon" onclick="copyToClipboard('${level.id}')">
+                            <span class="detail-label">ID:</span> ${level.id} 
+                            <img src="res/copybutton.png" class="copy-icon" onclick="copyToClipboard('${level.id}')" title="Скопировать ID">
                         </li>
                         <li><span class="detail-label">FPS:</span> ${formatLatex(level.fps)}</li>
                         ${level.fv ? `<li><span class="detail-label">Botter:</span> ${formatLatex(level.fv)}</li>` : ''}
-                        ${level.type ? `<li><span class="detail-label">TYPE:</span> ${level.type}</li>` : ''}
-                    </ul>`;
+                        ${level.type ? `<li><span class="detail-label">Type:</span> ${level.type}</li>` : ''}
+                    </ul>
+                `;
                 listElement.appendChild(li);
             });
+
             localStorage.setItem('currentListId', listId);
-            if (window.MathJax && window.MathJax.typesetPromise) window.MathJax.typesetPromise();
-        } catch (e) { console.error("Ошибка загрузки:", e); }
+            document.querySelectorAll('.list-button').forEach(btn => {
+                btn.classList.toggle('active-list', btn.dataset.list === listId);
+            });
+
+            if (window.MathJax && window.MathJax.typesetPromise) {
+                window.MathJax.typesetPromise();
+            }
+        } catch (e) {
+            console.error("Ошибка загрузки списка:", e);
+        }
     }
 
-    // 7. ЧАТ
+    // 7. ЧАТ И FIREBASE
     function initUserChat(reqId) {
-        const { ref, push, onValue } = window.dbRefs;
-        const chatBox = document.getElementById('chat-messages');
-        onValue(ref(window.db, `chats/${reqId}`), (snap) => {
-            chatBox.innerHTML = '';
-            snap.forEach(mSnap => {
-                const m = mSnap.val();
+        const { ref, onValue, push } = window.dbRefs;
+        const chatMessages = document.getElementById('chat-messages');
+        const sendBtn = document.getElementById('send-msg');
+        const userInput = document.getElementById('user-msg');
+
+        onValue(ref(window.db, `chats/${reqId}`), (snapshot) => {
+            chatMessages.innerHTML = '';
+            snapshot.forEach((child) => {
+                const msg = child.val();
                 const div = document.createElement('div');
-                div.style = `text-align:${m.role==='admin'?'left':'right'}; margin-bottom:12px;`;
-                div.innerHTML = `<div style="display:inline-block; background:${m.role==='admin'?'#222':'#fff'}; color:${m.role==='admin'?'#fff':'#000'}; padding:10px 15px; border-radius:12px; font-size:0.9rem; max-width:80%;">${m.text}</div>`;
-                chatBox.appendChild(div);
+                div.style.marginBottom = '12px';
+                div.style.textAlign = msg.role === 'admin' ? 'left' : 'right';
+                div.innerHTML = `
+                    <div style="display:inline-block; padding:10px 15px; border-radius:15px; 
+                         background:${msg.role === 'admin' ? '#222' : '#fff'}; 
+                         color:${msg.role === 'admin' ? '#fff' : '#000'}; 
+                         font-size:0.9rem; max-width:80%; word-wrap:break-word;">
+                        ${msg.text}
+                    </div>
+                `;
+                chatMessages.appendChild(div);
             });
-            chatBox.scrollTop = chatBox.scrollHeight;
+            chatMessages.scrollTop = chatMessages.scrollHeight;
         });
-        document.getElementById('send-msg').onclick = () => {
-            const inp = document.getElementById('user-msg');
-            if(inp.value.trim()) {
-                push(ref(window.db, `chats/${reqId}`), { role: 'user', text: inp.value, timestamp: Date.now() });
-                inp.value = '';
+
+        sendBtn.onclick = () => {
+            const text = userInput.value.trim();
+            if (text) {
+                push(ref(window.db, `chats/${reqId}`), {
+                    role: 'user',
+                    text: text,
+                    timestamp: Date.now()
+                });
+                userInput.value = '';
             }
         };
     }
 
-    // 8. ЧАСТИЦЫ
+    // 8. ЧАСТИЦЫ (Снег и Сакура)
     function createSnowflake() {
         if (!snowToggle.checked) return;
         const sf = document.createElement('div');
@@ -167,7 +201,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const size = (Math.random() * (currentSnowSize / 2) + Number(currentSnowSize)) + 'px';
         sf.style.width = size; sf.style.height = size;
         sf.style.left = Math.random() * 100 + 'vw';
-        sf.style.animationDuration = Math.random() * 3 + 4 + 's';
+        sf.style.animationDuration = (Math.random() * 3 + 4) + 's';
+        sf.style.opacity = Math.random();
         snowContainer.appendChild(sf);
         setTimeout(() => sf.remove(), 7000);
     }
@@ -176,35 +211,41 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!sakuraToggle.checked) return;
         const petal = document.createElement('div');
         petal.className = 'sakura-petal';
-        const randomImg = sakuraTextures[Math.floor(Math.random() * sakuraTextures.length)];
-        petal.style.backgroundImage = `url('${randomImg}')`;
-        const sizeBase = Number(currentSakuraSize);
-        const size = (Math.random() * (sizeBase / 2) + sizeBase) + 'px';
+        const img = sakuraTextures[Math.floor(Math.random() * sakuraTextures.length)];
+        petal.style.backgroundImage = `url('${img}')`;
+        const size = (Math.random() * (currentSakuraSize / 2) + Number(currentSakuraSize)) + 'px';
         petal.style.width = size; petal.style.height = size;
         petal.style.left = Math.random() * 100 + 'vw';
-        petal.style.animationDuration = Math.random() * 5 + 5 + 's';
+        petal.style.animationDuration = (Math.random() * 5 + 5) + 's';
         snowContainer.appendChild(petal);
         setTimeout(() => petal.remove(), 10000);
     }
 
     // 9. СОБЫТИЯ UI
-    settingsBtn.onclick = (e) => { e.stopPropagation(); settingsMenu.classList.toggle('active'); };
+    settingsBtn.onclick = (e) => { 
+        e.stopPropagation(); 
+        settingsMenu.classList.toggle('active'); 
+    };
+    
+    document.addEventListener('click', (e) => {
+        if (!settingsMenu.contains(e.target) && e.target !== settingsBtn) {
+            settingsMenu.classList.remove('active');
+        }
+    });
+
     opacityRange.oninput = (e) => applyOpacity(e.target.value);
     snowSizeRange.oninput = (e) => applySnowSize(e.target.value);
     sakuraSizeRange.oninput = (e) => applySakuraSize(e.target.value);
 
     document.querySelectorAll('.list-button').forEach(b => {
-        b.onclick = () => {
-            document.querySelectorAll('.list-button').forEach(btn => btn.classList.remove('active-list'));
-            b.classList.add('active-list');
-            loadList(b.dataset.list);
-        };
+        b.onclick = () => loadList(b.dataset.list);
     });
 
     document.querySelectorAll('.theme-button').forEach(b => {
         b.onclick = () => applyTheme(b.dataset.theme);
     });
 
+    // Модалка реквестов
     document.getElementById('open-request-btn').onclick = () => {
         if (myReqId) {
             document.getElementById('request-form-container').style.display = 'none';
@@ -213,10 +254,51 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         reqModal.style.display = 'flex';
     };
-    document.getElementById('close-modal').onclick = () => reqModal.style.display = 'none';
 
-    // 10. ЗАПУСК
+    document.getElementById('close-modal').onclick = () => {
+        reqModal.style.display = 'none';
+    };
+
+    // Удаление чата
+    document.getElementById('delete-chat-user').onclick = async () => {
+        if (confirm('Удалить переписку?')) {
+            const { ref, remove } = window.dbRefs;
+            await remove(ref(window.db, `chats/${myReqId}`));
+            localStorage.removeItem('myRequestID');
+            location.reload();
+        }
+    };
+
+    // Форма реквеста
+    document.getElementById('request-form').onsubmit = async (e) => {
+        e.preventDefault();
+        const { ref, push, set } = window.dbRefs;
+        const rId = push(ref(window.db, 'requests')).key;
+        
+        const data = {
+            id: rId,
+            nickname: document.getElementById('req-nickname').value,
+            level: document.getElementById('req-level-name').value,
+            creator: document.getElementById('req-creator').value,
+            lvlId: document.getElementById('req-id').value,
+            fps: document.getElementById('req-fps').value,
+            fv: document.getElementById('req-fv').value || 'None',
+            type: document.getElementById('req-type').value || 'None',
+            list: document.getElementById('req-list').value,
+            showcase: document.getElementById('req-showcase').value,
+            hasUnread: false,
+            timestamp: Date.now()
+        };
+
+        await set(ref(window.db, 'requests/' + rId), data);
+        localStorage.setItem('myRequestID', rId);
+        location.reload();
+    };
+
+    // 10. ЗАПУСК ЦИКЛОВ
     setInterval(createSnowflake, 150);
     setInterval(createSakura, 200);
+    
+    // Загружаем сохраненный список
     loadList(currentListId);
 });
