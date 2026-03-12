@@ -2,6 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // 1. ЭЛЕМЕНТЫ UI
     const listElement = document.getElementById('levelList');
     const snowToggle = document.getElementById('snow-toggle');
+    const sakuraToggle = document.getElementById('sakura-toggle'); // Новый элемент
     const snowContainer = document.getElementById('snow-container');
     const settingsBtn = document.getElementById('settings-btn');
     const settingsMenu = document.getElementById('settings-menu');
@@ -15,6 +16,20 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentTheme = localStorage.getItem('siteTheme') || 'dark';
     let currentListId = localStorage.getItem('currentListId') || 'levels';
     let myReqId = localStorage.getItem('myRequestID');
+
+    // Текстуры сакуры из папки res
+    const sakuraTextures = [
+        'res/1000452088-removebg-preview.png',
+        'res/1000452089-removebg-preview.png',
+        'res/1000452090-removebg-preview.png',
+        'res/1000452091-removebg-preview.png',
+        'res/1000452092-removebg-preview.png',
+        'res/1000452093-removebg-preview.png',
+        'res/1000452094-removebg-preview.png',
+        'res/1000452095-removebg-preview.png',
+        'res/1000452096-removebg-preview.png',
+        'res/1000452097-removebg-preview.png'
+    ];
 
     // 3. ФУНКЦИИ НАСТРОЕК
     function applyOpacity(val) {
@@ -43,7 +58,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // 4. ФОРМАТИРОВАНИЕ LATEX (ФИКС)
     function formatLatex(text) {
         if (!text || text === "none" || text === "") return "None";
-        // Проверяем, не обернут ли уже текст в $
         if (text.toString().includes('\\') || text.toString().includes('^')) {
             if (!text.toString().startsWith('$')) {
                 return `$${text}$`;
@@ -84,7 +98,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 listElement.appendChild(li);
             });
 
-            // Перерисовка LaTeX после добавления элементов
             if (window.MathJax && window.MathJax.typesetPromise) {
                 window.MathJax.typesetPromise();
             }
@@ -131,7 +144,6 @@ document.addEventListener('DOMContentLoaded', () => {
         onValue(ref(window.db, `chats/${reqId}`), (snap) => {
             chatBox.innerHTML = '';
             if(!snap.exists() && myReqId) {
-                // Если записи нет в базе, но ID в браузере остался — чистим
                 return;
             }
             snap.forEach(mSnap => {
@@ -162,7 +174,6 @@ document.addEventListener('DOMContentLoaded', () => {
         };
     }
 
-    // Кнопка открытия модалки
     document.getElementById('open-request-btn').onclick = () => {
         if (myReqId) {
             document.getElementById('request-form-container').style.display = 'none';
@@ -202,7 +213,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         await set(ref(window.db, 'requests/' + rId), data);
         localStorage.setItem('myRequestID', rId);
-        myReqId = rId; // Обновляем локальную переменную
+        myReqId = rId; 
         
         document.getElementById('request-form-container').style.display = 'none';
         document.getElementById('chat-section').style.display = 'block';
@@ -230,7 +241,7 @@ document.addEventListener('DOMContentLoaded', () => {
         b.onclick = () => applyTheme(b.dataset.theme);
     });
 
-    // 10. СНЕЖИНКИ
+    // 10. ЧАСТИЦЫ (СНЕЖИНКИ И САКУРА)
     function createSnowflake() {
         if (!snowToggle.checked) return;
         const sf = document.createElement('div');
@@ -242,7 +253,29 @@ document.addEventListener('DOMContentLoaded', () => {
         snowContainer.appendChild(sf);
         setTimeout(() => sf.remove(), 7000);
     }
+
+    function createSakura() {
+        if (!sakuraToggle || !sakuraToggle.checked) return;
+        const petal = document.createElement('div');
+        petal.className = 'sakura-petal';
+        
+        const randomImg = sakuraTextures[Math.floor(Math.random() * sakuraTextures.length)];
+        petal.style.backgroundImage = `url('${randomImg}')`;
+        
+        const size = (Math.random() * 15 + 15) + 'px';
+        petal.style.width = size;
+        petal.style.height = size;
+        petal.style.left = Math.random() * 100 + 'vw';
+        
+        const duration = Math.random() * 5 + 5 + 's';
+        petal.style.animationDuration = duration;
+        petal.style.animationDelay = (Math.random() * 2) + 's';
+
+        snowContainer.appendChild(petal);
+        setTimeout(() => petal.remove(), 10000);
+    }
     
     setInterval(createSnowflake, 150);
+    setInterval(createSakura, 350); // Цикл для сакуры
     loadList(currentListId);
 });
