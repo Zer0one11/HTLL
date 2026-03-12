@@ -20,8 +20,9 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentListId = localStorage.getItem('currentListId') || 'levels';
     let myReqId = localStorage.getItem('myRequestID');
 
-    const isSnowEnabled = localStorage.getItem('snowEnabled') !== 'false'; 
-    const isSakuraEnabled = localStorage.getItem('sakuraEnabled') === 'true';
+    // Состояния ВКЛ/ВЫКЛ
+    const isSnowEnabled = localStorage.getItem('snowEnabled') !== 'false'; // дефолт true
+    const isSakuraEnabled = localStorage.getItem('sakuraEnabled') === 'true'; // дефолт false
 
     const sakuraTextures = [
         'res/1000452088-removebg-preview.png', 'res/1000452089-removebg-preview.png',
@@ -31,7 +32,20 @@ document.addEventListener('DOMContentLoaded', () => {
         'res/1000452096-removebg-preview.png', 'res/1000452097-removebg-preview.png'
     ];
 
-    // 3. ФУНКЦИИ НАСТРОЕК
+    // 3. ФУНКЦИИ КОПИРОВАНИЯ
+    window.copyToClipboard = function(text) {
+        navigator.clipboard.writeText(text).then(() => {
+            const oldNotif = document.querySelector('.copy-notification');
+            if (oldNotif) oldNotif.remove();
+            const notif = document.createElement('div');
+            notif.className = 'copy-notification';
+            notif.innerText = `ID ${text} СКОПИРОВАН!`;
+            document.body.appendChild(notif);
+            setTimeout(() => notif.remove(), 2000);
+        });
+    };
+
+    // 4. ФУНКЦИИ НАСТРОЕК
     function applyOpacity(val) {
         document.documentElement.style.setProperty('--panel-opacity', val);
         localStorage.setItem('panelOpacity', val);
@@ -63,20 +77,19 @@ document.addEventListener('DOMContentLoaded', () => {
     snowToggle.checked = isSnowEnabled;
     sakuraToggle.checked = isSakuraEnabled;
 
-    // Взаимоисключение
+    // Логика переключателей
     snowToggle.addEventListener('change', () => {
         if (snowToggle.checked) sakuraToggle.checked = false;
         localStorage.setItem('snowEnabled', snowToggle.checked);
         localStorage.setItem('sakuraEnabled', sakuraToggle.checked);
     });
-
     sakuraToggle.addEventListener('change', () => {
         if (sakuraToggle.checked) snowToggle.checked = false;
         localStorage.setItem('sakuraEnabled', sakuraToggle.checked);
         localStorage.setItem('snowEnabled', snowToggle.checked);
     });
 
-    // 4. ФОРМАТИРОВАНИЕ LATEX
+    // 5. ФОРМАТИРОВАНИЕ LATEX
     function formatLatex(text) {
         if (!text || text === "none" || text === "") return "None";
         if (text.toString().includes('\\') || text.toString().includes('^')) {
@@ -85,7 +98,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return text;
     }
 
-    // 5. ЗАГРУЗКА СПИСКА (ВОССТАНОВЛЕНО)
+    // 6. ЗАГРУЗКА СПИСКА
     async function loadList(listId) {
         const listMap = { 
             'levels': 'levels.json', 'ppll': 'ppll.json', 'sll': 'sll.json', 
@@ -107,7 +120,10 @@ document.addEventListener('DOMContentLoaded', () => {
                         </div>
                     </div>
                     <ul class="level-details">
-                        <li><span class="detail-label">ID:</span> ${level.id}</li>
+                        <li>
+                            <span class="detail-label">ID:</span> ${level.id}
+                            <img src="res/copybutton.png" class="copy-icon" onclick="copyToClipboard('${level.id}')">
+                        </li>
                         <li><span class="detail-label">FPS:</span> ${formatLatex(level.fps)}</li>
                         ${level.fv ? `<li><span class="detail-label">Botter:</span> ${formatLatex(level.fv)}</li>` : ''}
                         ${level.type ? `<li><span class="detail-label">TYPE:</span> ${level.type}</li>` : ''}
@@ -119,9 +135,9 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (e) { console.error("Ошибка загрузки:", e); }
     }
 
-    // 6. ЧАТ И УВЕДОМЛЕНИЯ (ВОССТАНОВЛЕНО)
+    // 7. ЧАТ
     function initUserChat(reqId) {
-        const { ref, push, onValue, remove } = window.dbRefs;
+        const { ref, push, onValue } = window.dbRefs;
         const chatBox = document.getElementById('chat-messages');
         onValue(ref(window.db, `chats/${reqId}`), (snap) => {
             chatBox.innerHTML = '';
@@ -143,7 +159,7 @@ document.addEventListener('DOMContentLoaded', () => {
         };
     }
 
-    // 7. ЧАСТИЦЫ
+    // 8. ЧАСТИЦЫ
     function createSnowflake() {
         if (!snowToggle.checked) return;
         const sf = document.createElement('div');
@@ -171,7 +187,7 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => petal.remove(), 10000);
     }
 
-    // 8. СОБЫТИЯ
+    // 9. СОБЫТИЯ UI
     settingsBtn.onclick = (e) => { e.stopPropagation(); settingsMenu.classList.toggle('active'); };
     opacityRange.oninput = (e) => applyOpacity(e.target.value);
     snowSizeRange.oninput = (e) => applySnowSize(e.target.value);
@@ -199,26 +215,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     document.getElementById('close-modal').onclick = () => reqModal.style.display = 'none';
 
-    // Форма реквеста
-    document.getElementById('request-form').onsubmit = async (e) => {
-        e.preventDefault();
-        const { ref, push, set } = window.dbRefs;
-        const rId = push(ref(window.db, 'requests')).key;
-        const data = {
-            id: rId, nickname: document.getElementById('req-nickname').value,
-            level: document.getElementById('req-level-name').value, creator: document.getElementById('req-creator').value,
-            lvlId: document.getElementById('req-id').value, fps: document.getElementById('req-fps').value,
-            fv: document.getElementById('req-fv').value || 'None', type: document.getElementById('req-type').value || 'None',
-            list: document.getElementById('req-list').value, showcase: document.getElementById('req-showcase').value,
-            hasUnread: false, timestamp: Date.now()
-        };
-        await set(ref(window.db, 'requests/' + rId), data);
-        localStorage.setItem('myRequestID', rId);
-        myReqId = rId;
-        location.reload();
-    };
-
-    // Запуск
+    // 10. ЗАПУСК
     setInterval(createSnowflake, 150);
     setInterval(createSakura, 200);
     loadList(currentListId);
