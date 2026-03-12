@@ -7,15 +7,21 @@ document.addEventListener('DOMContentLoaded', () => {
     const settingsBtn = document.getElementById('settings-btn');
     const settingsMenu = document.getElementById('settings-menu');
     const snowSizeRange = document.getElementById('snowSizeRange');
+    const sakuraSizeRange = document.getElementById('sakuraSizeRange');
     const opacityRange = document.getElementById('opacityRange');
     const reqModal = document.getElementById('request-modal');
 
-    // 2. СОСТОЯНИЕ
+    // 2. СОСТОЯНИЕ (Загрузка сохранений)
     let currentSnowSize = localStorage.getItem('snowSize') || '5';
+    let currentSakuraSize = localStorage.getItem('sakuraSize') || '25';
     let currentOpacity = localStorage.getItem('panelOpacity') || '0.01';
     let currentTheme = localStorage.getItem('siteTheme') || 'dark';
     let currentListId = localStorage.getItem('currentListId') || 'levels';
     let myReqId = localStorage.getItem('myRequestID');
+
+    // Загрузка состояний переключателей
+    const isSnowEnabled = localStorage.getItem('snowEnabled') !== 'false'; // по дефолту true
+    const isSakuraEnabled = localStorage.getItem('sakuraEnabled') === 'true'; // по дефолту false
 
     const sakuraTextures = [
         'res/1000452088-removebg-preview.png', 'res/1000452089-removebg-preview.png',
@@ -34,6 +40,10 @@ document.addEventListener('DOMContentLoaded', () => {
         currentSnowSize = val;
         localStorage.setItem('snowSize', val);
     }
+    function applySakuraSize(val) {
+        currentSakuraSize = val;
+        localStorage.setItem('sakuraSize', val);
+    }
     function applyTheme(themeName) {
         document.body.className = `theme-${themeName}`;
         localStorage.setItem('siteTheme', themeName);
@@ -42,21 +52,34 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // Инициализация значений
     applyOpacity(currentOpacity);
     applySnowSize(currentSnowSize);
+    applySakuraSize(currentSakuraSize);
     applyTheme(currentTheme);
+
     opacityRange.value = currentOpacity;
     snowSizeRange.value = currentSnowSize;
+    sakuraSizeRange.value = currentSakuraSize;
 
-    // Логика взаимоисключающих переключателей
+    // Установка чекбоксов из памяти
+    snowToggle.checked = isSnowEnabled;
+    sakuraToggle.checked = isSakuraEnabled;
+
+    // Логика взаимоисключения и сохранения
     snowToggle.addEventListener('change', () => {
         if (snowToggle.checked) sakuraToggle.checked = false;
-    });
-    sakuraToggle.addEventListener('change', () => {
-        if (sakuraToggle.checked) snowToggle.checked = false;
+        localStorage.setItem('snowEnabled', snowToggle.checked);
+        localStorage.setItem('sakuraEnabled', sakuraToggle.checked);
     });
 
-    // 4. ФОРМАТИРОВАНИЕ LATEX
+    sakuraToggle.addEventListener('change', () => {
+        if (sakuraToggle.checked) snowToggle.checked = false;
+        localStorage.setItem('sakuraEnabled', sakuraToggle.checked);
+        localStorage.setItem('snowEnabled', snowToggle.checked);
+    });
+
+    // 4. ФОРМАТИРОВАНИЕ LATEX (БЕЗ ИЗМЕНЕНИЙ)
     function formatLatex(text) {
         if (!text || text === "none" || text === "") return "None";
         if (text.toString().includes('\\') || text.toString().includes('^')) {
@@ -65,7 +88,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return text;
     }
 
-    // 5. ЗАГРУЗКА СПИСКА
+    // 5. ЗАГРУЗКА СПИСКА (БЕЗ ИЗМЕНЕНИЙ)
     async function loadList(listId) {
         const listMap = { 
             'levels': 'levels.json', 'ppll': 'ppll.json', 'sll': 'sll.json', 
@@ -98,7 +121,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (e) { console.error("Ошибка загрузки:", e); }
     }
 
-    // 6. УВЕДОМЛЕНИЯ
+    // 6. УВЕДОМЛЕНИЯ (БЕЗ ИЗМЕНЕНИЙ)
     if (myReqId) {
         const checkUnread = () => {
             const { ref, onValue, update } = window.dbRefs;
@@ -128,7 +151,7 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => t.remove(), 8000);
     }
 
-    // 7. ЧАТ
+    // 7. ЧАТ (БЕЗ ИЗМЕНЕНИЙ)
     function initUserChat(reqId) {
         const { ref, push, onValue, remove } = window.dbRefs;
         const chatBox = document.getElementById('chat-messages');
@@ -174,7 +197,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     document.getElementById('close-modal').onclick = () => reqModal.style.display = 'none';
 
-    // 8. ФОРМА
+    // 8. ФОРМА (БЕЗ ИЗМЕНЕНИЙ)
     document.getElementById('request-form').onsubmit = async (e) => {
         e.preventDefault();
         const { ref, push, set } = window.dbRefs;
@@ -199,6 +222,8 @@ document.addEventListener('DOMContentLoaded', () => {
     settingsBtn.onclick = (e) => { e.stopPropagation(); settingsMenu.classList.toggle('active'); };
     opacityRange.oninput = (e) => applyOpacity(e.target.value);
     snowSizeRange.oninput = (e) => applySnowSize(e.target.value);
+    sakuraSizeRange.oninput = (e) => applySakuraSize(e.target.value);
+
     document.querySelectorAll('.list-button').forEach(b => {
         b.onclick = () => {
             document.querySelectorAll('.list-button').forEach(btn => btn.classList.remove('active-list'));
@@ -229,7 +254,11 @@ document.addEventListener('DOMContentLoaded', () => {
         petal.className = 'sakura-petal';
         const randomImg = sakuraTextures[Math.floor(Math.random() * sakuraTextures.length)];
         petal.style.backgroundImage = `url('${randomImg}')`;
-        const size = (Math.random() * 15 + 15) + 'px';
+        
+        // Используем сохраненный размер сакуры
+        const sizeBase = Number(currentSakuraSize);
+        const size = (Math.random() * (sizeBase / 2) + sizeBase) + 'px';
+        
         petal.style.width = size; petal.style.height = size;
         petal.style.left = Math.random() * 100 + 'vw';
         petal.style.animationDuration = Math.random() * 5 + 5 + 's';
