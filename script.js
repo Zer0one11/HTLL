@@ -2,7 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // 1. ЭЛЕМЕНТЫ UI
     const listElement = document.getElementById('levelList');
     const snowToggle = document.getElementById('snow-toggle');
-    const sakuraToggle = document.getElementById('sakura-toggle'); // Новый элемент
+    const sakuraToggle = document.getElementById('sakura-toggle');
     const snowContainer = document.getElementById('snow-container');
     const settingsBtn = document.getElementById('settings-btn');
     const settingsMenu = document.getElementById('settings-menu');
@@ -17,18 +17,12 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentListId = localStorage.getItem('currentListId') || 'levels';
     let myReqId = localStorage.getItem('myRequestID');
 
-    // Текстуры сакуры из папки res
     const sakuraTextures = [
-        'res/1000452088-removebg-preview.png',
-        'res/1000452089-removebg-preview.png',
-        'res/1000452090-removebg-preview.png',
-        'res/1000452091-removebg-preview.png',
-        'res/1000452092-removebg-preview.png',
-        'res/1000452093-removebg-preview.png',
-        'res/1000452094-removebg-preview.png',
-        'res/1000452095-removebg-preview.png',
-        'res/1000452096-removebg-preview.png',
-        'res/1000452097-removebg-preview.png'
+        'res/1000452088-removebg-preview.png', 'res/1000452089-removebg-preview.png',
+        'res/1000452090-removebg-preview.png', 'res/1000452091-removebg-preview.png',
+        'res/1000452092-removebg-preview.png', 'res/1000452093-removebg-preview.png',
+        'res/1000452094-removebg-preview.png', 'res/1000452095-removebg-preview.png',
+        'res/1000452096-removebg-preview.png', 'res/1000452097-removebg-preview.png'
     ];
 
     // 3. ФУНКЦИИ НАСТРОЕК
@@ -48,20 +42,25 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Инициализация стилей
     applyOpacity(currentOpacity);
     applySnowSize(currentSnowSize);
     applyTheme(currentTheme);
     opacityRange.value = currentOpacity;
     snowSizeRange.value = currentSnowSize;
 
-    // 4. ФОРМАТИРОВАНИЕ LATEX (ФИКС)
+    // Логика взаимоисключающих переключателей
+    snowToggle.addEventListener('change', () => {
+        if (snowToggle.checked) sakuraToggle.checked = false;
+    });
+    sakuraToggle.addEventListener('change', () => {
+        if (sakuraToggle.checked) snowToggle.checked = false;
+    });
+
+    // 4. ФОРМАТИРОВАНИЕ LATEX
     function formatLatex(text) {
         if (!text || text === "none" || text === "") return "None";
         if (text.toString().includes('\\') || text.toString().includes('^')) {
-            if (!text.toString().startsWith('$')) {
-                return `$${text}$`;
-            }
+            if (!text.toString().startsWith('$')) return `$${text}$`;
         }
         return text;
     }
@@ -72,11 +71,9 @@ document.addEventListener('DOMContentLoaded', () => {
             'levels': 'levels.json', 'ppll': 'ppll.json', 'sll': 'sll.json', 
             'ill': 'ill.json', 'inf': 'inf.json', 'scl': 'scl.json', 'icl': 'icl.json' 
         };
-        
         try {
             const response = await fetch(listMap[listId] + '?t=' + Date.now());
             const data = await response.json();
-            
             listElement.innerHTML = '';
             data.forEach(level => {
                 const li = document.createElement('li');
@@ -97,13 +94,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     </ul>`;
                 listElement.appendChild(li);
             });
-
-            if (window.MathJax && window.MathJax.typesetPromise) {
-                window.MathJax.typesetPromise();
-            }
-        } catch (e) {
-            console.error("Ошибка загрузки списка:", e);
-        }
+            if (window.MathJax && window.MathJax.typesetPromise) window.MathJax.typesetPromise();
+        } catch (e) { console.error("Ошибка загрузки:", e); }
     }
 
     // 6. УВЕДОМЛЕНИЯ
@@ -136,16 +128,13 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => t.remove(), 8000);
     }
 
-    // 7. ЛОГИКА ЧАТА И МОДАЛКИ (ФИКС ОТКРЫТИЯ)
+    // 7. ЧАТ
     function initUserChat(reqId) {
         const { ref, push, onValue, remove } = window.dbRefs;
         const chatBox = document.getElementById('chat-messages');
-        
         onValue(ref(window.db, `chats/${reqId}`), (snap) => {
             chatBox.innerHTML = '';
-            if(!snap.exists() && myReqId) {
-                return;
-            }
+            if(!snap.exists() && myReqId) return;
             snap.forEach(mSnap => {
                 const m = mSnap.val();
                 const div = document.createElement('div');
@@ -155,16 +144,14 @@ document.addEventListener('DOMContentLoaded', () => {
             });
             chatBox.scrollTop = chatBox.scrollHeight;
         });
-
         document.getElementById('delete-chat-user').onclick = async () => {
-            if(confirm("Удалить твой чат навсегда?")) {
+            if(confirm("Удалить чат?")) {
                 await remove(ref(window.db, `requests/${reqId}`));
                 await remove(ref(window.db, `chats/${reqId}`));
                 localStorage.removeItem('myRequestID');
                 location.reload();
             }
         };
-
         document.getElementById('send-msg').onclick = () => {
             const inp = document.getElementById('user-msg');
             if(inp.value.trim()) {
@@ -185,50 +172,33 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         reqModal.style.display = 'flex';
     };
+    document.getElementById('close-modal').onclick = () => reqModal.style.display = 'none';
 
-    document.getElementById('close-modal').onclick = () => {
-        reqModal.style.display = 'none';
-    };
-
-    // 8. ОТПРАВКА ФОРМЫ
+    // 8. ФОРМА
     document.getElementById('request-form').onsubmit = async (e) => {
         e.preventDefault();
         const { ref, push, set } = window.dbRefs;
         const rId = push(ref(window.db, 'requests')).key;
-        
         const data = {
-            id: rId,
-            nickname: document.getElementById('req-nickname').value,
-            level: document.getElementById('req-level-name').value,
-            creator: document.getElementById('req-creator').value,
-            lvlId: document.getElementById('req-id').value,
-            fps: document.getElementById('req-fps').value,
-            fv: document.getElementById('req-fv').value || 'None',
-            type: document.getElementById('req-type').value || 'None',
-            list: document.getElementById('req-list').value,
-            showcase: document.getElementById('req-showcase').value,
-            hasUnread: false,
-            timestamp: Date.now()
+            id: rId, nickname: document.getElementById('req-nickname').value,
+            level: document.getElementById('req-level-name').value, creator: document.getElementById('req-creator').value,
+            lvlId: document.getElementById('req-id').value, fps: document.getElementById('req-fps').value,
+            fv: document.getElementById('req-fv').value || 'None', type: document.getElementById('req-type').value || 'None',
+            list: document.getElementById('req-list').value, showcase: document.getElementById('req-showcase').value,
+            hasUnread: false, timestamp: Date.now()
         };
-
         await set(ref(window.db, 'requests/' + rId), data);
         localStorage.setItem('myRequestID', rId);
-        myReqId = rId; 
-        
+        myReqId = rId;
         document.getElementById('request-form-container').style.display = 'none';
         document.getElementById('chat-section').style.display = 'block';
         initUserChat(rId);
     };
 
-    // 9. СОБЫТИЯ UI
-    settingsBtn.onclick = (e) => { 
-        e.stopPropagation(); 
-        settingsMenu.classList.toggle('active'); 
-    };
-    
+    // 9. UI EVENTS
+    settingsBtn.onclick = (e) => { e.stopPropagation(); settingsMenu.classList.toggle('active'); };
     opacityRange.oninput = (e) => applyOpacity(e.target.value);
     snowSizeRange.oninput = (e) => applySnowSize(e.target.value);
-    
     document.querySelectorAll('.list-button').forEach(b => {
         b.onclick = () => {
             document.querySelectorAll('.list-button').forEach(btn => btn.classList.remove('active-list'));
@@ -236,12 +206,11 @@ document.addEventListener('DOMContentLoaded', () => {
             loadList(b.dataset.list);
         };
     });
-
     document.querySelectorAll('.theme-button').forEach(b => {
         b.onclick = () => applyTheme(b.dataset.theme);
     });
 
-    // 10. ЧАСТИЦЫ (СНЕЖИНКИ И САКУРА)
+    // 10. ЧАСТИЦЫ
     function createSnowflake() {
         if (!snowToggle.checked) return;
         const sf = document.createElement('div');
@@ -255,27 +224,20 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function createSakura() {
-        if (!sakuraToggle || !sakuraToggle.checked) return;
+        if (!sakuraToggle.checked) return;
         const petal = document.createElement('div');
         petal.className = 'sakura-petal';
-        
         const randomImg = sakuraTextures[Math.floor(Math.random() * sakuraTextures.length)];
         petal.style.backgroundImage = `url('${randomImg}')`;
-        
         const size = (Math.random() * 15 + 15) + 'px';
-        petal.style.width = size;
-        petal.style.height = size;
+        petal.style.width = size; petal.style.height = size;
         petal.style.left = Math.random() * 100 + 'vw';
-        
-        const duration = Math.random() * 5 + 5 + 's';
-        petal.style.animationDuration = duration;
-        petal.style.animationDelay = (Math.random() * 2) + 's';
-
+        petal.style.animationDuration = Math.random() * 5 + 5 + 's';
         snowContainer.appendChild(petal);
         setTimeout(() => petal.remove(), 10000);
     }
     
     setInterval(createSnowflake, 150);
-    setInterval(createSakura, 350); // Цикл для сакуры
+    setInterval(createSakura, 200);
     loadList(currentListId);
 });
