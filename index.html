@@ -77,13 +77,11 @@
     </header>
 
     <main>
-        <ul id="levelList" class="level-list">
-            </ul>
+        <ul id="levelList" class="level-list"></ul>
     </main>
 
     <div id="request-modal" class="modal-overlay">
         <div class="modal-content">
-            
             <div id="request-form-container">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:25px;">
                     <h2 style="margin:0">НОВАЯ ЗАЯВКА</h2>
@@ -94,11 +92,10 @@
                     <input type="text" id="req-level-name" placeholder="Название уровня" required>
                     <input type="text" id="req-creator" placeholder="Автор уровня" required>
                     <input type="text" id="req-id" placeholder="ID уровня" required>
-                    <input type="text" id="req-fps" placeholder="FPS (например 360)" required>
-                    <input type="text" id="req-fv" placeholder="Кто первым его ботнул? (если нет - пусто)">
-                    <input type="text" id="req-type" placeholder="Type (например, LPrSS)">
-                    
-                    <select id="req-list" style="width: 100%; margin-bottom: 12px; background: #1a1a1c; border: 1px solid #333; color: #fff; padding: 14px; border-radius: 12px;">
+                    <input type="text" id="req-fps" placeholder="FPS" required>
+                    <input type="text" id="req-fv" placeholder="Кто первым его ботнул?">
+                    <input type="text" id="req-type" placeholder="Type">
+                    <select id="req-list">
                         <option value="levels">В список TPLL</option>
                         <option value="ppll">В список PPLL</option>
                         <option value="sll">В список SLL</option>
@@ -107,25 +104,19 @@
                         <option value="scl">В список SCL</option>
                         <option value="icl">В список ICL</option>
                     </select>
-                    
-                    <textarea id="req-showcase" placeholder="Ссылка на Showcase видео" required style="width: 100%; height: 80px; background: #1a1a1c; border: 1px solid #333; color: #fff; padding: 14px; border-radius: 12px; margin-bottom: 15px; font-family: inherit;"></textarea>
-                    
+                    <textarea id="req-showcase" placeholder="Ссылка на Showcase" required></textarea>
                     <button type="submit" class="submit-request">ОТПРАВИТЬ ЗАЯВКУ</button>
                 </form>
             </div>
-
             <div id="chat-section" style="display:none;">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-                    <span style="font-weight:900; letter-spacing: 1px;">ВАШ ЧАТ С АДМИНОМ</span>
-                    <button id="delete-chat-user" style="background:none; border:none; color:#ff4444; cursor:pointer; font-weight:700; font-size:0.7rem; text-transform: uppercase;">Удалить чат</button>
+                    <span style="font-weight:900;">ЧАТ С АДМИНОМ</span>
+                    <button id="delete-chat-user">Удалить чат</button>
                 </div>
-                
-                <div id="chat-messages" style="height:300px; overflow-y:auto; background:#000; padding:15px; border-radius:15px; margin-bottom:15px; border: 1px solid #222;">
-                    </div>
-                
+                <div id="chat-messages"></div>
                 <div style="display:flex; gap:10px;">
-                    <input type="text" id="user-msg" placeholder="Напишите сообщение..." style="margin-bottom:0;">
-                    <button id="send-msg" style="width:60px; border-radius:12px; border:none; background:#fff; color:#000; font-weight:900; cursor:pointer;">></button>
+                    <input type="text" id="user-msg" placeholder="Сообщение...">
+                    <button id="send-msg">></button>
                 </div>
             </div>
         </div>
@@ -134,7 +125,6 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getDatabase, ref, push, set, onValue, update, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
-
         const firebaseConfig = {
             apiKey: "AIzaSyCuO6xuP2AP61bTbiqjho_jzXiDsCzxTCY",
             authDomain: "htll-request.firebaseapp.com",
@@ -142,14 +132,11 @@
             projectId: "htll-request",
             appId: "1:400821777799:web:88da4772f63810f67e4f22"
         };
-
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
-        
         window.db = db;
         window.dbRefs = { ref, push, set, onValue, update, remove };
     </script>
-
     <script src="script.js"></script>
 </body>
 </html>
