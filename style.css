@@ -36,7 +36,7 @@ header { max-width: 800px; margin: 40px auto 10px; text-align: center; }
     font-size: 1.1rem;
 }
 
-/* ПЕРЕКЛЮЧАТЕЛИ СПИСКОВ И ТЕМ */
+/* ПЕРЕКЛЮЧАТЕЛИ */
 .list-switcher, .theme-switcher {
     display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 30px;
 }
@@ -49,14 +49,10 @@ header { max-width: 800px; margin: 40px auto 10px; text-align: center; }
     cursor: pointer; font-weight: 700; font-size: 0.8rem;
     transition: all 0.2s; text-transform: uppercase;
 }
-
-.list-button:hover, .theme-button:hover { background: rgba(var(--bg-card-raw), 0.05); }
 .active-list, .active-theme { background: var(--color-text) !important; color: var(--bg-main) !important; }
 
-/* КАРТОЧКИ УРОВНЕЙ (ВОССТАНОВЛЕНО ПО ОРИГИНАЛУ) */
-.level-list {
-    max-width: 800px; margin: 40px auto; list-style: none; padding: 0;
-}
+/* КАРТОЧКИ УРОВНЕЙ */
+.level-list { max-width: 800px; margin: 40px auto; list-style: none; padding: 0; }
 
 .level-item {
     background: rgba(var(--bg-card-raw), var(--panel-opacity));
@@ -67,41 +63,34 @@ header { max-width: 800px; margin: 40px auto 10px; text-align: center; }
     margin-bottom: 20px;
     position: relative;
     overflow: hidden;
-    transition: transform 0.3s ease;
 }
 
-/* Полоска слева */
 .level-item::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0;
-    width: 6px; height: 100%;
-    background: var(--color-text);
+    content: ''; position: absolute; top: 0; left: 0;
+    width: 6px; height: 100%; background: var(--color-text);
 }
-
-.level-item:hover { transform: translateY(-5px); border-color: rgba(var(--bg-card-raw), 0.2); }
 
 .level-header { display: flex; align-items: center; gap: 20px; margin-bottom: 5px; }
 .level-number { font-size: 2.5rem; font-weight: 900; opacity: 0.2; min-width: 60px; font-style: italic; }
-.level-title-group { display: flex; flex-direction: column; }
 .level-name { font-size: 1.6rem; font-weight: 900; color: inherit; text-decoration: none; }
-.level-name:hover { text-decoration: underline; }
 .level-creator { font-size: 0.9rem; opacity: 0.5; font-weight: 700; text-transform: uppercase; }
 
+/* ДАННЫЕ УРОВНЯ (ИСПРАВЛЕНО: ВЕРТИКАЛЬНО И КОМПАКТНО) */
 .level-details {
-    list-style: none; padding: 0; margin: 15px 0 0 0;
-    display: flex; flex-wrap: wrap; gap: 20px;
+    list-style: none; padding: 0; margin: 12px 0 0 0;
+    display: flex;
+    flex-direction: column; /* Каждый пункт с новой строки */
+    gap: 4px; /* Минимальный отступ между строками */
     font-size: 0.85rem; opacity: 0.8;
 }
 .detail-label { font-weight: 900; text-transform: uppercase; color: var(--color-accent); margin-right: 5px; }
 
-/* КОПИРОВАНИЕ ID */
+/* КОПИРОВАНИЕ */
 .copy-icon {
     width: 14px; height: 14px; margin-left: 8px; cursor: pointer;
     vertical-align: middle; opacity: 0.4; transition: 0.2s; filter: invert(1);
 }
 body.theme-light .copy-icon { filter: invert(0); }
-.copy-icon:hover { opacity: 1; transform: scale(1.2); }
 
 .copy-notification {
     position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
@@ -123,7 +112,7 @@ body.theme-light .copy-icon { filter: invert(0); }
 body.theme-light .snowflake { background: #000 !important; }
 
 .sakura-petal {
-    position: absolute; top: -50px; background-size: cover; background-repeat: no-repeat;
+    position: absolute; top: -50px; background-size: cover;
     pointer-events: none; z-index: -1; animation: fall-sakura linear forwards;
 }
 
@@ -133,11 +122,10 @@ body.theme-light .snowflake { background: #000 !important; }
     to { transform: translateY(105vh) rotate(360deg); }
 }
 
-/* НАСТРОЙКИ UI */
+/* НАСТРОЙКИ UI (ИСПРАВЛЕНО: ЖИРНЫЕ ПОЛЗУНКИ) */
 .snow-ui-static { position: fixed; top: 20px; right: 20px; display: flex; align-items: center; gap: 10px; z-index: 1000; }
-.setting-icon { width: 24px; height: 24px; cursor: pointer; filter: invert(1); transition: 0.3s; opacity: 0.6; }
+.setting-icon { width: 24px; height: 24px; cursor: pointer; filter: invert(1); opacity: 0.6; transition: 0.3s; }
 body.theme-light .setting-icon { filter: invert(0); }
-.setting-icon:hover { opacity: 1; transform: rotate(45deg); }
 
 .settings-menu {
     position: absolute; top: 45px; right: 0; background: #111; padding: 15px;
@@ -145,21 +133,22 @@ body.theme-light .setting-icon { filter: invert(0); }
     box-shadow: 0 10px 30px rgba(0,0,0,0.5);
 }
 .settings-menu.active { display: block; }
-.s-control { margin-bottom: 12px; }
-.s-control span { display: block; font-size: 0.65rem; font-weight: 900; margin-bottom: 6px; opacity: 0.5; text-transform: uppercase; }
-.s-control input[type="range"] { width: 100%; cursor: pointer; accent-color: #fff; }
+.s-control { margin-bottom: 15px; }
+.s-control span { display: block; font-size: 0.65rem; font-weight: 900; margin-bottom: 8px; opacity: 0.5; text-transform: uppercase; }
 
-/* КНОПКА ПОДАТЬ РЕКВЕСТ */
-.request-main-btn {
-    position: fixed; top: 20px; left: 20px; z-index: 1000;
-    background: rgba(var(--bg-card-raw), 0.1); color: var(--color-text);
-    border: 1px solid rgba(var(--bg-card-raw), 0.2); backdrop-filter: blur(10px);
-    padding: 12px 24px; border-radius: 15px; font-weight: 900; font-size: 0.75rem;
-    cursor: pointer; text-transform: uppercase; transition: 0.3s;
+/* Красивые ползунки */
+.s-control input[type="range"] {
+    width: 100%; height: 8px; cursor: pointer; accent-color: #fff;
+    background: rgba(255, 255, 255, 0.1); border-radius: 10px;
+    appearance: none; -webkit-appearance: none;
 }
-.request-main-btn:hover { background: var(--color-text); color: var(--bg-main); }
+.s-control input[type="range"]::-webkit-slider-runnable-track { height: 8px; }
+.s-control input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none; height: 16px; width: 16px;
+    background: #fff; border-radius: 50%; margin-top: -4px;
+}
 
-/* ПЕРЕКЛЮЧАТЕЛЬ СНЕГ/САКУРА */
+/* ПЕРЕКЛЮЧАТЕЛИ */
 .snow-switch { position: relative; display: inline-block; width: 34px; height: 18px; }
 .snow-switch input { opacity: 0; width: 0; height: 0; }
 .snow-slider {
@@ -172,6 +161,15 @@ body.theme-light .setting-icon { filter: invert(0); }
 }
 input:checked + .snow-slider { background-color: #666; }
 input:checked + .snow-slider:before { transform: translateX(16px); }
+
+/* РЕКВЕСТ КНОПКА */
+.request-main-btn {
+    position: fixed; top: 20px; left: 20px; z-index: 1000;
+    background: rgba(var(--bg-card-raw), 0.1); color: var(--color-text);
+    border: 1px solid rgba(var(--bg-card-raw), 0.2); backdrop-filter: blur(10px);
+    padding: 12px 24px; border-radius: 15px; font-weight: 900; font-size: 0.75rem;
+    cursor: pointer; text-transform: uppercase;
+}
 
 /* МОДАЛКА */
 .modal-overlay {
