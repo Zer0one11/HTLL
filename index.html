@@ -4,15 +4,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HTLL List</title>
+    
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&family=Oswald:wght@500&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+    
+    <link rel="stylesheet" href="base.css">
+    <link rel="stylesheet" href="ui.css">
+    <link rel="stylesheet" href="levels.css">
+    <link rel="stylesheet" href="modals.css">
     
     <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script>
-        window.MathJax = {
-            tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] }
-        };
+        window.MathJax = { tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] } };
     </script>
 </head>
 <body class="theme-dark">
@@ -32,42 +35,27 @@
             <img src="res/setting.ico" id="settings-btn" class="setting-icon" style="margin-left: 15px;">
             
             <div id="settings-menu" class="settings-menu">
-                <div id="user-profile-block" style="display: none; border-bottom: 1px solid rgba(255,255,255,0.1); margin-bottom: 15px; padding-bottom: 10px;">
+                <div id="user-profile-block" style="display: none;">
                     <div style="display: flex; align-items: center; gap: 10px;">
-                        <img src="res/user.png" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover;">
-                        <div style="display: flex; flex-direction: column;">
-                            <span id="user-nick-display" style="font-weight: 900; font-size: 0.8rem; color: #fff; text-transform: uppercase;">User</span>
-                            <span id="logout-btn" style="font-size: 0.6rem; color: #ff4444; cursor: pointer; text-transform: uppercase; font-weight: 900; margin-top: 2px;">Выйти</span>
+                        <img src="res/user.png" style="width: 32px; height: 32px; border-radius: 50%;">
+                        <div>
+                            <span id="user-nick-display">User</span>
+                            <span id="logout-btn">Выйти</span>
                         </div>
                     </div>
                 </div>
 
-                <div class="s-control">
-                    <span>РАЗМЕР СНЕЖИНОК</span>
-                    <input type="range" id="snowSizeRange" min="2" max="25" value="5">
-                </div>
-                <div class="s-control">
-                    <span>РАЗМЕР САКУРЫ</span>
-                    <input type="range" id="sakuraSizeRange" min="10" max="80" value="25">
-                </div>
-                <div class="s-control">
-                    <span>ПРОЗРАЧНОСТЬ КАРТОЧЕК</span>
-                    <input type="range" id="opacityRange" min="0.01" max="0.3" step="0.01" value="0.01">
-                </div>
-                <div class="s-control" style="display: flex; align-items: center; justify-content: space-between; margin-top: 10px;">
-                    <span style="font-size: 0.7rem; font-weight: 900;">САКУРА</span>
-                    <label class="snow-switch">
-                        <input type="checkbox" id="sakura-toggle">
-                        <span class="snow-slider"></span>
-                    </label>
-                </div>
+                <div class="s-control"><span>СНЕЖИНКИ</span><input type="range" id="snowSizeRange" min="2" max="25" value="5"></div>
+                <div class="s-control"><span>САКУРА</span><input type="range" id="sakuraSizeRange" min="10" max="80" value="25"></div>
+                <div class="s-control"><span>ПРОЗРАЧНОСТЬ</span><input type="range" id="opacityRange" min="0.01" max="0.3" step="0.01" value="0.01"></div>
+                <div class="s-control-switch"><span>САКУРА</span><label class="snow-switch"><input type="checkbox" id="sakura-toggle"><span class="snow-slider"></span></label></div>
             </div>
         </div>
     </div>
 
     <header>
         <h1 class="main-title">HTLL LIST</h1>
-        <a href="https://t.me/HardestTiktokLevelList" target="_blank" class="channel-link">Канал листа</a>
+        <a href="https://t.me/htll_list" target="_blank" class="channel-link">t.me/htll_list</a>
     </header>
 
     <div class="theme-switcher">
@@ -81,164 +69,17 @@
         <button class="list-button" data-list="sll">SLL</button>
         <button class="list-button" data-list="ill">ILL</button>
         <button class="list-button" data-list="inf">ICLL</button>
-        <button class="list-button" data-list="scl">SCL</button>
-        <button class="list-button" data-list="icl">ICL</button>
     </div>
 
     <ul id="levelList" class="level-list"></ul>
 
     <div id="request-modal" class="modal-overlay">
-        <div class="modal-content">
-            <div id="request-form-container">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-                    <h2 style="margin:0; font-weight:900; text-transform:uppercase;">Подать реквест</h2>
-                    <span id="close-modal" style="cursor:pointer; font-size:1.5rem; font-weight:900;">&times;</span>
-                </div>
-                <form id="request-form">
-                    <input type="text" id="req-nickname" placeholder="ВАШ НИКНЕЙМ" required>
-                    <input type="text" id="req-level-name" placeholder="НАЗВАНИЕ УРОВНЯ" required>
-                    <input type="text" id="req-creator" placeholder="АВТОР УРОВНЯ" required>
-                    <input type="text" id="req-id" placeholder="ID УРОВНЯ" required>
-                    <input type="text" id="req-fps" placeholder="FPS (НАПРИМЕР: 360)" required>
-                    <input type="text" id="req-fv" placeholder="BOTTER (ЕСЛИ ЕСТЬ)">
-                    <input type="text" id="req-type" placeholder="TYPE (ЕСЛИ ЕСТЬ)">
-                    <select id="req-list" required>
-                        <option value="levels">TPLL</option>
-                        <option value="ppll">PPLL</option>
-                        <option value="sll">SLL</option>
-                        <option value="ill">ILL</option>
-                        <option value="inf">ICLL</option>
-                        <option value="scl">SCL</option>
-                        <option value="icl">ICL</option>
-                    </select>
-                    <input type="url" id="req-showcase" placeholder="ССЫЛКА НА ШОУКЕЙС (YOUTUBE)" required>
-                    <button type="submit" class="submit-btn">ОТПРАВИТЬ</button>
-                </form>
-            </div>
-
-            <div id="chat-section" style="display:none;">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-                    <span style="font-weight:900; text-transform: uppercase;">ЧАТ С АДМИНОМ</span>
-                    <button id="delete-chat-user" style="background:none; border:none; color:#ff4444; font-weight:900; cursor:pointer; font-size:0.7rem;">УДАЛИТЬ ЧАТ</button>
-                </div>
-                <div id="chat-messages"></div>
-                <div style="display:flex; gap:10px;">
-                    <input type="text" id="user-msg" placeholder="Сообщение...">
-                    <button id="send-msg">></button>
-                </div>
-            </div>
         </div>
-    </div>
 
     <div id="auth-modal" class="modal-overlay">
-        <div class="modal-content" style="text-align: center;">
-            <h2 id="auth-title" style="font-weight: 900; text-transform: uppercase;">Вход</h2>
-            <div id="auth-inputs" style="display: flex; flex-direction: column; gap: 12px; margin-top: 25px;">
-                <input type="text" id="auth-nick" placeholder="НИКНЕЙМ (ТОЛЬКО ДЛЯ РЕГИСТРАЦИИ)" class="auth-input-style">
-                <input type="email" id="auth-email" placeholder="EMAIL" class="auth-input-style">
-                <input type="password" id="auth-pass" placeholder="ПАРОЛЬ" class="auth-input-style">
-                <button id="auth-confirm-btn" class="auth-btn-style">ПОДТВЕРДИТЬ</button>
-                <span id="auth-mode-switch" style="font-size: 0.7rem; opacity: 0.5; cursor: pointer; text-transform: uppercase; font-weight: 900; margin-top: 5px;">Нет аккаунта? Регистрация</span>
-                <button id="close-auth" style="background:none; border:none; color:#555; cursor:pointer; font-weight:900; margin-top:15px; text-transform: uppercase; font-size: 0.7rem;">ЗАКРЫТЬ</button>
-            </div>
         </div>
-    </div>
 
     <script src="script.js"></script>
-
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getDatabase, ref, push, set, onValue, update, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
-        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut, updateProfile } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyCuO6xuP2AP61bTbiqjho_jzXiDsCzxTCY",
-            authDomain: "htll-request.firebaseapp.com",
-            databaseURL: "https://htll-request-default-rtdb.europe-west1.firebasedatabase.app",
-            projectId: "htll-request",
-            appId: "1:400821777799:web:88da4772f63810f67e4f22"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const db = getDatabase(app);
-        const auth = getAuth(app);
-
-        window.db = db;
-        window.auth = auth;
-        window.dbRefs = { ref, push, set, onValue, update, remove };
-
-        const authMainBtn = document.getElementById('auth-main-btn');
-        const profileBlock = document.getElementById('user-profile-block');
-        const userNickDisplay = document.getElementById('user-nick-display');
-
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                authMainBtn.style.display = 'none';
-                profileBlock.style.display = 'block';
-                userNickDisplay.innerText = user.displayName || "User";
-            } else {
-                authMainBtn.style.display = 'block';
-                profileBlock.style.display = 'none';
-            }
-        });
-
-        let isLoginMode = true;
-        const authModal = document.getElementById('auth-modal');
-        const authTitle = document.getElementById('auth-title');
-        const authNickInput = document.getElementById('auth-nick');
-        const switchBtn = document.getElementById('auth-mode-switch');
-
-        authMainBtn.onclick = () => {
-            isLoginMode = true;
-            updateAuthUI();
-            authModal.style.display = 'flex';
-        };
-
-        document.getElementById('close-auth').onclick = () => authModal.style.display = 'none';
-
-        switchBtn.onclick = () => {
-            isLoginMode = !isLoginMode;
-            updateAuthUI();
-        };
-
-        function updateAuthUI() {
-            authTitle.innerText = isLoginMode ? "Вход" : "Регистрация";
-            authNickInput.style.display = isLoginMode ? "none" : "block";
-            switchBtn.innerText = isLoginMode ? "Нет аккаунта? Регистрация" : "Есть аккаунт? Вход";
-        }
-
-        document.getElementById('auth-confirm-btn').onclick = async () => {
-            const email = document.getElementById('auth-email').value.trim();
-            const pass = document.getElementById('auth-pass').value.trim();
-            const nick = document.getElementById('auth-nick').value.trim();
-
-            if (!email || !pass) return alert("Заполните Email и Пароль");
-
-            try {
-                if (isLoginMode) {
-                    await signInWithEmailAndPassword(auth, email, pass);
-                } else {
-                    if (!nick) return alert("Введите никнейм");
-                    const res = await createUserWithEmailAndPassword(auth, email, pass);
-                    await updateProfile(res.user, { displayName: nick });
-                    await set(ref(db, 'users/' + res.user.uid), {
-                        username: nick,
-                        email: email,
-                        role: 'user'
-                    });
-                }
-                
-                authMainBtn.style.display = 'none';
-                authModal.style.display = 'none';
-                location.reload(); 
-            } catch (e) {
-                alert("Ошибка: " + e.message);
-            }
-        };
-
-        document.getElementById('logout-btn').onclick = () => {
-            signOut(auth).then(() => location.reload());
-        };
-    </script>
+    <script type="module" src="auth.js"></script>
 </body>
 </html>
