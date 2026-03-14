@@ -1,6 +1,6 @@
-/* ui.css — Исправленный интерфейс */
+/* ui.css — Интерфейс, Настройки и Частицы */
 
-/* КНОПКА РЕКВЕСТА */
+/* 1. ФИКСИРОВАННЫЕ КНОПКИ */
 .request-main-btn {
     position: fixed; 
     top: 20px; 
@@ -18,7 +18,6 @@
     text-transform: uppercase;
 }
 
-/* ФИКС КНОПКИ РЕГИСТРАЦИИ (КОМПАКТНАЯ) */
 #auth-main-btn {
     position: fixed !important; 
     bottom: 25px !important; 
@@ -40,7 +39,7 @@
     white-space: nowrap;
 }
 
-/* НАСТРОЙКИ И ИНВЕРСИЯ */
+/* 2. НАСТРОЙКИ И ИНВЕРСИЯ */
 .snow-ui-static { 
     position: fixed; 
     top: 20px; 
@@ -51,12 +50,11 @@
     gap: 10px; 
 }
 
-/* Инверсия иконки шестеренки */
 .setting-icon { 
     width: 24px; height: 24px; 
     cursor: pointer; 
-    filter: invert(1); /* Для темной темы */
-    opacity: 0.6; 
+    filter: invert(1); /* Белая иконка в темной теме */
+    opacity: 0.7; 
 }
 body.theme-light .setting-icon { filter: invert(0); }
 
@@ -69,26 +67,29 @@ body.theme-light .setting-icon { filter: invert(0); }
     border-radius: 20px; 
     border: 1px solid #222; 
     display: none; 
-    min-width: 220px;
+    min-width: 240px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.8);
 }
 .settings-menu.active { display: block; }
 
-/* ПРОФИЛЬ (ИНВЕРСИЯ АВАТАРА) */
+/* ПРОФИЛЬ (Инверсия аватара) */
 #user-profile-block img {
     width: 40px; height: 40px; 
     border-radius: 50%; 
-    filter: invert(1); /* Чтобы на черном фоне было видно */
+    filter: invert(1);
+    border: 1px solid rgba(255,255,255,0.1);
 }
 body.theme-light #user-profile-block img { filter: invert(0); }
 
-/* ПОЛЗУНКИ (ЧТОБЫ НЕ СБЕГАЛИ) */
-.s-control { margin-bottom: 15px; width: 100%; }
+/* 3. ПОЛЗУНКИ (Input Range) */
+.s-control { margin-bottom: 18px; width: 100%; }
 .s-control span { 
     display: block; 
-    font-size: 0.6rem; 
+    font-size: 0.65rem; 
     font-weight: 900; 
-    margin-bottom: 5px; 
-    opacity: 0.5; 
+    margin-bottom: 8px; 
+    opacity: 0.6; 
+    text-transform: uppercase;
 }
 
 .s-control input[type="range"] {
@@ -96,27 +97,46 @@ body.theme-light #user-profile-block img { filter: invert(0); }
     height: 4px; 
     accent-color: #fff;
     cursor: pointer;
+    background: rgba(255,255,255,0.1);
+    border-radius: 2px;
+    appearance: none;
+    -webkit-appearance: none;
 }
 
-/* ЧАСТИЦЫ (САКУРА ЦЕЛИКОМ) */
+/* 4. ЧАСТИЦЫ (На самый задний план) */
 #snow-container { 
-    position: fixed; top: 0; left: 0; 
-    width: 100vw; height: 100vh; 
-    pointer-events: none; z-index: 0; 
+    position: fixed; 
+    top: 0; left: 0; 
+    width: 100vw; 
+    height: 100vh; 
+    pointer-events: none; 
+    z-index: -1; /* Самый низкий слой, ПОД карточками */
     overflow: visible !important; 
+}
+
+.snowflake { 
+    position: absolute; 
+    background: #fff; 
+    border-radius: 50%; 
+    top: -10px; 
+    z-index: -1;
+    animation: fall linear forwards; 
 }
 
 .sakura-petal {
     position: absolute; 
     top: -100px; 
-    background-size: contain !important; /* Лепесток целиком */
+    background-size: contain !important; 
     background-repeat: no-repeat;
-    z-index: 0; 
+    pointer-events: none; 
+    z-index: -1; 
+    will-change: transform;
     animation: fall-sakura linear forwards;
 }
 
+@keyframes fall { to { transform: translateY(105vh); } }
 @keyframes fall-sakura {
-    0% { transform: translateY(0) rotate(0deg); opacity: 0; }
+    0% { transform: translateY(0) rotate(0deg) translateX(0); opacity: 0; }
     10% { opacity: 1; }
-    100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+    100% { transform: translateY(110vh) rotate(720deg) translateX(100px); opacity: 0; }
 }
