@@ -7,45 +7,13 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <style>
-        .auth-container { 
-            max-width: 400px; 
-            margin: 100px auto; 
-            padding: 40px; 
-            background: rgba(var(--bg-card-raw), var(--panel-opacity));
-            backdrop-filter: var(--blur-val);
-            -webkit-backdrop-filter: var(--blur-val);
-            border-radius: 30px; 
-            border: 1px solid rgba(255,255,255,0.1); 
-            text-align: center; 
-        }
-        .auth-container h2 { font-weight: 900; text-transform: uppercase; margin-bottom: 30px; letter-spacing: -1px; }
-        
-        .auth-input { 
-            width: 100%; padding: 15px; margin-bottom: 15px; border-radius: 12px; 
-            border: 1px solid #222; background: #000; color: #fff; 
-            box-sizing: border-box; font-family: 'Montserrat'; font-weight: 700;
-        }
-        
-        .auth-btn { 
-            width: 100%; padding: 16px; border-radius: 12px; border: none; 
-            background: #fff; color: #000; font-weight: 900; 
-            cursor: pointer; text-transform: uppercase; transition: 0.3s;
-        }
-        .auth-btn:hover { transform: scale(1.02); opacity: 0.9; }
-
-        .switch-link { 
-            margin-top: 20px; font-size: 0.75rem; color: #888; 
-            cursor: pointer; display: block; font-weight: 900; text-transform: uppercase;
-        }
-        
+        .auth-container { max-width: 400px; margin: 100px auto; padding: 40px; background: rgba(var(--bg-card-raw), var(--panel-opacity)); backdrop-filter: var(--blur-val); border-radius: 30px; border: 1px solid rgba(255,255,255,0.1); text-align: center; }
+        .auth-input { width: 100%; padding: 15px; margin-bottom: 15px; border-radius: 12px; border: 1px solid #222; background: #000; color: #fff; box-sizing: border-box; font-family: 'Montserrat'; font-weight: 700; }
+        .auth-btn { width: 100%; padding: 16px; border-radius: 12px; border: none; background: #fff; color: #000; font-weight: 900; cursor: pointer; text-transform: uppercase; }
+        .switch-link { margin-top: 20px; font-size: 0.75rem; color: #888; cursor: pointer; display: block; font-weight: 900; text-transform: uppercase; }
         .profile-info { display: none; }
         .user-avatar { width: 80px; height: 80px; border-radius: 50%; margin-bottom: 15px; border: 2px solid #fff; }
-        
-        /* Кнопка возврата на главную */
-        .back-link {
-            position: absolute; top: 20px; left: 20px; color: #888;
-            text-decoration: none; font-weight: 900; font-size: 0.8rem; text-transform: uppercase;
-        }
+        .back-link { position: absolute; top: 20px; left: 20px; color: #888; text-decoration: none; font-weight: 900; font-size: 0.8rem; text-transform: uppercase; }
     </style>
 </head>
 <body class="theme-dark">
@@ -54,87 +22,21 @@
     <div class="auth-container">
         <div id="auth-form">
             <h2 id="auth-title">Вход</h2>
-            <input type="text" id="reg-nick" class="auth-input" placeholder="НИКНЕЙМ" style="display:none;">
-            <input type="email" id="email" class="auth-input" placeholder="EMAIL">
-            <input type="password" id="password" class="auth-input" placeholder="ПАРОЛЬ">
-            <button id="auth-submit" class="auth-btn">Войти</button>
-            <span id="auth-switch" class="switch-link">Нет аккаунта? Регистрация</span>
+            <input type="text" id="auth-nick" class="auth-input" placeholder="НИКНЕЙМ" style="display:none;">
+            <input type="email" id="auth-email" class="auth-input" placeholder="EMAIL">
+            <input type="password" id="auth-pass" class="auth-input" placeholder="ПАРОЛЬ">
+            <button id="auth-confirm-btn" class="auth-btn">Войти</button>
+            <span id="auth-mode-switch" class="switch-link">Нет аккаунта? Регистрация</span>
         </div>
 
         <div id="profile-view" class="profile-info">
             <img src="res/user.png" class="user-avatar">
             <h2 id="user-display-name">NICKNAME</h2>
             <p id="user-email-text" style="opacity: 0.5; margin-bottom: 25px; font-size: 0.9rem;"></p>
-            <button id="logout-btn" class="auth-btn" style="background: #ff4444; color: #fff;">Выйти из аккаунта</button>
+            <button id="logout-btn" class="auth-btn" style="background: #ff4444; color: #fff;">Выйти</button>
         </div>
     </div>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut, updateProfile } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyCuO6xuP2AP61bTbiqjho_jzXiDsCzxTCY",
-            authDomain: "htll-request.firebaseapp.com",
-            databaseURL: "https://htll-request-default-rtdb.europe-west1.firebasedatabase.app",
-            projectId: "htll-request",
-            appId: "1:400821777799:web:88da4772f63810f67e4f22"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-
-        let isLogin = true;
-
-        // Следим за пользователем
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                document.getElementById('auth-form').style.display = 'none';
-                document.getElementById('profile-view').style.display = 'block';
-                document.getElementById('user-display-name').innerText = user.displayName || "Пользователь";
-                document.getElementById('user-email-text').innerText = user.email;
-            } else {
-                document.getElementById('auth-form').style.display = 'block';
-                document.getElementById('profile-view').style.display = 'none';
-            }
-        });
-
-        // Переключение режимов
-        document.getElementById('auth-switch').onclick = () => {
-            isLogin = !isLogin;
-            document.getElementById('auth-title').innerText = isLogin ? "Вход" : "Регистрация";
-            document.getElementById('auth-submit').innerText = isLogin ? "Войти" : "Создать";
-            document.getElementById('reg-nick').style.display = isLogin ? "none" : "block";
-            document.getElementById('auth-switch').innerText = isLogin ? "Нет аккаунта? Регистрация" : "Уже есть аккаунт? Войти";
-        };
-
-        // Кнопка подтверждения
-        document.getElementById('auth-submit').onclick = async () => {
-            const email = document.getElementById('email').value.trim();
-            const pass = document.getElementById('password').value.trim();
-            const nick = document.getElementById('reg-nick').value.trim();
-
-            if (!email || !pass) return alert("Заполни поля!");
-
-            try {
-                if (isLogin) {
-                    await signInWithEmailAndPassword(auth, email, pass);
-                } else {
-                    if (!nick) return alert("Введи ник!");
-                    const res = await createUserWithEmailAndPassword(auth, email, pass);
-                    await updateProfile(res.user, { displayName: nick });
-                }
-                // После успеха перекидываем на главную
-                window.location.href = 'index.html';
-            } catch (e) {
-                alert("Ошибка: " + e.message);
-            }
-        };
-
-        // Выход
-        document.getElementById('logout-btn').onclick = () => {
-            signOut(auth).then(() => location.reload());
-        };
-    </script>
+    <script type="module" src="auth.js"></script>
 </body>
 </html>
