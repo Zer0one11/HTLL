@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const snowContainer = document.getElementById('snow-container');
     const settingsBtn = document.getElementById('settings-btn');
     const settingsMenu = document.getElementById('settings-menu');
-
+    
     const snowSizeRange = document.getElementById('snowSizeRange');
     const sakuraSizeRange = document.getElementById('sakuraSizeRange');
     const opacityRange = document.getElementById('opacityRange');
@@ -36,12 +36,12 @@ document.addEventListener('DOMContentLoaded', () => {
         navigator.clipboard.writeText(text).then(() => {
             const oldNotif = document.querySelector('.copy-notification');
             if (oldNotif) oldNotif.remove();
-
+            
             const notif = document.createElement('div');
             notif.className = 'copy-notification';
             notif.innerText = `ID ${text} СКОПИРОВАН!`;
             document.body.appendChild(notif);
-
+            
             setTimeout(() => {
                 notif.style.opacity = '0';
                 setTimeout(() => notif.remove(), 500);
@@ -109,7 +109,7 @@ document.addEventListener('DOMContentLoaded', () => {
             'levels': 'levels.json', 'ppll': 'ppll.json', 'sll': 'sll.json', 
             'ill': 'ill.json', 'inf': 'inf.json', 'scl': 'scl.json', 'icl': 'icl.json' 
         };
-
+        
         try {
             const response = await fetch(listMap[listId] + '?t=' + Date.now());
             const data = await response.json();
@@ -164,7 +164,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const div = document.createElement('div');
                 div.style.marginBottom = '15px';
                 div.style.textAlign = msg.role === 'admin' ? 'left' : 'right';
-
+                
                 div.innerHTML = `
                     <div style="font-size: 0.65rem; opacity: 0.5; margin-bottom: 4px; font-weight: 900; text-transform: uppercase;">
                         ${msg.sender || (msg.role === 'admin' ? 'ADMIN' : 'USER')}
@@ -185,7 +185,7 @@ document.addEventListener('DOMContentLoaded', () => {
         sendBtn.onclick = () => {
             const text = userInput.value.trim();
             const user = window.auth.currentUser;
-
+            
             if (text) {
                 push(ref(window.db, `chats/${reqId}`), {
                     role: 'user',
@@ -244,15 +244,14 @@ document.addEventListener('DOMContentLoaded', () => {
         b.onclick = () => applyTheme(b.dataset.theme);
     });
 
-    // ИСПРАВЛЕННЫЙ БЛОК ОТКРЫТИЯ РЕКВЕСТА
+    // БЛОК ОТКРЫТИЯ РЕКВЕСТА БЕЗ АЛЕРТОВ
     const openRequestBtn = document.getElementById('open-request-btn');
     if(openRequestBtn) {
         openRequestBtn.onclick = () => {
-            // Проверка авторизации
             const user = window.auth ? window.auth.currentUser : null;
             
+            // Если не залогинен — молча кидаем на страницу аккаунта
             if (!user) {
-                alert("Чтобы подать реквест, необходимо войти в аккаунт!");
                 window.location.href = 'account.html';
                 return;
             }
@@ -265,7 +264,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 document.getElementById('request-form-container').style.display = 'block';
                 document.getElementById('chat-section').style.display = 'none';
                 
-                // Автозаполнение ника из аккаунта
                 const nickInput = document.getElementById('req-nickname');
                 if(nickInput) nickInput.value = user.displayName || "";
             }
