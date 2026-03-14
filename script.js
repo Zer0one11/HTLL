@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const opacityRange = document.getElementById('opacityRange');
     const reqModal = document.getElementById('request-modal');
 
-    // 2. СОСТОЯНИЕ (Загрузка сохранений)
+    // 2. СОСТОЯНИЕ
     let currentSnowSize = localStorage.getItem('snowSize') || '5';
     let currentSakuraSize = localStorage.getItem('sakuraSize') || '25';
     let currentOpacity = localStorage.getItem('panelOpacity') || '0.01';
@@ -54,17 +54,8 @@ document.addEventListener('DOMContentLoaded', () => {
         document.documentElement.style.setProperty('--panel-opacity', val);
         localStorage.setItem('panelOpacity', val);
     }
-
-    function applySnowSize(val) {
-        currentSnowSize = val;
-        localStorage.setItem('snowSize', val);
-    }
-
-    function applySakuraSize(val) {
-        currentSakuraSize = val;
-        localStorage.setItem('sakuraSize', val);
-    }
-
+    function applySnowSize(val) { currentSnowSize = val; localStorage.setItem('snowSize', val); }
+    function applySakuraSize(val) { currentSakuraSize = val; localStorage.setItem('sakuraSize', val); }
     function applyTheme(themeName) {
         document.body.className = `theme-${themeName}`;
         localStorage.setItem('siteTheme', themeName);
@@ -73,7 +64,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Инициализация UI
     applyOpacity(currentOpacity);
     applyTheme(currentTheme);
     if(opacityRange) opacityRange.value = currentOpacity;
@@ -93,7 +83,7 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.setItem('snowEnabled', snowToggle.checked);
     };
 
-    // 5. ФОРМАТИРОВАНИЕ LATEX
+    // 5. LATEX
     function formatLatex(text) {
         if (!text || text === "none" || text === "") return "None";
         let str = text.toString();
@@ -103,18 +93,16 @@ document.addEventListener('DOMContentLoaded', () => {
         return str;
     }
 
-    // 6. ЗАГРУЗКА УРОВНЕЙ
+    // 6. ЗАГРУЗКА СПИСКА
     async function loadList(listId) {
         const listMap = { 
             'levels': 'levels.json', 'ppll': 'ppll.json', 'sll': 'sll.json', 
             'ill': 'ill.json', 'inf': 'inf.json', 'scl': 'scl.json', 'icl': 'icl.json' 
         };
-        
         try {
             const response = await fetch(listMap[listId] + '?t=' + Date.now());
             const data = await response.json();
             listElement.innerHTML = '';
-
             data.forEach(level => {
                 const li = document.createElement('li');
                 li.className = 'level-item';
@@ -127,36 +115,25 @@ document.addEventListener('DOMContentLoaded', () => {
                         </div>
                     </div>
                     <ul class="level-details">
-                        <li>
-                            <span class="detail-label">ID:</span> ${level.id} 
-                            <img src="res/copybutton.png" class="copy-icon" onclick="copyToClipboard('${level.id}')">
-                        </li>
+                        <li><span class="detail-label">ID:</span> ${level.id} <img src="res/copybutton.png" class="copy-icon" onclick="copyToClipboard('${level.id}')"></li>
                         <li><span class="detail-label">FPS:</span> ${formatLatex(level.fps)}</li>
                         ${level.fv ? `<li><span class="detail-label">Botter:</span> ${formatLatex(level.fv)}</li>` : ''}
                         ${level.type ? `<li><span class="detail-label">Type:</span> ${level.type}</li>` : ''}
-                    </ul>
-                `;
+                    </ul>`;
                 listElement.appendChild(li);
             });
-
             localStorage.setItem('currentListId', listId);
-            document.querySelectorAll('.list-button').forEach(btn => {
-                btn.classList.toggle('active-list', btn.dataset.list === listId);
-            });
-
-            if (window.MathJax && window.MathJax.typesetPromise) {
-                window.MathJax.typesetPromise();
-            }
+            document.querySelectorAll('.list-button').forEach(btn => btn.classList.toggle('active-list', btn.dataset.list === listId));
+            if (window.MathJax) window.MathJax.typesetPromise();
         } catch (e) { console.error(e); }
     }
 
-    // 7. ЧАТ С ИСПОЛЬЗОВАНИЕМ AUTH НИКНЕЙМА
+    // 7. ЧАТ
     function initUserChat(reqId) {
         const { ref, onValue, push } = window.dbRefs;
         const chatMessages = document.getElementById('chat-messages');
         const sendBtn = document.getElementById('send-msg');
         const userInput = document.getElementById('user-msg');
-
         onValue(ref(window.db, `chats/${reqId}`), (snapshot) => {
             chatMessages.innerHTML = '';
             snapshot.forEach((child) => {
@@ -164,35 +141,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 const div = document.createElement('div');
                 div.style.marginBottom = '15px';
                 div.style.textAlign = msg.role === 'admin' ? 'left' : 'right';
-                
-                div.innerHTML = `
-                    <div style="font-size: 0.65rem; opacity: 0.5; margin-bottom: 4px; font-weight: 900; text-transform: uppercase;">
-                        ${msg.sender || (msg.role === 'admin' ? 'ADMIN' : 'USER')}
-                    </div>
-                    <div style="display:inline-block; padding:10px 15px; border-radius:15px; 
-                         background:${msg.role === 'admin' ? '#1a1a1c' : '#ffffff'}; 
-                         color:${msg.role === 'admin' ? '#ffffff' : '#000000'}; 
-                         border: 1px solid rgba(255,255,255,0.1);
-                         font-size:0.9rem; max-width:85%; word-wrap:break-word;">
-                        ${msg.text}
-                    </div>
-                `;
+                div.innerHTML = `<div style="font-size: 0.65rem; opacity: 0.5; margin-bottom: 4px; font-weight: 900; text-transform: uppercase;">${msg.sender || (msg.role === 'admin' ? 'ADMIN' : 'USER')}</div>
+                    <div style="display:inline-block; padding:10px 15px; border-radius:15px; background:${msg.role === 'admin' ? '#1a1a1c' : '#ffffff'}; color:${msg.role === 'admin' ? '#ffffff' : '#000000'}; border: 1px solid rgba(255,255,255,0.1); font-size:0.9rem; max-width:85%; word-wrap:break-word;">${msg.text}</div>`;
                 chatMessages.appendChild(div);
             });
             chatMessages.scrollTop = chatMessages.scrollHeight;
         });
-
         sendBtn.onclick = () => {
             const text = userInput.value.trim();
             const user = window.auth.currentUser;
-            
             if (text) {
-                push(ref(window.db, `chats/${reqId}`), {
-                    role: 'user',
-                    sender: user ? user.displayName : "Аноним",
-                    text: text,
-                    timestamp: Date.now()
-                });
+                push(ref(window.db, `chats/${reqId}`), { role: 'user', sender: user ? user.displayName : "Аноним", text: text, timestamp: Date.now() });
                 userInput.value = '';
             }
         };
@@ -211,13 +170,11 @@ document.addEventListener('DOMContentLoaded', () => {
         snowContainer.appendChild(sf);
         setTimeout(() => sf.remove(), 7000);
     }
-
     function createSakura() {
         if (!sakuraToggle || !sakuraToggle.checked) return;
         const petal = document.createElement('div');
         petal.className = 'sakura-petal';
-        const img = sakuraTextures[Math.floor(Math.random() * sakuraTextures.length)];
-        petal.style.backgroundImage = `url('${img}')`;
+        petal.style.backgroundImage = `url('${sakuraTextures[Math.floor(Math.random() * sakuraTextures.length)]}')`;
         const size = (Math.random() * (currentSakuraSize / 2) + Number(currentSakuraSize)) + 'px';
         petal.style.width = size; petal.style.height = size;
         petal.style.left = Math.random() * 100 + 'vw';
@@ -228,32 +185,24 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 9. СОБЫТИЯ
     if(settingsBtn) settingsBtn.onclick = (e) => { e.stopPropagation(); settingsMenu.classList.toggle('active'); };
-    document.addEventListener('click', (e) => {
-        if (settingsMenu && !settingsMenu.contains(e.target) && e.target !== settingsBtn) settingsMenu.classList.remove('active');
-    });
+    document.addEventListener('click', (e) => { if (settingsMenu && !settingsMenu.contains(e.target) && e.target !== settingsBtn) settingsMenu.classList.remove('active'); });
 
     if(opacityRange) opacityRange.oninput = (e) => applyOpacity(e.target.value);
     if(snowSizeRange) snowSizeRange.oninput = (e) => applySnowSize(e.target.value);
     if(sakuraSizeRange) sakuraSizeRange.oninput = (e) => applySakuraSize(e.target.value);
 
-    document.querySelectorAll('.list-button').forEach(b => {
-        b.onclick = () => loadList(b.dataset.list);
-    });
+    document.querySelectorAll('.list-button').forEach(b => b.onclick = () => loadList(b.dataset.list));
+    document.querySelectorAll('.theme-button').forEach(b => b.onclick = () => applyTheme(b.dataset.theme));
 
-    document.querySelectorAll('.theme-button').forEach(b => {
-        b.onclick = () => applyTheme(b.dataset.theme);
-    });
-
-    // БЛОК ОТКРЫТИЯ РЕКВЕСТА БЕЗ АЛЕРТОВ
+    // КНОПКА РЕКВЕСТА: ТОЛЬКО АЛЕРТ И ГЛАВНАЯ
     const openRequestBtn = document.getElementById('open-request-btn');
     if(openRequestBtn) {
         openRequestBtn.onclick = () => {
             const user = window.auth ? window.auth.currentUser : null;
             
-            // Если не залогинен — молча кидаем на страницу аккаунта
             if (!user) {
-                window.location.href = 'account.html';
-                return;
+                alert("Чтобы подать реквест, сначала зарегистрируйтесь или войдите в аккаунт через кнопку в углу экрана.");
+                return; // Остаемся на главной
             }
 
             if (myReqId) {
@@ -263,7 +212,6 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 document.getElementById('request-form-container').style.display = 'block';
                 document.getElementById('chat-section').style.display = 'none';
-                
                 const nickInput = document.getElementById('req-nickname');
                 if(nickInput) nickInput.value = user.displayName || "";
             }
@@ -271,9 +219,7 @@ document.addEventListener('DOMContentLoaded', () => {
         };
     }
 
-    if(document.getElementById('close-modal')) {
-        document.getElementById('close-modal').onclick = () => reqModal.style.display = 'none';
-    }
+    if(document.getElementById('close-modal')) document.getElementById('close-modal').onclick = () => reqModal.style.display = 'none';
 
     const deleteChatBtn = document.getElementById('delete-chat-user');
     if(deleteChatBtn) {
@@ -293,7 +239,6 @@ document.addEventListener('DOMContentLoaded', () => {
             e.preventDefault();
             const { ref, push, set } = window.dbRefs;
             const rId = push(ref(window.db, 'requests')).key;
-
             const data = {
                 id: rId,
                 nickname: document.getElementById('req-nickname').value,
@@ -308,7 +253,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 hasUnread: false,
                 timestamp: Date.now()
             };
-
             await set(ref(window.db, 'requests/' + rId), data);
             localStorage.setItem('myRequestID', rId);
             myReqId = rId;
@@ -316,7 +260,6 @@ document.addEventListener('DOMContentLoaded', () => {
         };
     }
 
-    // 10. ЗАПУСК
     setInterval(createSnowflake, 150);
     setInterval(createSakura, 200);
     loadList(currentListId);
