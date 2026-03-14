@@ -34,7 +34,8 @@
 }
 
 .level-item {
-    background: rgba(var(--bg-card-raw), 0.03); /* Минимальная видимость */
+    /* Используем переменную для прозрачности */
+    background: rgba(var(--bg-card-raw), var(--panel-opacity)) !important; 
     backdrop-filter: var(--blur-val);
     -webkit-backdrop-filter: var(--blur-val);
     border: 1px solid rgba(var(--bg-card-raw), 0.1);
@@ -45,6 +46,7 @@
     overflow: hidden;
     display: block !important;
 }
+
 
 .level-item::before {
     content: '';
