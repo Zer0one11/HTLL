@@ -19,23 +19,19 @@ window.auth = auth;
 
 let isLoginMode = true;
 
-// Элементы
-const authMainBtn = document.getElementById('auth-main-btn');
-const profileBlock = document.getElementById('user-profile-block');
-const userNickDisplay = document.getElementById('user-nick-display');
-const authConfirmBtn = document.getElementById('auth-confirm-btn');
-const switchBtn = document.getElementById('auth-mode-switch');
-
 // Состояние юзера
 onAuthStateChanged(auth, (user) => {
+    const authMainBtn = document.getElementById('auth-main-btn');
+    const profileBlock = document.getElementById('user-profile-block');
+    const userNickDisplay = document.getElementById('user-nick-display');
+    const profileView = document.getElementById('profile-view');
+    const authForm = document.getElementById('auth-form');
+
     if (user) {
         if (authMainBtn) authMainBtn.style.display = 'none';
         if (profileBlock) profileBlock.style.display = 'block';
         if (userNickDisplay) userNickDisplay.innerText = user.displayName || "User";
         
-        // Если мы в account.html, показываем профиль
-        const profileView = document.getElementById('profile-view');
-        const authForm = document.getElementById('auth-form');
         if (profileView) profileView.style.display = 'block';
         if (authForm) authForm.style.display = 'none';
         if (document.getElementById('user-display-name')) {
@@ -45,34 +41,50 @@ onAuthStateChanged(auth, (user) => {
     } else {
         if (authMainBtn) authMainBtn.style.display = 'block';
         if (profileBlock) profileBlock.style.display = 'none';
-        
-        const profileView = document.getElementById('profile-view');
-        const authForm = document.getElementById('auth-form');
         if (profileView) profileView.style.display = 'none';
         if (authForm) authForm.style.display = 'block';
     }
 });
 
+// Кнопка реквеста (Запрет для незарегистрированных)
+const requestBtn = document.querySelector('.request-main-btn');
+if (requestBtn) {
+    requestBtn.onclick = (e) => {
+        if (!auth.currentUser) {
+            e.preventDefault();
+            alert("Чтобы подать реквест, нужно войти в аккаунт!");
+            window.location.href = 'account.html';
+        } else {
+            const modal = document.getElementById('request-modal');
+            if (modal) modal.style.display = 'flex';
+        }
+    };
+}
+
 // Переключение Вход/Регистрация
+const switchBtn = document.getElementById('auth-mode-switch');
 if (switchBtn) {
     switchBtn.onclick = () => {
         isLoginMode = !isLoginMode;
         const authTitle = document.getElementById('auth-title');
         const authNickInput = document.getElementById('auth-nick');
+        const authConfirmBtn = document.getElementById('auth-confirm-btn');
+        
         if (authTitle) authTitle.innerText = isLoginMode ? "Вход" : "Регистрация";
         if (authNickInput) authNickInput.style.display = isLoginMode ? "none" : "block";
-        switchBtn.innerText = isLoginMode ? "Нет аккаунта? Регистрация" : "Есть аккаунт? Вход";
         if (authConfirmBtn) authConfirmBtn.innerText = isLoginMode ? "Войти" : "Создать";
+        switchBtn.innerText = isLoginMode ? "Нет аккаунта? Регистрация" : "Есть аккаунт? Вход";
     };
 }
 
-// Кнопка подтверждения
+// Кнопка подтверждения (Вход/Регистрация)
+const authConfirmBtn = document.getElementById('auth-confirm-btn');
 if (authConfirmBtn) {
     authConfirmBtn.onclick = async () => {
         const email = document.getElementById('auth-email').value.trim();
         const pass = document.getElementById('auth-pass').value.trim();
-        const nickInput = document.getElementById('auth-nick');
-        const nick = nickInput ? nickInput.value.trim() : "";
+        const nickEl = document.getElementById('auth-nick');
+        const nick = nickEl ? nickEl.value.trim() : "";
 
         if (!email || !pass) return alert("Заполни поля!");
 
@@ -85,16 +97,17 @@ if (authConfirmBtn) {
                 await updateProfile(res.user, { displayName: nick });
                 await set(ref(db, 'users/' + res.user.uid), { username: nick, email: email, role: 'user' });
             }
-            if (window.location.pathname.includes('account.html')) {
-                window.location.href = 'index.html';
-            } else {
-                location.reload();
-            }
+            // Редирект на главную
+            window.location.href = 'index.html';
         } catch (e) {
             alert("Ошибка: " + e.message);
         }
     };
 }
+
+// Закрытие модалок
+const closeAuth = document.getElementById('close-auth');
+if (closeAuth) closeAuth.onclick = () => document.getElementById('auth-modal').style.display = 'none';
 
 // Выход
 const logoutBtn = document.getElementById('logout-btn');
