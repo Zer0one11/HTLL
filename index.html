@@ -35,20 +35,23 @@
             <img src="res/setting.ico" id="settings-btn" class="setting-icon" style="margin-left: 15px;">
             
             <div id="settings-menu" class="settings-menu">
-                <div id="user-profile-block" style="display: none;">
+                <div id="user-profile-block" style="display: none; border-bottom: 1px solid rgba(255,255,255,0.1); margin-bottom: 15px; padding-bottom: 10px;">
                     <div style="display: flex; align-items: center; gap: 10px;">
-                        <img src="res/user.png" style="width: 32px; height: 32px; border-radius: 50%;">
-                        <div>
-                            <span id="user-nick-display">User</span>
-                            <span id="logout-btn">Выйти</span>
+                        <img src="res/user.png" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover;">
+                        <div style="display: flex; flex-direction: column;">
+                            <span id="user-nick-display" style="font-weight: 900; font-size: 0.8rem; color: #fff; text-transform: uppercase;">User</span>
+                            <span id="logout-btn" style="font-size: 0.6rem; color: #ff4444; cursor: pointer; text-transform: uppercase; font-weight: 900; margin-top: 2px;">Выйти</span>
                         </div>
                     </div>
                 </div>
 
-                <div class="s-control"><span>СНЕЖИНКИ</span><input type="range" id="snowSizeRange" min="2" max="25" value="5"></div>
-                <div class="s-control"><span>САКУРА</span><input type="range" id="sakuraSizeRange" min="10" max="80" value="25"></div>
+                <div class="s-control"><span>РАЗМЕР СНЕЖИНОК</span><input type="range" id="snowSizeRange" min="2" max="25" value="5"></div>
+                <div class="s-control"><span>РАЗМЕР САКУРЫ</span><input type="range" id="sakuraSizeRange" min="10" max="80" value="25"></div>
                 <div class="s-control"><span>ПРОЗРАЧНОСТЬ</span><input type="range" id="opacityRange" min="0.01" max="0.3" step="0.01" value="0.01"></div>
-                <div class="s-control-switch"><span>САКУРА</span><label class="snow-switch"><input type="checkbox" id="sakura-toggle"><span class="snow-slider"></span></label></div>
+                <div class="s-control" style="display: flex; align-items: center; justify-content: space-between; margin-top: 10px;">
+                    <span style="font-size: 0.7rem; font-weight: 900;">САКУРА</span>
+                    <label class="snow-switch"><input type="checkbox" id="sakura-toggle"><span class="snow-slider"></span></label>
+                </div>
             </div>
         </div>
     </div>
@@ -59,8 +62,8 @@
     </header>
 
     <div class="theme-switcher">
-        <button class="theme-button" data-theme="dark">Темная</button>
-        <button class="theme-button" data-theme="light">Светлая</button>
+        <button class="theme-button" data-theme="dark">DARK</button>
+        <button class="theme-button" data-theme="light">LIGHT</button>
     </div>
 
     <div class="list-switcher">
@@ -69,15 +72,67 @@
         <button class="list-button" data-list="sll">SLL</button>
         <button class="list-button" data-list="ill">ILL</button>
         <button class="list-button" data-list="inf">ICLL</button>
+        <button class="list-button" data-list="scl">SCL</button>
+        <button class="list-button" data-list="icl">ICL</button>
     </div>
 
     <ul id="levelList" class="level-list"></ul>
 
     <div id="request-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div id="request-form-container">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                    <h2 style="margin:0;">Подать реквест</h2>
+                    <span id="close-modal" style="cursor:pointer; font-size:1.5rem; font-weight:900;">&times;</span>
+                </div>
+                <form id="request-form">
+                    <input type="text" id="req-nickname" placeholder="ВАШ НИКНЕЙМ" required>
+                    <input type="text" id="req-level-name" placeholder="НАЗВАНИЕ УРОВНЯ" required>
+                    <input type="text" id="req-creator" placeholder="АВТОР УРОВНЯ" required>
+                    <input type="text" id="req-id" placeholder="ID УРОВНЯ" required>
+                    <input type="text" id="req-fps" placeholder="FPS (НАПРИМЕР: 360)" required>
+                    <input type="text" id="req-fv" placeholder="BOTTER (ЕСЛИ ЕСТЬ)">
+                    <input type="text" id="req-type" placeholder="TYPE (ЕСЛИ ЕСТЬ)">
+                    <select id="req-list" required>
+                        <option value="levels">TPLL</option>
+                        <option value="ppll">PPLL</option>
+                        <option value="sll">SLL</option>
+                        <option value="ill">ILL</option>
+                        <option value="inf">ICLL</option>
+                        <option value="scl">SCL</option>
+                        <option value="icl">ICL</option>
+                    </select>
+                    <input type="url" id="req-showcase" placeholder="ССЫЛКА НА ШОУКЕЙС" required>
+                    <button type="submit" class="submit-btn">ОТПРАВИТЬ</button>
+                </form>
+            </div>
+            <div id="chat-section" style="display:none;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                    <span style="font-weight:900;">ЧАТ С АДМИНОМ</span>
+                    <button id="delete-chat-user" style="color:#ff4444; background:none; border:none; cursor:pointer;">УДАЛИТЬ ЧАТ</button>
+                </div>
+                <div id="chat-messages"></div>
+                <div style="display:flex; gap:10px;">
+                    <input type="text" id="user-msg" placeholder="Сообщение...">
+                    <button id="send-msg">></button>
+                </div>
+            </div>
         </div>
+    </div>
 
     <div id="auth-modal" class="modal-overlay">
+        <div class="modal-content" style="text-align: center;">
+            <h2 id="auth-title">Вход</h2>
+            <div id="auth-inputs" style="display: flex; flex-direction: column; gap: 12px; margin-top: 25px;">
+                <input type="text" id="auth-nick" placeholder="НИКНЕЙМ (ДЛЯ РЕГИСТРАЦИИ)">
+                <input type="email" id="auth-email" placeholder="EMAIL">
+                <input type="password" id="auth-pass" placeholder="ПАРОЛЬ">
+                <button id="auth-confirm-btn" class="submit-btn">ПОДТВЕРДИТЬ</button>
+                <span id="auth-mode-switch" style="font-size: 0.7rem; opacity: 0.5; cursor: pointer; font-weight: 900;">Нет аккаунта? Регистрация</span>
+                <button id="close-auth" style="background:none; border:none; color:#555; cursor:pointer; margin-top:15px;">ЗАКРЫТЬ</button>
+            </div>
         </div>
+    </div>
 
     <script src="script.js"></script>
     <script type="module" src="auth.js"></script>
