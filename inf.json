@@ -1,6 +1,16 @@
 [
   {
     "number": "1",
+    "name": "Not this level again",
+    "creator": "necrotikk",
+    "fps": "\\lambda + \\omega",
+    "id": "GMD",
+    "fv": "flimchik",
+    "type": "Set encoding (Bijection)",
+    "showcase": "https://youtu.be/Z-VtZn8TstA"
+  },
+  {
+    "number": "2",
     "name": "SLOOM 3",
     "creator": "DecidableSet ",
     "fps": "\\lambda",
@@ -10,7 +20,7 @@
     "showcase": "https://youtu.be/kaoHBhmvwZQ"
   },
   {
-    "number": "3",
+    "number": "4",
     "name": "Aleph Omega",
     "creator": "necrotikk",
     "fps": "\\aleph_{\\omega}",
@@ -20,7 +30,7 @@
     "showcase": "none"
   },
   {
-    "number": "4",
+    "number": "5",
     "name": "Injirnity",
     "creator": "wabur",
     "fps": "\\omega^3",
@@ -30,7 +40,7 @@
     "showcase": "Ььь"
   },
   {
-    "number": "5",
+    "number": "6",
     "name": "Ochen krutoy lvl",
     "creator": "Dim0n4k & mufffin ",
     "fps": "\\omega + 2^{32}",
@@ -40,7 +50,7 @@
     "showcase": "Ньэ"
   },
   {
-    "number": "6",
+    "number": "7",
     "name": "ICLL Uroven ",
     "creator": "dm4k ",
     "fps": "\\omega",
