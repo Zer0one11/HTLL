@@ -1,42 +1,105 @@
-/* levels.css */
-.level-list { 
-    max-width: 800px; 
-    margin: 40px auto; 
-    list-style: none; 
-    padding: 0; 
+/* КНОПКИ СПИСКОВ И ТЕМ */
+.list-switcher, .theme-switcher {
+    text-align: center;
+    margin-bottom: 15px;
+}
+
+.list-button, .theme-button {
+    background: transparent;
+    border: 1px solid rgba(128, 128, 128, 0.2);
+    color: var(--color-text);
+    padding: 8px 18px;
+    border-radius: 30px;
+    cursor: pointer;
+    margin: 4px;
+    font-size: 0.8rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    transition: 0.3s;
+}
+
+/* Активные состояния кнопок */
+.active-theme, .active-list {
+    background: var(--color-text) !important;
+    color: var(--bg-main) !important;
+    border-color: var(--color-text) !important;
+}
+
+/* КАРТОЧКИ УРОВНЕЙ */
+.level-list {
+    max-width: 800px;
+    margin: 40px auto;
+    list-style: none;
+    padding: 0;
 }
 
 .level-item {
-    background: rgba(var(--bg-card-raw), 0.05) !important; /* Чуть прибавили видимости */
-    backdrop-filter: var(--blur-val); 
+    background: rgba(var(--bg-card-raw), 0.03); /* Минимальная видимость */
+    backdrop-filter: var(--blur-val);
     -webkit-backdrop-filter: var(--blur-val);
-    border: 1px solid rgba(var(--bg-card-raw), 0.1); 
-    border-radius: 20px; 
+    border: 1px solid rgba(var(--bg-card-raw), 0.1);
+    border-radius: 20px;
     padding: 30px;
-    margin-bottom: 20px; 
-    position: relative; 
+    margin-bottom: 20px;
+    position: relative;
     overflow: hidden;
-    display: block !important; /* Чтобы точно не скрылись */
+    display: block !important;
 }
 
-.level-item::before { 
-    content: ''; 
-    position: absolute; 
-    top: 0; left: 0; 
-    width: 6px; height: 100%; 
-    background: var(--color-text); 
+.level-item::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 6px; height: 100%;
+    background: var(--color-text);
 }
 
-.level-name { 
-    font-size: 1.6rem; 
-    font-weight: 900; 
-    color: var(--color-text) !important; 
-    text-decoration: none; 
+.level-header {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 10px;
 }
 
-.level-number { 
-    font-size: 2.5rem; 
-    font-weight: 900; 
-    opacity: 0.2; 
+.level-number {
+    font-size: 2.5rem;
+    font-weight: 900;
+    opacity: 0.2;
+    min-width: 65px;
+    font-style: italic;
     color: var(--color-text);
+}
+
+.level-name {
+    font-size: 1.6rem;
+    font-weight: 900;
+    color: var(--color-text);
+    text-decoration: none;
+    display: block;
+}
+
+.level-creator {
+    font-size: 0.9rem;
+    opacity: 0.5;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--color-text);
+}
+
+.level-details {
+    list-style: none;
+    padding: 0;
+    margin: 15px 0 0 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 0.9rem;
+    color: var(--color-text);
+}
+
+.detail-label {
+    font-weight: 900;
+    text-transform: uppercase;
+    color: var(--color-accent);
+    margin-right: 8px;
 }
