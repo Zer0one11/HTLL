@@ -1,63 +1,6 @@
-/* ui.css — Интерфейс, Настройки и Частицы */
+/* ui.css — Ползунки и интерфейс */
 
-/* 1. ФИКСИРОВАННЫЕ КНОПКИ */
-.request-main-btn {
-    position: fixed; 
-    top: 20px; 
-    left: 20px; 
-    z-index: 1000;
-    background: rgba(var(--bg-card-raw), 0.1); 
-    color: var(--color-text);
-    border: 1px solid rgba(var(--bg-card-raw), 0.2); 
-    backdrop-filter: blur(10px);
-    padding: 10px 20px; 
-    border-radius: 12px; 
-    font-weight: 900; 
-    font-size: 0.7rem;
-    cursor: pointer; 
-    text-transform: uppercase;
-}
-
-#auth-main-btn {
-    position: fixed !important; 
-    bottom: 25px !important; 
-    left: 50% !important; 
-    transform: translateX(-50%) !important;
-    top: auto !important;
-    height: auto !important;
-    width: auto !important;
-    z-index: 1100;
-    background: rgba(var(--bg-card-raw), 0.1);
-    color: var(--color-text);
-    border: 1px solid rgba(var(--bg-card-raw), 0.2);
-    backdrop-filter: blur(10px);
-    padding: 12px 24px; 
-    border-radius: 15px;
-    font-weight: 900; 
-    font-size: 0.75rem; 
-    text-transform: uppercase; 
-    white-space: nowrap;
-}
-
-/* 2. НАСТРОЙКИ И ИНВЕРСИЯ */
-.snow-ui-static { 
-    position: fixed; 
-    top: 20px; 
-    right: 20px; 
-    z-index: 1000; 
-    display: flex; 
-    align-items: center; 
-    gap: 10px; 
-}
-
-.setting-icon { 
-    width: 24px; height: 24px; 
-    cursor: pointer; 
-    filter: invert(1); /* Белая иконка в темной теме */
-    opacity: 0.7; 
-}
-body.theme-light .setting-icon { filter: invert(0); }
-
+/* НАСТРОЙКИ */
 .settings-menu {
     position: absolute; 
     top: 45px; 
@@ -68,75 +11,81 @@ body.theme-light .setting-icon { filter: invert(0); }
     border: 1px solid #222; 
     display: none; 
     min-width: 240px;
-    box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+    z-index: 2000;
 }
 .settings-menu.active { display: block; }
 
-/* ПРОФИЛЬ (Инверсия аватара) */
-#user-profile-block img {
-    width: 40px; height: 40px; 
-    border-radius: 50%; 
-    filter: invert(1);
-    border: 1px solid rgba(255,255,255,0.1);
+/* ПОЛЗУНКИ (Input Range) — ЖЕСТКИЙ ФИКС */
+.s-control { 
+    margin-bottom: 20px; 
+    width: 100%; 
 }
-body.theme-light #user-profile-block img { filter: invert(0); }
 
-/* 3. ПОЛЗУНКИ (Input Range) */
-.s-control { margin-bottom: 18px; width: 100%; }
 .s-control span { 
     display: block; 
-    font-size: 0.65rem; 
+    font-size: 0.7rem; 
     font-weight: 900; 
-    margin-bottom: 8px; 
-    opacity: 0.6; 
+    margin-bottom: 10px; 
+    color: #fff;
+    opacity: 0.7; 
     text-transform: uppercase;
 }
 
+/* Стилизация самой полоски */
 .s-control input[type="range"] {
-    width: 100%; 
-    height: 4px; 
-    accent-color: #fff;
-    cursor: pointer;
-    background: rgba(255,255,255,0.1);
-    border-radius: 2px;
+    -webkit-appearance: none; /* Убираем стандартные стили Chrome/Safari */
     appearance: none;
-    -webkit-appearance: none;
+    width: 100%;
+    height: 6px; /* Делаем полоску чуть толще, чтобы попасть пальцем */
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 5px;
+    outline: none;
+    cursor: pointer;
 }
 
-/* 4. ЧАСТИЦЫ (На самый задний план) */
+/* Стилизация кружка (ползунка) для Chrome/Edge/Safari/Termux */
+.s-control input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    background: #ffffff;
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 0 5px rgba(0,0,0,0.5);
+}
+
+/* Стилизация кружка для Firefox */
+.s-control input[type="range"]::-moz-range-thumb {
+    width: 18px;
+    height: 18px;
+    background: #ffffff;
+    border-radius: 50%;
+    cursor: pointer;
+    border: none;
+}
+
+/* ЧАСТИЦЫ (НА САМЫЙ ЗАДНИЙ ПЛАН) */
 #snow-container { 
     position: fixed; 
     top: 0; left: 0; 
     width: 100vw; 
     height: 100vh; 
     pointer-events: none; 
-    z-index: -1; /* Самый низкий слой, ПОД карточками */
+    z-index: -1 !important; /* Уходим под всё */
     overflow: visible !important; 
-}
-
-.snowflake { 
-    position: absolute; 
-    background: #fff; 
-    border-radius: 50%; 
-    top: -10px; 
-    z-index: -1;
-    animation: fall linear forwards; 
 }
 
 .sakura-petal {
     position: absolute; 
-    top: -100px; 
-    background-size: contain !important; 
+    z-index: -1 !important; /* Лепестки гарантированно сзади */
+    background-size: contain !important;
     background-repeat: no-repeat;
-    pointer-events: none; 
-    z-index: -1; 
-    will-change: transform;
-    animation: fall-sakura linear forwards;
+    pointer-events: none;
 }
 
-@keyframes fall { to { transform: translateY(105vh); } }
-@keyframes fall-sakura {
-    0% { transform: translateY(0) rotate(0deg) translateX(0); opacity: 0; }
-    10% { opacity: 1; }
-    100% { transform: translateY(110vh) rotate(720deg) translateX(100px); opacity: 0; }
-}
+/* Кнопки и инверсия как были */
+.setting-icon { width: 24px; height: 24px; filter: invert(1); opacity: 0.7; cursor: pointer; }
+body.theme-light .setting-icon { filter: invert(0); }
+#user-profile-block img { width: 40px; height: 40px; border-radius: 50%; filter: invert(1); }
+body.theme-light #user-profile-block img { filter: invert(0); }
