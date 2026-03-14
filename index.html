@@ -76,11 +76,11 @@
     </div>
 
     <div class="list-switcher">
-        <button class="list-button" data-list="levels">MAIN</button>
+        <button class="list-button" data-list="levels">TPLL</button>
         <button class="list-button" data-list="ppll">PPLL</button>
         <button class="list-button" data-list="sll">SLL</button>
         <button class="list-button" data-list="ill">ILL</button>
-        <button class="list-button" data-list="inf">INF</button>
+        <button class="list-button" data-list="inf">ICLL</button>
         <button class="list-button" data-list="scl">SCL</button>
         <button class="list-button" data-list="icl">ICL</button>
     </div>
@@ -163,12 +163,10 @@
         const db = getDatabase(app);
         const auth = getAuth(app);
 
-        // Передаем Firebase в глобальную область для script.js
         window.db = db;
         window.auth = auth;
         window.dbRefs = { ref, push, set, onValue, update, remove };
 
-        // Логика отображения кнопок и профиля
         const authMainBtn = document.getElementById('auth-main-btn');
         const profileBlock = document.getElementById('user-profile-block');
         const userNickDisplay = document.getElementById('user-nick-display');
@@ -184,7 +182,6 @@
             }
         });
 
-        // Модалка регистрации
         let isLoginMode = true;
         const authModal = document.getElementById('auth-modal');
         const authTitle = document.getElementById('auth-title');
@@ -224,13 +221,14 @@
                     if (!nick) return alert("Введите никнейм");
                     const res = await createUserWithEmailAndPassword(auth, email, pass);
                     await updateProfile(res.user, { displayName: nick });
-                    // Дополнительно сохраняем инфу в базу данных
                     await set(ref(db, 'users/' + res.user.uid), {
                         username: nick,
                         email: email,
                         role: 'user'
                     });
                 }
+                
+                authMainBtn.style.display = 'none';
                 authModal.style.display = 'none';
                 location.reload(); 
             } catch (e) {
