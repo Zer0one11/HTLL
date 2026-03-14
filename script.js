@@ -103,9 +103,20 @@ document.addEventListener('DOMContentLoaded', () => {
             const response = await fetch(listMap[listId] + '?t=' + Date.now());
             const data = await response.json();
             listElement.innerHTML = '';
+            
             data.forEach(level => {
                 const li = document.createElement('li');
                 li.className = 'level-item';
+
+                // Исправлено: Скрытие Type и Botter если None
+                const botterHtml = (level.fv && level.fv.toLowerCase() !== 'none') 
+                    ? `<li><span class="detail-label">Botter:</span> ${formatLatex(level.fv)}</li>` 
+                    : '';
+
+                const typeHtml = (level.type && level.type.toLowerCase() !== 'none') 
+                    ? `<li><span class="detail-label">Type:</span> ${formatLatex(level.type)}</li>` 
+                    : '';
+
                 li.innerHTML = `
                     <div class="level-header">
                         <span class="level-number">#${level.number}</span>
@@ -117,14 +128,19 @@ document.addEventListener('DOMContentLoaded', () => {
                     <ul class="level-details">
                         <li><span class="detail-label">ID:</span> ${level.id} <img src="res/copybutton.png" class="copy-icon" onclick="copyToClipboard('${level.id}')"></li>
                         <li><span class="detail-label">FPS:</span> ${formatLatex(level.fps)}</li>
-                        ${level.fv ? `<li><span class="detail-label">Botter:</span> ${formatLatex(level.fv)}</li>` : ''}
-                        ${level.type ? `<li><span class="detail-label">Type:</span> ${level.type}</li>` : ''}
+                        ${botterHtml}
+                        ${typeHtml}
                     </ul>`;
                 listElement.appendChild(li);
             });
+            
             localStorage.setItem('currentListId', listId);
             document.querySelectorAll('.list-button').forEach(btn => btn.classList.toggle('active-list', btn.dataset.list === listId));
-            if (window.MathJax) window.MathJax.typesetPromise();
+            
+            // Применяем прозрачность заново после рендера списка
+            applyOpacity(localStorage.getItem('panelOpacity') || '0.01');
+
+            if (window.MathJax && window.MathJax.typesetPromise) window.MathJax.typesetPromise();
         } catch (e) { console.error(e); }
     }
 
@@ -170,6 +186,7 @@ document.addEventListener('DOMContentLoaded', () => {
         snowContainer.appendChild(sf);
         setTimeout(() => sf.remove(), 7000);
     }
+    
     function createSakura() {
         if (!sakuraToggle || !sakuraToggle.checked) return;
         const petal = document.createElement('div');
@@ -178,6 +195,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const size = (Math.random() * (currentSakuraSize / 2) + Number(currentSakuraSize)) + 'px';
         petal.style.width = size; petal.style.height = size;
         petal.style.left = Math.random() * 100 + 'vw';
+        // Убрано лишнее колебание, теперь просто падает и крутится через CSS
         petal.style.animationDuration = (Math.random() * 5 + 5) + 's';
         snowContainer.appendChild(petal);
         setTimeout(() => petal.remove(), 10000);
@@ -194,17 +212,15 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.list-button').forEach(b => b.onclick = () => loadList(b.dataset.list));
     document.querySelectorAll('.theme-button').forEach(b => b.onclick = () => applyTheme(b.dataset.theme));
 
-    // КНОПКА РЕКВЕСТА: ТОЛЬКО АЛЕРТ И ГЛАВНАЯ
+    // КНОПКА РЕКВЕСТА
     const openRequestBtn = document.getElementById('open-request-btn');
     if(openRequestBtn) {
         openRequestBtn.onclick = () => {
             const user = window.auth ? window.auth.currentUser : null;
-            
             if (!user) {
                 alert("Чтобы подать реквест, сначала зарегистрируйтесь или войдите в аккаунт через кнопку в углу экрана.");
-                return; // Остаемся на главной
+                return;
             }
-
             if (myReqId) {
                 document.getElementById('request-form-container').style.display = 'none';
                 document.getElementById('chat-section').style.display = 'block';
@@ -260,6 +276,7 @@ document.addEventListener('DOMContentLoaded', () => {
         };
     }
 
+    // 10. ЗАПУСК
     setInterval(createSnowflake, 150);
     setInterval(createSakura, 200);
     loadList(currentListId);
