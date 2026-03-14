@@ -1,11 +1,76 @@
+/* ui.css — Кнопки, Меню и Частицы */
+
+.request-main-btn {
+    position: fixed; 
+    top: 20px; 
+    left: 20px; 
+    z-index: 1000;
+    background: rgba(var(--bg-card-raw), 0.1); 
+    color: var(--color-text);
+    border: 1px solid rgba(var(--bg-card-raw), 0.2); 
+    backdrop-filter: blur(10px);
+    padding: 12px 24px; 
+    border-radius: 15px; 
+    font-weight: 900; 
+    font-size: 0.75rem;
+    cursor: pointer; 
+    text-transform: uppercase; 
+    letter-spacing: 1px;
+    transition: all 0.3s;
+}
+
+#auth-main-btn {
+    position: fixed !important; 
+    bottom: 25px !important; 
+    left: 50% !important; 
+    transform: translateX(-50%) !important;
+    top: auto !important;
+    height: auto !important;
+    width: auto !important;
+    z-index: 1100;
+    background: rgba(var(--bg-card-raw), 0.1);
+    color: var(--color-text);
+    border: 1px solid rgba(var(--bg-card-raw), 0.2);
+    backdrop-filter: blur(10px);
+    padding: 14px 28px; 
+    border-radius: 15px;
+    font-weight: 900; 
+    font-size: 0.75rem; 
+    text-transform: uppercase; 
+    white-space: nowrap;
+}
+
+.snow-ui-static { 
+    position: fixed; 
+    top: 20px; 
+    right: 20px; 
+    z-index: 1000; 
+    display: flex; 
+    align-items: center; 
+    gap: 10px; 
+}
+
+.settings-menu {
+    position: absolute; 
+    top: 45px; 
+    right: 0; 
+    background: #0d0d0f; 
+    padding: 20px;
+    border-radius: 20px; 
+    border: 1px solid #222; 
+    display: none; 
+    min-width: 220px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+}
+.settings-menu.active { display: block; }
+
 /* ЧАСТИЦЫ */
 #snow-container { 
     position: fixed; 
     top: 0; left: 0; 
-    width: 100vw; 
-    height: 100vh; 
+    width: 100vw; height: 100vh; 
     pointer-events: none; 
-    z-index: 0; /* Уводим ЗА интерфейс, но оставляем НАД фоном */
+    z-index: 0; /* Чтобы летали ЗА кнопками */
     overflow: visible !important; 
 }
 
@@ -14,14 +79,13 @@
     background: #fff; 
     border-radius: 50%; 
     top: -10px; 
-    z-index: 0;
     animation: fall linear forwards; 
 }
 
 .sakura-petal {
     position: absolute; 
     top: -100px; 
-    background-size: contain; /* ВАЖНО: теперь лепесток всегда вписан целиком */
+    background-size: contain !important; /* Лепесток будет целым */
     background-repeat: no-repeat;
     background-position: center;
     pointer-events: none; 
@@ -31,15 +95,8 @@
 }
 
 @keyframes fall { to { transform: translateY(105vh); } }
-
 @keyframes fall-sakura {
-    0% { 
-        transform: translateY(0) rotate(0deg) translateX(0); 
-        opacity: 0;
-    }
+    0% { transform: translateY(0) rotate(0deg) translateX(0); opacity: 0; }
     10% { opacity: 1; }
-    100% { 
-        transform: translateY(110vh) rotate(720deg) translateX(100px); 
-        opacity: 0; 
-    }
+    100% { transform: translateY(110vh) rotate(720deg) translateX(100px); opacity: 0; }
 }
