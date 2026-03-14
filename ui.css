@@ -1,0 +1,45 @@
+/* ФИКСИРОВАННЫЕ КНОПКИ */
+.request-main-btn {
+    position: fixed; top: 20px; left: 20px; z-index: 1000;
+    background: rgba(var(--bg-card-raw), 0.1); color: var(--color-text);
+    border: 1px solid rgba(var(--bg-card-raw), 0.2); backdrop-filter: blur(10px);
+    padding: 12px 24px; border-radius: 15px; font-weight: 900; 
+    font-size: 0.75rem; cursor: pointer; text-transform: uppercase; 
+    letter-spacing: 1px; transition: all 0.3s;
+}
+
+#auth-main-btn {
+    position: fixed !important; bottom: 25px !important; left: 50% !important; 
+    transform: translateX(-50%) !important; top: auto !important;
+    height: auto !important; width: auto !important; z-index: 1100;
+    background: rgba(var(--bg-card-raw), 0.1); color: var(--color-text);
+    border: 1px solid rgba(var(--bg-card-raw), 0.2); backdrop-filter: blur(10px);
+    padding: 14px 28px; border-radius: 15px; font-weight: 900; 
+    font-size: 0.75rem; text-transform: uppercase; white-space: nowrap;
+}
+
+/* НАСТРОЙКИ */
+.snow-ui-static { position: fixed; top: 20px; right: 20px; z-index: 1000; display: flex; align-items: center; gap: 10px; }
+.setting-icon { width: 24px; height: 24px; cursor: pointer; filter: invert(1); opacity: 0.6; }
+body.theme-light .setting-icon { filter: invert(0); }
+
+.settings-menu {
+    position: absolute; top: 45px; right: 0; background: #0d0d0f; padding: 20px;
+    border-radius: 20px; border: 1px solid #222; display: none; min-width: 220px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+}
+.settings-menu.active { display: block; }
+
+/* ПЕРЕКЛЮЧАТЕЛИ (Switch) */
+.snow-switch { position: relative; display: inline-block; width: 34px; height: 18px; }
+.snow-switch input { opacity: 0; width: 0; height: 0; }
+.snow-slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #333; transition: .4s; border-radius: 34px; }
+.snow-slider:before { position: absolute; content: ""; height: 12px; width: 12px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
+input:checked + .snow-slider { background-color: #666; }
+input:checked + .snow-slider:before { transform: translateX(16px); }
+
+/* СНЕГ И САКУРА */
+#snow-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: -1; }
+.snowflake { position: absolute; background: #fff; border-radius: 50%; top: -10px; animation: fall linear forwards; }
+body.theme-light .snowflake { background: #000 !important; }
+@keyframes fall { to { transform: translateY(105vh); } }
