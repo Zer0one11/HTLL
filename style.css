@@ -81,23 +81,32 @@ header {
 /* КНОПКА РЕГИСТРАЦИИ (НИЖНИЙ ЦЕНТР) */
 #auth-main-btn {
     position: fixed; 
-    bottom: 25px; 
+    bottom: 25px;       /* Расстояние от нижнего края */
     left: 50%; 
-    transform: translateX(-50%);
-    z-index: 1100;
+    transform: translateX(-50%); 
+    z-index: 9999;      /* Чтобы была поверх всего контента */
+    
+    /* РАЗМЕРЫ (Чтобы не была на весь экран) */
+    width: auto;        /* Ширина по тексту */
+    height: auto;       /* Высота по тексту */
+    min-width: 150px;   /* Минимальная ширина, чтобы не была слишком узкой */
+    padding: 12px 24px; /* Внутренние отступы */
+    
+    /* СТИЛЬ */
     background: rgba(var(--bg-card-raw), 0.1);
     color: var(--color-text);
     border: 1px solid rgba(var(--bg-card-raw), 0.2);
     backdrop-filter: blur(10px);
-    padding: 14px 28px; 
     border-radius: 15px;
+    
+    /* ТЕКСТ */
     font-weight: 900; 
     font-size: 0.75rem; 
-    cursor: pointer;
     text-transform: uppercase; 
     letter-spacing: 1px;
-    white-space: nowrap;
-    box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+    white-space: nowrap; 
+    cursor: pointer;
+    box-sizing: border-box;
 }
 
 /* UI НАСТРОЕК (ВЕРХНИЙ ПРАВЫЙ УГОЛ) */
