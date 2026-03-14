@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getDatabase, ref, set, push, onValue, update, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+import { getDatabase, ref, push, set, onValue, update, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut, updateProfile } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
 const firebaseConfig = {
@@ -20,34 +20,22 @@ window.dbRefs = { ref, push, set, onValue, update, remove };
 
 let isLoginMode = true;
 
-// 1. ПРОВЕРКА АВТОРИЗАЦИИ ДЛЯ РЕКВЕСТОВ
-const openRequestBtn = document.getElementById('open-request-btn');
-if (openRequestBtn) {
-    const originalCallback = openRequestBtn.onclick;
-    openRequestBtn.onclick = (e) => {
-        if (!auth.currentUser) {
-            alert("Войдите в аккаунт, чтобы подать реквест!");
-            window.location.href = 'account.html';
-        } else if (originalCallback) {
-            originalCallback(e);
-        }
-    };
-}
+// Элементы UI
+const authMainBtn = document.getElementById('auth-main-btn');
+const profileBlock = document.getElementById('user-profile-block');
+const userNickDisplay = document.getElementById('user-nick-display');
+const authModal = document.getElementById('auth-modal');
+const authForm = document.getElementById('auth-form');
+const profileView = document.getElementById('profile-view');
 
-// 2. ОБНОВЛЕНИЕ UI ПРИ СМЕНЕ СОСТОЯНИЯ
+// Следим за состоянием юзера
 onAuthStateChanged(auth, (user) => {
-    const authMainBtn = document.getElementById('auth-main-btn');
-    const profileBlock = document.getElementById('user-profile-block');
-    const userNickDisplay = document.getElementById('user-nick-display');
-    const authForm = document.getElementById('auth-form');
-    const profileView = document.getElementById('profile-view');
-
     if (user) {
         if (authMainBtn) authMainBtn.style.display = 'none';
         if (profileBlock) profileBlock.style.display = 'block';
         if (userNickDisplay) userNickDisplay.innerText = user.displayName || "User";
         
-        // Для страницы account.html
+        // Для страницы аккаунта
         if (authForm) authForm.style.display = 'none';
         if (profileView) profileView.style.display = 'block';
         if (document.getElementById('user-display-name')) {
@@ -58,36 +46,19 @@ onAuthStateChanged(auth, (user) => {
         if (authMainBtn) authMainBtn.style.display = 'block';
         if (profileBlock) profileBlock.style.display = 'none';
         
-        // Для страницы account.html
+        // Для страницы аккаунта
         if (authForm) authForm.style.display = 'block';
         if (profileView) profileView.style.display = 'none';
     }
 });
 
-// 3. ПЕРЕКЛЮЧЕНИЕ РЕЖИМА (Вход/Регистрация)
-const switchBtn = document.getElementById('auth-mode-switch');
-if (switchBtn) {
-    switchBtn.onclick = () => {
-        isLoginMode = !isLoginMode;
-        const authTitle = document.getElementById('auth-title');
-        const authNickInput = document.getElementById('auth-nick');
-        const confirmBtn = document.getElementById('auth-confirm-btn');
-
-        if (authTitle) authTitle.innerText = isLoginMode ? "Вход" : "Регистрация";
-        if (authNickInput) authNickInput.style.display = isLoginMode ? "none" : "block";
-        if (confirmBtn) confirmBtn.innerText = isLoginMode ? "Войти" : "Создать";
-        switchBtn.innerText = isLoginMode ? "Нет аккаунта? Регистрация" : "Есть аккаунт? Вход";
-    };
-}
-
-// 4. КНОПКА ПОДТВЕРЖДЕНИЯ
-const authConfirmBtn = document.getElementById('auth-confirm-btn');
-if (authConfirmBtn) {
-    authConfirmBtn.onclick = async () => {
+// Кнопка подтверждения (универсальная для модалки и страницы)
+const confirmBtn = document.getElementById('auth-confirm-btn');
+if (confirmBtn) {
+    confirmBtn.onclick = async () => {
         const email = document.getElementById('auth-email').value.trim();
         const pass = document.getElementById('auth-pass').value.trim();
-        const nickInput = document.getElementById('auth-nick');
-        const nick = nickInput ? nickInput.value.trim() : "";
+        const nick = document.getElementById('auth-nick').value.trim();
 
         if (!email || !pass) return alert("Заполни поля!");
 
@@ -95,20 +66,47 @@ if (authConfirmBtn) {
             if (isLoginMode) {
                 await signInWithEmailAndPassword(auth, email, pass);
             } else {
-                if (!nick) return alert("Введи ник!");
+                if (!nick) return alert("Введи никнейм");
                 const res = await createUserWithEmailAndPassword(auth, email, pass);
                 await updateProfile(res.user, { displayName: nick });
                 await set(ref(db, 'users/' + res.user.uid), { username: nick, email: email, role: 'user' });
             }
-            window.location.href = 'index.html';
-        } catch (e) {
-            alert("Ошибка: " + e.message);
-        }
+            if (authModal) authModal.style.display = 'none';
+            // Если мы на странице аккаунта — перекидываем на главную
+            if (window.location.pathname.includes('account.html')) {
+                window.location.href = 'index.html';
+            } else {
+                location.reload();
+            }
+        } catch (e) { alert("Ошибка: " + e.message); }
     };
 }
 
-// 5. КНОПКА ВЫХОДА
-const logoutBtn = document.getElementById('logout-btn');
-if (logoutBtn) {
-    logoutBtn.onclick = () => signOut(auth).then(() => location.reload());
+// Переключение режимов
+const switchBtn = document.getElementById('auth-mode-switch');
+if (switchBtn) {
+    switchBtn.onclick = () => {
+        isLoginMode = !isLoginMode;
+        document.getElementById('auth-title').innerText = isLoginMode ? "Вход" : "Регистрация";
+        document.getElementById('auth-nick').style.display = isLoginMode ? "none" : "block";
+        document.getElementById('auth-confirm-btn').innerText = isLoginMode ? "Войти" : "Создать";
+        switchBtn.innerText = isLoginMode ? "Нет аккаунта? Регистрация" : "Есть аккаунт? Вход";
+    };
 }
+
+// Выход (поддержка обеих кнопок выхода)
+const logoutHandler = () => signOut(auth).then(() => {
+    if (window.location.pathname.includes('account.html')) {
+        window.location.href = 'index.html';
+    } else {
+        location.reload();
+    }
+});
+
+if (document.getElementById('logout-btn')) document.getElementById('logout-btn').onclick = logoutHandler;
+if (document.getElementById('logout-btn-account')) document.getElementById('logout-btn-account').onclick = logoutHandler;
+
+// Открытие/закрытие модалки на главной
+if (authMainBtn) authMainBtn.onclick = () => { authModal.style.display = 'flex'; isLoginMode = true; };
+const closeAuth = document.getElementById('close-auth');
+if (closeAuth) closeAuth.onclick = () => authModal.style.display = 'none';
