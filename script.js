@@ -73,7 +73,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Инициализация UI из localStorage
+    // Инициализация UI
     applyOpacity(currentOpacity);
     applyTheme(currentTheme);
     opacityRange.value = currentOpacity;
@@ -82,7 +82,6 @@ document.addEventListener('DOMContentLoaded', () => {
     snowToggle.checked = isSnowEnabled;
     sakuraToggle.checked = isSakuraEnabled;
 
-    // Логика переключателей (включаем что-то одно)
     snowToggle.onchange = () => {
         if (snowToggle.checked) sakuraToggle.checked = false;
         localStorage.setItem('snowEnabled', snowToggle.checked);
@@ -130,7 +129,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <ul class="level-details">
                         <li>
                             <span class="detail-label">ID:</span> ${level.id} 
-                            <img src="res/copybutton.png" class="copy-icon" onclick="copyToClipboard('${level.id}')" title="Скопировать ID">
+                            <img src="res/copybutton.png" class="copy-icon" onclick="copyToClipboard('${level.id}')">
                         </li>
                         <li><span class="detail-label">FPS:</span> ${formatLatex(level.fps)}</li>
                         ${level.fv ? `<li><span class="detail-label">Botter:</span> ${formatLatex(level.fv)}</li>` : ''}
@@ -148,12 +147,10 @@ document.addEventListener('DOMContentLoaded', () => {
             if (window.MathJax && window.MathJax.typesetPromise) {
                 window.MathJax.typesetPromise();
             }
-        } catch (e) {
-            console.error("Ошибка загрузки списка:", e);
-        }
+        } catch (e) { console.error(e); }
     }
 
-    // 7. ЧАТ И FIREBASE
+    // 7. ЧАТ С ИСПОЛЬЗОВАНИЕМ AUTH НИКНЕЙМА
     function initUserChat(reqId) {
         const { ref, onValue, push } = window.dbRefs;
         const chatMessages = document.getElementById('chat-messages');
@@ -165,13 +162,18 @@ document.addEventListener('DOMContentLoaded', () => {
             snapshot.forEach((child) => {
                 const msg = child.val();
                 const div = document.createElement('div');
-                div.style.marginBottom = '12px';
+                div.style.marginBottom = '15px';
                 div.style.textAlign = msg.role === 'admin' ? 'left' : 'right';
+                
                 div.innerHTML = `
+                    <div style="font-size: 0.65rem; opacity: 0.5; margin-bottom: 4px; font-weight: 900; text-transform: uppercase;">
+                        ${msg.sender || (msg.role === 'admin' ? 'ADMIN' : 'USER')}
+                    </div>
                     <div style="display:inline-block; padding:10px 15px; border-radius:15px; 
-                         background:${msg.role === 'admin' ? '#222' : '#fff'}; 
-                         color:${msg.role === 'admin' ? '#fff' : '#000'}; 
-                         font-size:0.9rem; max-width:80%; word-wrap:break-word;">
+                         background:${msg.role === 'admin' ? '#1a1a1c' : '#ffffff'}; 
+                         color:${msg.role === 'admin' ? '#ffffff' : '#000000'}; 
+                         border: 1px solid rgba(255,255,255,0.1);
+                         font-size:0.9rem; max-width:85%; word-wrap:break-word;">
                         ${msg.text}
                     </div>
                 `;
@@ -182,9 +184,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
         sendBtn.onclick = () => {
             const text = userInput.value.trim();
+            const user = window.auth.currentUser; // Берем текущего юзера из Auth
+            
             if (text) {
                 push(ref(window.db, `chats/${reqId}`), {
                     role: 'user',
+                    sender: user ? user.displayName : "Аноним",
                     text: text,
                     timestamp: Date.now()
                 });
@@ -193,7 +198,7 @@ document.addEventListener('DOMContentLoaded', () => {
         };
     }
 
-    // 8. ЧАСТИЦЫ (Снег и Сакура)
+    // 8. ЧАСТИЦЫ
     function createSnowflake() {
         if (!snowToggle.checked) return;
         const sf = document.createElement('div');
@@ -221,16 +226,10 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => petal.remove(), 10000);
     }
 
-    // 9. СОБЫТИЯ UI
-    settingsBtn.onclick = (e) => { 
-        e.stopPropagation(); 
-        settingsMenu.classList.toggle('active'); 
-    };
-    
+    // 9. СОБЫТИЯ
+    settingsBtn.onclick = (e) => { e.stopPropagation(); settingsMenu.classList.toggle('active'); };
     document.addEventListener('click', (e) => {
-        if (!settingsMenu.contains(e.target) && e.target !== settingsBtn) {
-            settingsMenu.classList.remove('active');
-        }
+        if (!settingsMenu.contains(e.target) && e.target !== settingsBtn) settingsMenu.classList.remove('active');
     });
 
     opacityRange.oninput = (e) => applyOpacity(e.target.value);
@@ -245,7 +244,6 @@ document.addEventListener('DOMContentLoaded', () => {
         b.onclick = () => applyTheme(b.dataset.theme);
     });
 
-    // Модалка реквестов
     document.getElementById('open-request-btn').onclick = () => {
         if (myReqId) {
             document.getElementById('request-form-container').style.display = 'none';
@@ -255,11 +253,8 @@ document.addEventListener('DOMContentLoaded', () => {
         reqModal.style.display = 'flex';
     };
 
-    document.getElementById('close-modal').onclick = () => {
-        reqModal.style.display = 'none';
-    };
+    document.getElementById('close-modal').onclick = () => reqModal.style.display = 'none';
 
-    // Удаление чата
     document.getElementById('delete-chat-user').onclick = async () => {
         if (confirm('Удалить переписку?')) {
             const { ref, remove } = window.dbRefs;
@@ -269,7 +264,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // Форма реквеста
     document.getElementById('request-form').onsubmit = async (e) => {
         e.preventDefault();
         const { ref, push, set } = window.dbRefs;
@@ -292,13 +286,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
         await set(ref(window.db, 'requests/' + rId), data);
         localStorage.setItem('myRequestID', rId);
+        myReqId = rId;
         location.reload();
     };
 
-    // 10. ЗАПУСК ЦИКЛОВ
+    // 10. ЗАПУСК
     setInterval(createSnowflake, 150);
     setInterval(createSakura, 200);
-    
-    // Загружаем сохраненный список
     loadList(currentListId);
 });
