@@ -8,38 +8,25 @@
     <link rel="stylesheet" href="style.css">
     <style>
         .auth-container { 
-            max-width: 400px; 
-            margin: 100px auto; 
-            padding: 40px; 
+            max-width: 400px; margin: 100px auto; padding: 40px; 
             background: rgba(var(--bg-card-raw), var(--panel-opacity));
-            backdrop-filter: var(--blur-val);
-            -webkit-backdrop-filter: var(--blur-val);
-            border-radius: 30px; 
-            border: 1px solid rgba(255,255,255,0.1); 
-            text-align: center; 
+            backdrop-filter: var(--blur-val); border-radius: 30px; 
+            border: 1px solid rgba(255,255,255,0.1); text-align: center; 
         }
         .auth-container h2 { font-weight: 900; text-transform: uppercase; margin-bottom: 30px; letter-spacing: -1px; }
         .auth-input { 
             width: 100%; padding: 15px; margin-bottom: 15px; border-radius: 12px; 
-            border: 1px solid #222; background: #000; color: #fff; 
-            box-sizing: border-box; font-family: 'Montserrat'; font-weight: 700;
+            border: 1px solid #222; background: #000; color: #fff; box-sizing: border-box; 
+            font-family: 'Montserrat'; font-weight: 700;
         }
         .auth-btn { 
             width: 100%; padding: 16px; border-radius: 12px; border: none; 
-            background: #fff; color: #000; font-weight: 900; 
-            cursor: pointer; text-transform: uppercase; transition: 0.3s;
+            background: #fff; color: #000; font-weight: 900; cursor: pointer; text-transform: uppercase; 
         }
-        .auth-btn:hover { transform: scale(1.02); opacity: 0.9; }
-        .switch-link { 
-            margin-top: 20px; font-size: 0.75rem; color: #888; 
-            cursor: pointer; display: block; font-weight: 900; text-transform: uppercase;
-        }
+        .switch-link { margin-top: 20px; font-size: 0.75rem; color: #888; cursor: pointer; display: block; font-weight: 900; text-transform: uppercase; }
         .profile-info { display: none; }
-        .user-avatar { width: 80px; height: 80px; border-radius: 50%; margin-bottom: 15px; border: 2px solid #fff; object-fit: cover; }
-        .back-link {
-            position: absolute; top: 20px; left: 20px; color: #888;
-            text-decoration: none; font-weight: 900; font-size: 0.8rem; text-transform: uppercase;
-        }
+        .user-avatar { width: 80px; height: 80px; border-radius: 50%; margin-bottom: 15px; border: 2px solid #fff; }
+        .back-link { position: absolute; top: 20px; left: 20px; color: #888; text-decoration: none; font-weight: 900; font-size: 0.8rem; text-transform: uppercase; }
     </style>
 </head>
 <body class="theme-dark">
@@ -56,10 +43,10 @@
         </div>
 
         <div id="profile-view" class="profile-info">
-            <img src="res/user.png" class="user-avatar" id="profile-avatar">
-            <h2 id="user-display-name">ЗАГРУЗКА...</h2>
+            <img src="res/user.png" class="user-avatar">
+            <h2 id="user-display-name">NICKNAME</h2>
             <p id="user-email-text" style="opacity: 0.5; margin-bottom: 25px; font-size: 0.9rem;"></p>
-            <button id="logout-btn" class="auth-btn" style="background: #ff4444; color: #fff;">Выйти</button>
+            <button id="logout-btn" class="auth-btn" style="background: #ff4444; color: #fff;">Выйти из аккаунта</button>
         </div>
     </div>
 
