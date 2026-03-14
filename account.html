@@ -6,9 +6,7 @@
     <title>HTLL | Аккаунт</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
-    
     <style>
-        /* Специфические стили для страницы аккаунта */
         .auth-container { 
             max-width: 400px; 
             margin: 100px auto; 
@@ -20,78 +18,27 @@
             border: 1px solid rgba(255,255,255,0.1); 
             text-align: center; 
         }
-
-        .auth-container h2 { 
-            font-weight: 900; 
-            text-transform: uppercase; 
-            margin-bottom: 30px; 
-            letter-spacing: -1px; 
-        }
-        
+        .auth-container h2 { font-weight: 900; text-transform: uppercase; margin-bottom: 30px; letter-spacing: -1px; }
         .auth-input { 
-            width: 100%; 
-            padding: 15px; 
-            margin-bottom: 15px; 
-            border-radius: 12px; 
-            border: 1px solid #222; 
-            background: #000; 
-            color: #fff; 
-            box-sizing: border-box; 
-            font-family: 'Montserrat'; 
-            font-weight: 700;
+            width: 100%; padding: 15px; margin-bottom: 15px; border-radius: 12px; 
+            border: 1px solid #222; background: #000; color: #fff; 
+            box-sizing: border-box; font-family: 'Montserrat'; font-weight: 700;
         }
-        
         .auth-btn { 
-            width: 100%; 
-            padding: 16px; 
-            border-radius: 12px; 
-            border: none; 
-            background: #fff; 
-            color: #000; 
-            font-weight: 900; 
-            cursor: pointer; 
-            text-transform: uppercase; 
-            transition: 0.3s;
+            width: 100%; padding: 16px; border-radius: 12px; border: none; 
+            background: #fff; color: #000; font-weight: 900; 
+            cursor: pointer; text-transform: uppercase; transition: 0.3s;
         }
-
-        .auth-btn:hover { 
-            transform: scale(1.02); 
-            opacity: 0.9; 
-        }
-
+        .auth-btn:hover { transform: scale(1.02); opacity: 0.9; }
         .switch-link { 
-            margin-top: 20px; 
-            font-size: 0.75rem; 
-            color: #888; 
-            cursor: pointer; 
-            display: block; 
-            font-weight: 900; 
-            text-transform: uppercase;
+            margin-top: 20px; font-size: 0.75rem; color: #888; 
+            cursor: pointer; display: block; font-weight: 900; text-transform: uppercase;
         }
-        
-        /* Контейнер профиля (скрыт по умолчанию) */
-        .profile-info { 
-            display: none; 
-        }
-
-        .user-avatar { 
-            width: 80px; 
-            height: 80px; 
-            border-radius: 50%; 
-            margin-bottom: 15px; 
-            border: 2px solid #fff; 
-            object-fit: cover;
-        }
-        
+        .profile-info { display: none; }
+        .user-avatar { width: 80px; height: 80px; border-radius: 50%; margin-bottom: 15px; border: 2px solid #fff; object-fit: cover; }
         .back-link {
-            position: absolute; 
-            top: 20px; 
-            left: 20px; 
-            color: #888;
-            text-decoration: none; 
-            font-weight: 900; 
-            font-size: 0.8rem; 
-            text-transform: uppercase;
+            position: absolute; top: 20px; left: 20px; color: #888;
+            text-decoration: none; font-weight: 900; font-size: 0.8rem; text-transform: uppercase;
         }
     </style>
 </head>
@@ -101,14 +48,10 @@
     <div class="auth-container">
         <div id="auth-form">
             <h2 id="auth-title">Вход</h2>
-            
             <input type="text" id="auth-nick" class="auth-input" placeholder="НИКНЕЙМ" style="display:none;">
-            
             <input type="email" id="auth-email" class="auth-input" placeholder="EMAIL">
             <input type="password" id="auth-pass" class="auth-input" placeholder="ПАРОЛЬ">
-            
             <button id="auth-confirm-btn" class="auth-btn">Войти</button>
-            
             <span id="auth-mode-switch" class="switch-link">Нет аккаунта? Регистрация</span>
         </div>
 
@@ -116,8 +59,7 @@
             <img src="res/user.png" class="user-avatar" id="profile-avatar">
             <h2 id="user-display-name">ЗАГРУЗКА...</h2>
             <p id="user-email-text" style="opacity: 0.5; margin-bottom: 25px; font-size: 0.9rem;"></p>
-            
-            <button id="logout-btn" class="auth-btn" style="background: #ff4444; color: #fff;">Выйти из аккаунта</button>
+            <button id="logout-btn" class="auth-btn" style="background: #ff4444; color: #fff;">Выйти</button>
         </div>
     </div>
 
