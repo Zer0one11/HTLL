@@ -14,88 +14,90 @@ const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 const auth = getAuth(app);
 
-// Делаем объекты доступными для других скриптов (например, для script.js)
 window.db = db;
 window.auth = auth;
-window.dbRefs = { ref, push, set, onValue, update, remove };
-
-const authMainBtn = document.getElementById('auth-main-btn');
-const profileBlock = document.getElementById('user-profile-block');
-const userNickDisplay = document.getElementById('user-nick-display');
-const authModal = document.getElementById('auth-modal');
-const authTitle = document.getElementById('auth-title');
-const authNickInput = document.getElementById('auth-nick');
-const switchBtn = document.getElementById('auth-mode-switch');
 
 let isLoginMode = true;
 
-// Следим за состоянием юзера
+// Элементы
+const authMainBtn = document.getElementById('auth-main-btn');
+const profileBlock = document.getElementById('user-profile-block');
+const userNickDisplay = document.getElementById('user-nick-display');
+const authConfirmBtn = document.getElementById('auth-confirm-btn');
+const switchBtn = document.getElementById('auth-mode-switch');
+
+// Состояние юзера
 onAuthStateChanged(auth, (user) => {
     if (user) {
         if (authMainBtn) authMainBtn.style.display = 'none';
         if (profileBlock) profileBlock.style.display = 'block';
         if (userNickDisplay) userNickDisplay.innerText = user.displayName || "User";
+        
+        // Если мы в account.html, показываем профиль
+        const profileView = document.getElementById('profile-view');
+        const authForm = document.getElementById('auth-form');
+        if (profileView) profileView.style.display = 'block';
+        if (authForm) authForm.style.display = 'none';
+        if (document.getElementById('user-display-name')) {
+            document.getElementById('user-display-name').innerText = user.displayName || "User";
+            document.getElementById('user-email-text').innerText = user.email;
+        }
     } else {
         if (authMainBtn) authMainBtn.style.display = 'block';
         if (profileBlock) profileBlock.style.display = 'none';
+        
+        const profileView = document.getElementById('profile-view');
+        const authForm = document.getElementById('auth-form');
+        if (profileView) profileView.style.display = 'none';
+        if (authForm) authForm.style.display = 'block';
     }
 });
 
-// Открытие модалки
-if (authMainBtn) {
-    authMainBtn.onclick = () => {
-        isLoginMode = true;
-        updateAuthUI();
-        authModal.style.display = 'flex';
+// Переключение Вход/Регистрация
+if (switchBtn) {
+    switchBtn.onclick = () => {
+        isLoginMode = !isLoginMode;
+        const authTitle = document.getElementById('auth-title');
+        const authNickInput = document.getElementById('auth-nick');
+        if (authTitle) authTitle.innerText = isLoginMode ? "Вход" : "Регистрация";
+        if (authNickInput) authNickInput.style.display = isLoginMode ? "none" : "block";
+        switchBtn.innerText = isLoginMode ? "Нет аккаунта? Регистрация" : "Есть аккаунт? Вход";
+        if (authConfirmBtn) authConfirmBtn.innerText = isLoginMode ? "Войти" : "Создать";
     };
 }
 
-// Закрытие модалки
-document.getElementById('close-auth').onclick = () => authModal.style.display = 'none';
+// Кнопка подтверждения
+if (authConfirmBtn) {
+    authConfirmBtn.onclick = async () => {
+        const email = document.getElementById('auth-email').value.trim();
+        const pass = document.getElementById('auth-pass').value.trim();
+        const nickInput = document.getElementById('auth-nick');
+        const nick = nickInput ? nickInput.value.trim() : "";
 
-// Переключение Вход/Регистрация
-switchBtn.onclick = () => {
-    isLoginMode = !isLoginMode;
-    updateAuthUI();
-};
+        if (!email || !pass) return alert("Заполни поля!");
 
-function updateAuthUI() {
-    authTitle.innerText = isLoginMode ? "Вход" : "Регистрация";
-    authNickInput.style.display = isLoginMode ? "none" : "block";
-    switchBtn.innerText = isLoginMode ? "Нет аккаунта? Регистрация" : "Есть аккаунт? Вход";
+        try {
+            if (isLoginMode) {
+                await signInWithEmailAndPassword(auth, email, pass);
+            } else {
+                if (!nick) return alert("Введи ник!");
+                const res = await createUserWithEmailAndPassword(auth, email, pass);
+                await updateProfile(res.user, { displayName: nick });
+                await set(ref(db, 'users/' + res.user.uid), { username: nick, email: email, role: 'user' });
+            }
+            if (window.location.pathname.includes('account.html')) {
+                window.location.href = 'index.html';
+            } else {
+                location.reload();
+            }
+        } catch (e) {
+            alert("Ошибка: " + e.message);
+        }
+    };
 }
 
-// Кнопка подтверждения
-document.getElementById('auth-confirm-btn').onclick = async () => {
-    const email = document.getElementById('auth-email').value.trim();
-    const pass = document.getElementById('auth-pass').value.trim();
-    const nick = document.getElementById('auth-nick').value.trim();
-
-    if (!email || !pass) return alert("Заполните Email и Пароль");
-
-    try {
-        if (isLoginMode) {
-            await signInWithEmailAndPassword(auth, email, pass);
-        } else {
-            if (!nick) return alert("Введите никнейм");
-            const res = await createUserWithEmailAndPassword(auth, email, pass);
-            await updateProfile(res.user, { displayName: nick });
-            await set(ref(db, 'users/' + res.user.uid), {
-                username: nick,
-                email: email,
-                role: 'user'
-            });
-        }
-        
-        if (authMainBtn) authMainBtn.style.display = 'none';
-        authModal.style.display = 'none';
-        location.reload(); 
-    } catch (e) {
-        alert("Ошибка: " + e.message);
-    }
-};
-
-// Кнопка выхода
-document.getElementById('logout-btn').onclick = () => {
-    signOut(auth).then(() => location.reload());
-};
+// Выход
+const logoutBtn = document.getElementById('logout-btn');
+if (logoutBtn) {
+    logoutBtn.onclick = () => signOut(auth).then(() => location.reload());
+}
