@@ -5,7 +5,9 @@ import {
     set, 
     push, 
     get, 
-    child 
+    child,
+    onValue,
+    remove 
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 import { 
     getAuth, 
@@ -29,14 +31,14 @@ const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 const auth = getAuth(app);
 
-// Глобальные ссылки для script.js
+// Экспортируем все методы для script.js
 window.db = db;
 window.auth = auth;
-window.dbRefs = { ref, set, push, get, child }; 
+window.dbRefs = { ref, set, push, get, child, onValue, remove }; 
 
 const authMainBtn = document.getElementById('auth-main-btn');
 const profileBlock = document.getElementById('user-profile-block');
-const userNameDisplay = document.getElementById('user-nick-display'); // Исправил ID под твой index.html
+const userNameDisplay = document.getElementById('user-nick-display');
 const authModal = document.getElementById('auth-modal');
 const switchBtn = document.getElementById('auth-mode-switch');
 const authTitle = document.getElementById('auth-title');
@@ -44,6 +46,7 @@ const authNickInput = document.getElementById('auth-nick');
 
 let isLoginMode = true;
 
+// Отслеживание состояния входа
 onAuthStateChanged(auth, async (user) => {
     if (user) {
         if (!user.emailVerified) {
@@ -54,6 +57,7 @@ onAuthStateChanged(auth, async (user) => {
 
         let name = user.displayName;
 
+        // Если displayName пустой, тянем ник из базы
         if (!name) {
             try {
                 const snapshot = await get(child(ref(db), `users/${user.uid}`));
@@ -61,7 +65,7 @@ onAuthStateChanged(auth, async (user) => {
                     name = snapshot.val().username;
                 }
             } catch (e) {
-                console.error("Ошибка загрузки профиля:", e);
+                console.error("Ошибка загрузки ника:", e);
             }
         }
 
@@ -74,9 +78,13 @@ onAuthStateChanged(auth, async (user) => {
     }
 });
 
+// Открытие/закрытие модалки
 if(authMainBtn) authMainBtn.onclick = () => authModal.style.display = 'flex';
-if(document.getElementById('close-auth')) document.getElementById('close-auth').onclick = () => authModal.style.display = 'none';
+if(document.getElementById('close-auth')) {
+    document.getElementById('close-auth').onclick = () => authModal.style.display = 'none';
+}
 
+// Переключение Вход/Регистрация
 if(switchBtn) {
     switchBtn.onclick = () => {
         isLoginMode = !isLoginMode;
@@ -86,6 +94,7 @@ if(switchBtn) {
     };
 }
 
+// Кнопка подтверждения (Вход/Рега)
 const confirmBtn = document.getElementById('auth-confirm-btn');
 if(confirmBtn) {
     confirmBtn.onclick = async () => {
@@ -93,7 +102,7 @@ if(confirmBtn) {
         const pass = document.getElementById('auth-pass').value.trim();
         const nick = document.getElementById('auth-nick').value.trim();
 
-        if (!email || !pass) return alert("Заполните Email и Пароль");
+        if (!email || !pass) return alert("Заполните поля!");
 
         try {
             if (isLoginMode) {
@@ -101,7 +110,7 @@ if(confirmBtn) {
                 if (!res.user.emailVerified) {
                     if (confirm("Почта не подтверждена. Отправить письмо еще раз?")) {
                         await sendEmailVerification(auth.currentUser);
-                        alert("Письмо отправлено!");
+                        alert("Проверьте почту!");
                     }
                     await signOut(auth);
                     return;
@@ -109,15 +118,18 @@ if(confirmBtn) {
             } else {
                 if (!nick) return alert("Введите никнейм");
                 const res = await createUserWithEmailAndPassword(auth, email, pass);
-                await updateProfile(res.user, { displayName: nick });
-                await sendEmailVerification(res.user);
                 
+                // Установка ника в профиль Firebase
+                await updateProfile(res.user, { displayName: nick });
+                
+                // Запись в базу данных
                 await set(ref(db, 'users/' + res.user.uid), {
                     username: nick,
                     email: email,
                     role: 'user'
                 });
 
+                await sendEmailVerification(res.user);
                 alert("Аккаунт создан! Подтвердите почту перед входом.");
                 await signOut(auth);
             }
@@ -129,6 +141,7 @@ if(confirmBtn) {
     };
 }
 
+// Выход из аккаунта
 const logoutBtn = document.getElementById('logout-btn');
 if(logoutBtn) {
     logoutBtn.onclick = () => {
