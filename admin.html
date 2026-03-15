@@ -9,14 +9,12 @@
         :root { --bg-main: #050505; --bg-card: rgba(255, 255, 255, 0.03); --color-text: #ffffff; --accent: #888; --border-white: rgba(255, 255, 255, 0.1); }
         body { font-family: 'Montserrat', sans-serif; background-color: var(--bg-main); color: var(--color-text); margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
         
-        /* ВКЛАДКИ */
         .admin-tabs { display: flex; gap: 10px; width: 100%; max-width: 900px; margin-bottom: 20px; }
         .tab-btn { flex: 1; padding: 15px; background: #111; border: 1px solid #222; color: #555; cursor: pointer; border-radius: 12px; font-weight: 900; text-transform: uppercase; transition: 0.3s; font-family: 'Oswald'; }
         .tab-btn.active { background: #fff; color: #000; border-color: #fff; }
 
         .container { width: 100%; max-width: 900px; background: var(--bg-card); backdrop-filter: blur(12px); border-radius: 20px; padding: 30px; border: 1px solid rgba(255,255,255,0.05); box-sizing: border-box; }
         
-        /* РЕДАКТОР */
         .level-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; background: rgba(255,255,255,0.02); padding: 20px; border-radius: 15px; margin-bottom: 20px; border: 1px solid var(--border-white); }
         input, select { width: 100%; box-sizing: border-box; background: rgba(0,0,0,0.5); border: 1px solid var(--border-white); color: #fff; padding: 12px; border-radius: 10px; outline: none; }
         .btn { padding: 12px 20px; border: none; border-radius: 10px; cursor: pointer; font-weight: 700; text-transform: uppercase; font-family: 'Oswald'; }
@@ -24,14 +22,12 @@
         .btn-sync { background: #00ff00; color: #000; width: 100%; margin-bottom: 20px; font-weight: 900; }
         .level-row { display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.02); padding: 15px; border-radius: 12px; margin-bottom: 10px; cursor: pointer; }
 
-        /* РЕКВЕСТЫ (ВЕРТИКАЛЬНЫЙ СПИСОК) */
         .req-container { display: flex; flex-direction: column; gap: 20px; }
         .req-list { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 10px; white-space: nowrap; }
         .req-item { min-width: 150px; padding: 15px; background: #111; border: 1px solid #222; border-radius: 12px; cursor: pointer; text-align: center; }
         .req-item.active { background: #fff; color: #000; border-color: #fff; }
         .req-item.unread { border-color: #ff4444; }
 
-        /* ОКНО ЧАТА ПОД СПИСКОМ */
         .chat-view { background: #0a0a0a; border-radius: 20px; padding: 25px; border: 1px solid #222; width: 100%; box-sizing: border-box; }
         .full-info { background: #111; padding: 20px; border-radius: 12px; margin-bottom: 15px; font-size: 0.85rem; line-height: 1.6; border-left: 4px solid #fff; }
         .full-info b { color: #888; text-transform: uppercase; font-size: 0.7rem; display: block; }
@@ -88,12 +84,10 @@
         <div id="section-req" class="container" style="display:none;">
             <div class="req-container">
                 <h3 style="margin-top:0; font-family:'Oswald';">Активные заявки</h3>
-                <div class="req-list" id="fb-req-list">
-                    </div>
+                <div class="req-list" id="fb-req-list"></div>
 
                 <div id="fb-chat-view" class="chat-view" style="display:none;">
-                    <div id="fb-full-info" class="full-info">
-                        </div>
+                    <div id="fb-full-info" class="full-info"></div>
                     <div class="chat-box" id="fb-chat-box"></div>
                     <div style="display:flex; gap:10px;">
                         <input type="text" id="fb-input" placeholder="Введите ответ...">
@@ -122,7 +116,6 @@
     const db = getDatabase(app);
     let activeChatId = null;
 
-    // Смена вкладок
     window.switchTab = (target) => {
         document.getElementById('section-editor').style.display = target === 'editor' ? 'block' : 'none';
         document.getElementById('section-req').style.display = target === 'req' ? 'block' : 'none';
@@ -130,7 +123,6 @@
         document.getElementById('tab-req-btn').classList.toggle('active', target === 'req');
     };
 
-    // Firebase: Список заявок
     onValue(ref(db, 'requests'), (snapshot) => {
         const list = document.getElementById('fb-req-list');
         list.innerHTML = '';
@@ -138,7 +130,8 @@
             const req = child.val();
             const div = document.createElement('div');
             div.className = `req-item ${activeChatId === req.id ? 'active' : ''} ${req.hasUnread ? 'unread' : ''}`;
-            div.innerHTML = `<b>${req.level}</b><br><small>${req.nickname}</small>`;
+            // ИСПРАВЛЕНО: req.levelName вместо req.level
+            div.innerHTML = `<b>${req.levelName || 'Без названия'}</b><br><small>${req.nickname}</small>`;
             div.onclick = () => openChat(req);
             list.appendChild(div);
         });
@@ -148,15 +141,16 @@
         activeChatId = req.id;
         document.getElementById('fb-chat-view').style.display = 'block';
         
-        // ВСЯ ИНФОРМАЦИЯ ОТ ЮЗЕРА ПОД СПИСКОМ
+        // ИСПРАВЛЕНО: соответствие ключам из main.js
         document.getElementById('fb-full-info').innerHTML = `
             <div><b>Игрок / Ник</b> ${req.nickname}</div>
-            <div style="margin-top:10px;"><b>Уровень</b> ${req.level} (by ${req.creator})</div>
-            <div style="margin-top:10px;"><b>Тех. Данные</b> ID: ${req.lvlId} | FPS: ${req.fps} | Botter: ${req.fv} | Type: ${req.type}</div>
+            <div style="margin-top:10px;"><b>Уровень</b> ${req.levelName} (by ${req.creator})</div>
+            <div style="margin-top:10px;"><b>Тех. Данные</b> ID: ${req.levelId} | FPS: ${req.fps} | Botter: ${req.fv} | Type: ${req.type}</div>
             <div style="margin-top:10px;"><b>Список</b> ${req.list} | <a href="${req.showcase}" target="_blank" style="color:#fff">Showcase Link</a></div>
         `;
 
-        onValue(ref(db, `chats/${req.id}`), (snap) => {
+        // ИСПРАВЛЕНО: путь к чату теперь совпадает с пользовательским (requests/ID/messages)
+        onValue(ref(db, `requests/${req.id}/messages`), (snap) => {
             const box = document.getElementById('fb-chat-box');
             box.innerHTML = '';
             snap.forEach(mSnap => {
@@ -173,15 +167,15 @@
     document.getElementById('fb-send').onclick = async () => {
         const inp = document.getElementById('fb-input');
         if(!inp.value || !activeChatId) return;
-        await push(ref(db, `chats/${activeChatId}`), { role: 'admin', text: inp.value, timestamp: Date.now() });
-        await update(ref(db, `requests/${activeChatId}`), { hasUnread: true });
+        // Путь изменен на requests/ID/messages
+        await push(ref(db, `requests/${activeChatId}/messages`), { role: 'admin', text: inp.value, timestamp: Date.now() });
+        await update(ref(db, `requests/${activeChatId}`), { hasUnread: false }); // Сбрасываем непрочитанное при ответе админа
         inp.value = '';
     };
 
     window.deleteCurrentChat = async () => {
         if(confirm("Удалить всё?")) {
             await remove(ref(db, `requests/${activeChatId}`));
-            await remove(ref(db, `chats/${activeChatId}`));
             document.getElementById('fb-chat-view').style.display = 'none';
             activeChatId = null;
         }
@@ -189,7 +183,6 @@
 </script>
 
 <script>
-    // ТВОЙ ОРИГИНАЛЬНЫЙ СКРИПТ РЕДАКТОРА
     let currentData = [];
     let sessionUser = "", sessionPass = "";
     const USERS = [{user:'HELFZz',pass:'creep000'},{user:'Curruser54',pass:'546111'},
