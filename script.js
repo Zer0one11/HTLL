@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // 1. ЭЛЕМЕНТЫ UI
+    // 1. ЭЛЕМЕНТЫ UI И КОНТЕЙНЕРЫ
     const listElement = document.getElementById('levelList');
     const snowToggle = document.getElementById('snow-toggle');
     const sakuraToggle = document.getElementById('sakura-toggle');
@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const opacityRange = document.getElementById('opacityRange');
     const reqModal = document.getElementById('request-modal');
 
-    // 2. СОСТОЯНИЕ
+    // 2. ГЛОБАЛЬНОЕ СОСТОЯНИЕ (LOCALSTORAGE)
     let currentSnowSize = localStorage.getItem('snowSize') || '5';
     let currentSakuraSize = localStorage.getItem('sakuraSize') || '25';
     let currentOpacity = localStorage.getItem('panelOpacity') || '0.01';
@@ -30,7 +30,7 @@ document.addEventListener('DOMContentLoaded', () => {
         'res/1000452096-removebg-preview.png', 'res/1000452097-removebg-preview.png'
     ];
 
-    // 3. КОПИРОВАНИЕ И ФОРМАТ
+    // 3. ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ (КОПИРОВАНИЕ И LATEX)
     window.copyToClipboard = function(text) {
         navigator.clipboard.writeText(text).then(() => {
             const oldNotif = document.querySelector('.copy-notification');
@@ -55,7 +55,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return str;
     }
 
-    // 4. НАСТРОЙКИ
+    // 4. ПРИМЕНЕНИЕ ВИЗУАЛЬНЫХ НАСТРОЕК
     function applyOpacity(val) {
         document.documentElement.style.setProperty('--panel-opacity', val);
         localStorage.setItem('panelOpacity', val);
@@ -72,6 +72,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // Инициализация визуалов
     applyOpacity(currentOpacity);
     applyTheme(currentTheme);
     if(opacityRange) opacityRange.value = currentOpacity;
@@ -85,20 +86,25 @@ document.addEventListener('DOMContentLoaded', () => {
     if(openRequestBtn) {
         openRequestBtn.onclick = async () => {
             const user = window.auth ? window.auth.currentUser : null;
-            if (!user) { alert("Войдите в аккаунт."); return; }
-            if (!user.emailVerified) { alert("Подтвердите почту!"); return; }
+            if (!user) { alert("Сначала войдите в аккаунт."); return; }
+            if (!user.emailVerified) { alert("Подтвердите почту для подачи реквестов!"); return; }
 
             myReqId = localStorage.getItem('myRequestID');
             if (myReqId) {
                 const { get, ref } = window.dbRefs;
-                const snapshot = await get(ref(window.db, 'requests/' + myReqId));
-                if (snapshot.exists()) {
-                    document.getElementById('request-form-container').style.display = 'none';
-                    document.getElementById('chat-section').style.display = 'block';
-                    initUserChat(myReqId);
-                } else {
-                    localStorage.removeItem('myRequestID');
-                    myReqId = null;
+                try {
+                    const snapshot = await get(ref(window.db, 'requests/' + myReqId));
+                    if (snapshot.exists()) {
+                        document.getElementById('request-form-container').style.display = 'none';
+                        document.getElementById('chat-section').style.display = 'block';
+                        initUserChat(myReqId);
+                    } else {
+                        localStorage.removeItem('myRequestID');
+                        myReqId = null;
+                        showForm(user);
+                    }
+                } catch (err) {
+                    console.error("Ошибка проверки реквеста:", err);
                     showForm(user);
                 }
             } else {
@@ -111,10 +117,11 @@ document.addEventListener('DOMContentLoaded', () => {
     function showForm(user) {
         document.getElementById('request-form-container').style.display = 'block';
         document.getElementById('chat-section').style.display = 'none';
-        if(document.getElementById('req-nickname')) document.getElementById('req-nickname').value = user.displayName || "";
+        const nickField = document.getElementById('req-nickname');
+        if(nickField) nickField.value = user.displayName || "";
     }
 
-    // Отправка формы
+    // Обработка отправки формы реквеста
     const reqForm = document.getElementById('request-form');
     if (reqForm) {
         reqForm.onsubmit = async function(e) {
@@ -126,17 +133,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 const newRequestRef = push(ref(window.db, 'requests'));
                 const requestId = newRequestRef.key;
 
+                // Собираем данные (ID исправлены под твой index.html)
                 const requestData = {
                     id: requestId,
                     uid: user.uid,
                     nickname: document.getElementById('req-nickname').value,
-                    levelName: document.getElementById('req-level-name').value,
+                    levelName: document.getElementById('req-level-name').value, // Название уровня
                     creator: document.getElementById('req-creator').value,
-                    levelId: document.getElementById('req-id').value,
+                    levelId: document.getElementById('req-id').value,           // ID уровня
                     fps: document.getElementById('req-fps').value,
                     fv: document.getElementById('req-fv').value || "None",
                     type: document.getElementById('req-type').value || "None",
-                    list: document.getElementById('req-list').value,
+                    list: document.getElementById('req-list').value,           // Теперь тут будет TPLL и т.д.
                     showcase: document.getElementById('req-showcase').value,
                     status: 'pending',
                     timestamp: Date.now()
@@ -145,25 +153,25 @@ document.addEventListener('DOMContentLoaded', () => {
                 await set(newRequestRef, requestData);
                 localStorage.setItem('myRequestID', requestId);
                 
-                alert("Реквест отправлен!");
+                alert("Реквест успешно отправлен!");
                 document.getElementById('request-form-container').style.display = 'none';
                 document.getElementById('chat-section').style.display = 'block';
                 initUserChat(requestId);
             } catch (error) {
-                console.error(error);
-                alert("Ошибка при отправке!");
+                console.error("Ошибка отправки реквеста:", error);
+                alert("Ошибка при записи в базу данных!");
             }
         };
     }
 
-    // Инициализация чата
+    // Инициализация функций чата
     function initUserChat(reqId) {
         const { ref, onValue, push, set, remove } = window.dbRefs;
         const chatContainer = document.getElementById('chat-messages');
         const sendBtn = document.getElementById('send-msg');
         const deleteBtn = document.getElementById('delete-chat-user');
 
-        // Подгрузка сообщений
+        // Слушаем новые сообщения (от админа и от себя)
         onValue(ref(window.db, `requests/${reqId}/messages`), (snapshot) => {
             chatContainer.innerHTML = '';
             if (snapshot.exists()) {
@@ -178,44 +186,57 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        // Отправка сообщения
+        // Отправка сообщения пользователем
         sendBtn.onclick = async () => {
             const input = document.getElementById('user-msg');
-            if (!input.value.trim()) return;
-            const msgRef = push(ref(window.db, `requests/${reqId}/messages`));
-            await set(msgRef, {
-                text: input.value,
-                role: 'user',
-                timestamp: Date.now()
-            });
-            input.value = '';
+            const text = input.value.trim();
+            if (!text) return;
+
+            try {
+                const msgRef = push(ref(window.db, `requests/${reqId}/messages`));
+                await set(msgRef, {
+                    text: text,
+                    role: 'user',
+                    timestamp: Date.now()
+                });
+                input.value = '';
+            } catch (e) {
+                console.error("Ошибка отправки сообщения:", e);
+            }
         };
 
-        // Удаление чата юзером
+        // Удаление чата (отмена реквеста)
         deleteBtn.onclick = async () => {
-            if (confirm("Удалить этот реквест навсегда?")) {
-                await remove(ref(window.db, `requests/${reqId}`));
-                localStorage.removeItem('myRequestID');
-                location.reload();
+            if (confirm("Вы действительно хотите удалить свой реквест?")) {
+                try {
+                    await remove(ref(window.db, `requests/${reqId}`));
+                    localStorage.removeItem('myRequestID');
+                    location.reload();
+                } catch (e) {
+                    alert("Ошибка при удалении!");
+                }
             }
         };
     }
 
-    // 6. ЗАГРУЗКА СПИСКОВ
+    // 6. ЗАГРУЗКА И ОТОБРАЖЕНИЕ СПИСКОВ (JSON)
     async function loadList(listId) {
         const listMap = { 
             'levels': 'levels.json', 'ppll': 'ppll.json', 'sll': 'sll.json', 
-            'ill': 'ill.json', 'inf': 'inf.json', 'scl': 'scl.css', 'icl': 'icl.json' 
+            'ill': 'ill.json', 'inf': 'inf.json', 'scl': 'scl.json', 'icl': 'icl.json' 
         };
         try {
             const response = await fetch(listMap[listId] + '?t=' + Date.now());
+            if (!response.ok) throw new Error("Файл списка не найден");
             const data = await response.json();
+            
             listElement.innerHTML = '';
             data.forEach(level => {
                 const li = document.createElement('li');
                 li.className = 'level-item';
                 const botterHtml = (level.fv && level.fv.toLowerCase() !== 'none') ? `<li><span class="detail-label">Botter:</span> ${formatLatex(level.fv)}</li>` : '';
                 const typeHtml = (level.type && level.type.toLowerCase() !== 'none') ? `<li><span class="detail-label">Type:</span> ${formatLatex(level.type)}</li>` : '';
+                
                 li.innerHTML = `
                     <div class="level-header">
                         <span class="level-number">#${level.number}</span>
@@ -231,20 +252,28 @@ document.addEventListener('DOMContentLoaded', () => {
                     </ul>`;
                 listElement.appendChild(li);
             });
+
             localStorage.setItem('currentListId', listId);
             document.querySelectorAll('.list-button').forEach(btn => btn.classList.toggle('active-list', btn.dataset.list === listId));
             applyOpacity(currentOpacity);
-            if (window.MathJax) window.MathJax.typesetPromise();
-        } catch (e) { console.error(e); }
+            
+            if (window.MathJax) {
+                window.MathJax.typesetPromise().catch((err) => console.log('MathJax error:', err));
+            }
+        } catch (e) { 
+            console.error("Ошибка загрузки JSON:", e);
+            listElement.innerHTML = `<p style="color:red; text-align:center;">Ошибка загрузки списка ${listId}</p>`;
+        }
     }
 
-    // 7. ЧАСТИЦЫ
+    // 7. СИСТЕМА ЧАСТИЦ (СНЕГ И САКУРА)
     function createSnowflake() {
         if (!isSnowEnabled || !snowContainer) return;
         const sf = document.createElement('div');
         sf.className = 'snowflake';
         const size = (Math.random() * 3 + Number(currentSnowSize)) + 'px';
-        sf.style.width = size; sf.style.height = size;
+        sf.style.width = size; 
+        sf.style.height = size;
         sf.style.left = Math.random() * 100 + 'vw';
         sf.style.animation = `snow-fall ${Math.random() * 3 + 4}s linear forwards`;
         snowContainer.appendChild(sf);
@@ -257,38 +286,86 @@ document.addEventListener('DOMContentLoaded', () => {
         petal.className = 'sakura-petal';
         petal.style.backgroundImage = `url('${sakuraTextures[Math.floor(Math.random() * sakuraTextures.length)]}')`;
         const size = (Math.random() * 10 + Number(currentSakuraSize)) + 'px';
-        petal.style.width = size; petal.style.height = size;
+        petal.style.width = size; 
+        petal.style.height = size;
         petal.style.left = Math.random() * 100 + 'vw';
         petal.style.animation = `sakura-fall ${Math.random() * 5 + 7}s linear forwards`;
         snowContainer.appendChild(petal);
         setTimeout(() => petal.remove(), 12000);
     }
 
-    // 8. СОБЫТИЯ UI
-    if(settingsBtn) settingsBtn.onclick = (e) => { e.stopPropagation(); settingsMenu.classList.toggle('active'); };
-    document.addEventListener('click', (e) => { if (settingsMenu && !settingsMenu.contains(e.target) && e.target !== settingsBtn) settingsMenu.classList.remove('active'); });
+    // 8. СЛУШАТЕЛИ СОБЫТИЙ (SETTINGS & UI)
+    if(settingsBtn) {
+        settingsBtn.onclick = (e) => { 
+            e.stopPropagation(); 
+            settingsMenu.classList.toggle('active'); 
+        };
+    }
+
+    document.addEventListener('click', (e) => { 
+        if (settingsMenu && !settingsMenu.contains(e.target) && e.target !== settingsBtn) {
+            settingsMenu.classList.remove('active'); 
+        }
+    });
+
     if(opacityRange) opacityRange.oninput = (e) => applyOpacity(e.target.value);
-    if(snowSizeRange) snowSizeRange.oninput = (e) => { currentSnowSize = e.target.value; localStorage.setItem('snowSize', e.target.value); };
-    if(sakuraSizeRange) sakuraSizeRange.oninput = (e) => { currentSakuraSize = e.target.value; localStorage.setItem('sakuraSize', e.target.value); };
     
-    if(snowToggle) snowToggle.onchange = () => {
-        isSnowEnabled = snowToggle.checked;
-        if (isSnowEnabled) { isSakuraEnabled = false; if(sakuraToggle) sakuraToggle.checked = false; }
-        localStorage.setItem('snowEnabled', isSnowEnabled);
-        localStorage.setItem('sakuraEnabled', isSakuraEnabled);
-    };
+    if(snowSizeRange) {
+        snowSizeRange.oninput = (e) => { 
+            currentSnowSize = e.target.value; 
+            localStorage.setItem('snowSize', e.target.value); 
+        };
+    }
 
-    if(sakuraToggle) sakuraToggle.onchange = () => {
-        isSakuraEnabled = sakuraToggle.checked;
-        if (isSakuraEnabled) { isSnowEnabled = false; if(snowToggle) snowToggle.checked = false; }
-        localStorage.setItem('sakuraEnabled', isSakuraEnabled);
-        localStorage.setItem('snowEnabled', isSnowEnabled);
-    };
+    if(sakuraSizeRange) {
+        sakuraSizeRange.oninput = (e) => { 
+            currentSakuraSize = e.target.value; 
+            localStorage.setItem('sakuraSize', e.target.value); 
+        };
+    }
+    
+    if(snowToggle) {
+        snowToggle.onchange = () => {
+            isSnowEnabled = snowToggle.checked;
+            if (isSnowEnabled) { 
+                isSakuraEnabled = false; 
+                if(sakuraToggle) sakuraToggle.checked = false; 
+            }
+            localStorage.setItem('snowEnabled', isSnowEnabled);
+            localStorage.setItem('sakuraEnabled', isSakuraEnabled);
+        };
+    }
 
-    document.querySelectorAll('.list-button').forEach(b => b.onclick = () => loadList(b.dataset.list));
-    document.querySelectorAll('.theme-button').forEach(b => b.onclick = () => applyTheme(b.dataset.theme));
-    if(document.getElementById('close-modal')) document.getElementById('close-modal').onclick = () => reqModal.style.display = 'none';
+    if(sakuraToggle) {
+        sakuraToggle.onchange = () => {
+            isSakuraEnabled = sakuraToggle.checked;
+            if (isSakuraEnabled) { 
+                isSnowEnabled = false; 
+                if(snowToggle) snowToggle.checked = false; 
+            }
+            localStorage.setItem('sakuraEnabled', isSakuraEnabled);
+            localStorage.setItem('snowEnabled', isSnowEnabled);
+        };
+    }
 
+    // Переключение списков (кнопки)
+    document.querySelectorAll('.list-button').forEach(b => {
+        b.onclick = () => loadList(b.dataset.list);
+    });
+
+    // Переключение тем
+    document.querySelectorAll('.theme-button').forEach(b => {
+        b.onclick = () => applyTheme(b.dataset.theme);
+    });
+
+    // Закрытие модалки
+    if(document.getElementById('close-modal')) {
+        document.getElementById('close-modal').onclick = () => {
+            reqModal.style.display = 'none';
+        };
+    }
+
+    // 9. ЗАПУСК ЦИКЛОВ И ПЕРВИЧНАЯ ЗАГРУЗКА
     setInterval(createSnowflake, 200);
     setInterval(createSakura, 350);
     loadList(currentListId);
