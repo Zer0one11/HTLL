@@ -22,7 +22,6 @@
     <div id="snow-container"></div>
 
     <button id="open-request-btn" class="request-main-btn">ПОДАТЬ РЕКВЕСТ</button>
-    <button id="auth-main-btn" class="request-main-btn" style="left: auto; right: 20px; display: none;">РЕГИСТРАЦИЯ / ВХОД</button>
     <button id="settings-btn" class="settings-trigger">⚙</button>
 
     <div id="settings-menu" class="settings-panel">
@@ -32,21 +31,17 @@
         </div>
 
         <div class="s-control">
-            <label>
-                <input type="checkbox" id="snow-toggle" onchange="toggleEffect('snow', this.checked)"> 
-                СНЕГ (ВКЛ)
+            <label class="switch-label">
+                <input type="checkbox" id="snow-toggle" onchange="toggleEffect('snow', this.checked)"> СНЕГ
             </label>
             <input type="range" id="snow-range" min="1" max="15" value="5" oninput="updateSnowSize(this.value)">
-            <span id="snow-size-val" class="size-indicator">5px</span>
         </div>
 
         <div class="s-control">
-            <label>
-                <input type="checkbox" id="sakura-toggle" onchange="toggleEffect('sakura', this.checked)"> 
-                САКУРА (ВКЛ)
+            <label class="switch-label">
+                <input type="checkbox" id="sakura-toggle" onchange="toggleEffect('sakura', this.checked)"> САКУРА
             </label>
             <input type="range" id="sakura-range" min="10" max="60" value="25" oninput="updateSakuraSize(this.value)">
-            <span id="sakura-size-val" class="size-indicator">25px</span>
         </div>
 
         <div class="theme-switcher">
@@ -61,14 +56,14 @@
     </header>
 
     <div class="list-switcher">
-        <button class="list-button active-list" data-list="levels">Main List</button>
+        <button class="list-button" data-list="levels">Main List</button>
         <button class="list-button" data-list="ill">ILL</button>
         <button class="list-button" data-list="ppll">PPLL</button>
-        <button class="list-button" data-list="tpll">TPLL</button>
     </div>
 
-    <ul id="level-list" class="level-list">
-        </ul>
+    <ul id="level-list" class="level-list"></ul>
+
+    <button id="auth-main-btn" class="request-main-btn">ВОЙТИ / ПРОФИЛЬ</button>
 
     <div id="request-modal" class="modal-overlay">
         <div class="modal-content">
@@ -79,32 +74,42 @@
                     <input type="text" id="req-level-name" placeholder="НАЗВАНИЕ УРОВНЯ" required>
                     <input type="text" id="req-creator" placeholder="АВТОР" required>
                     <input type="text" id="req-id" placeholder="ID УРОВНЯ" required>
-                    <input type="text" id="req-fps" placeholder="FPS (например, 360)" required>
-                    <input type="text" id="req-fv" placeholder="BOTTER (если есть)">
-                    <input type="text" id="req-type" placeholder="ТИП (например, ILL)">
+                    <input type="text" id="req-fps" placeholder="FPS" required>
+                    <input type="text" id="req-fv" placeholder="BOTTER (None)">
+                    <input type="text" id="req-type" placeholder="TYPE (None)">
                     <select id="req-list">
-                        <option value="main">Main List</option>
+                        <option value="levels">Main List</option>
                         <option value="ill">ILL</option>
                         <option value="ppll">PPLL</option>
-                        <option value="tpll">TPLL</option>
                     </select>
-                    <input type="url" id="req-showcase" placeholder="ССЫЛКА НА ВИДЕО" required>
+                    <input type="url" id="req-showcase" placeholder="ВИДЕО (LINK)" required>
                     <button type="submit" class="submit-btn">ОТПРАВИТЬ</button>
                 </form>
             </div>
-
             <div id="chat-section" style="display:none;">
-                <div style="display:flex; justify-content:space-between; align-items:center;">
-                    <h2>Чат с администрацией</h2>
-                    <button id="delete-chat-user" style="color:red; font-size:0.6rem; background:none; border:none; cursor:pointer;">УДАЛИТЬ ЧАТ</button>
+                <div style="display:flex; justify-content:space-between;">
+                    <h2>Чат</h2>
+                    <button id="delete-chat-user" style="color:red; background:none; border:none; cursor:pointer;">УДАЛИТЬ</button>
                 </div>
                 <div id="chat-messages"></div>
                 <div style="display:flex; gap:10px;">
-                    <input type="text" id="user-msg" placeholder="Сообщение...">
+                    <input type="text" id="user-msg" placeholder="Текст...">
                     <button id="send-msg">></button>
                 </div>
             </div>
-            <button id="close-modal" style="background:none; border:none; color:#555; cursor:pointer; margin-top:15px; width:100%;">ЗАКРЫТЬ</button>
+            <button id="close-modal" style="width:100%; margin-top:15px; background:none; border:none; color:#555; cursor:pointer;">ЗАКРЫТЬ</button>
+        </div>
+    </div>
+
+    <div id="auth-modal" class="modal-overlay">
+        <div class="modal-content" style="text-align:center;">
+            <h2 id="auth-title">Вход</h2>
+            <input type="text" id="auth-nick" placeholder="НИКНЕЙМ" class="auth-input" style="display:none; width:100%; margin-bottom:10px;">
+            <input type="email" id="auth-email" placeholder="EMAIL" class="auth-input" style="width:100%; margin-bottom:10px;">
+            <input type="password" id="auth-pass" placeholder="ПАРОЛЬ" class="auth-input" style="width:100%; margin-bottom:10px;">
+            <button id="auth-confirm-btn" class="submit-btn">ПОДТВЕРДИТЬ</button>
+            <p id="auth-mode-switch" style="cursor:pointer; font-size:0.7rem; margin-top:10px;">Нет аккаунта? Регистрация</p>
+            <button id="close-auth" style="background:none; border:none; color:#555; margin-top:10px; cursor:pointer;">ОТМЕНА</button>
         </div>
     </div>
 
