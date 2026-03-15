@@ -35,10 +35,8 @@ const authNickInput = document.getElementById('auth-nick');
 
 let isLoginMode = true;
 
-// СЛУШАТЕЛЬ СОСТОЯНИЯ
 onAuthStateChanged(auth, (user) => {
     if (user) {
-        // Если залогинен, но почта НЕ подтверждена — выкидываем
         if (!user.emailVerified) {
             authMainBtn.style.display = 'block';
             profileBlock.style.display = 'none';
@@ -53,11 +51,9 @@ onAuthStateChanged(auth, (user) => {
     }
 });
 
-// КНОПКИ ОТКРЫТИЯ/ЗАКРЫТИЯ
 if(authMainBtn) authMainBtn.onclick = () => authModal.style.display = 'flex';
 if(document.getElementById('close-auth')) document.getElementById('close-auth').onclick = () => authModal.style.display = 'none';
 
-// ПЕРЕКЛЮЧЕНИЕ ВХОД/РЕГИСТРАЦИЯ
 switchBtn.onclick = () => {
     isLoginMode = !isLoginMode;
     authTitle.innerText = isLoginMode ? "Вход" : "Регистрация";
@@ -65,7 +61,6 @@ switchBtn.onclick = () => {
     switchBtn.innerText = isLoginMode ? "Нет аккаунта? Регистрация" : "Есть аккаунт? Вход";
 };
 
-// ГЛАВНАЯ ЛОГИКА
 document.getElementById('auth-confirm-btn').onclick = async () => {
     const email = document.getElementById('auth-email').value.trim();
     const pass = document.getElementById('auth-pass').value.trim();
@@ -75,33 +70,36 @@ document.getElementById('auth-confirm-btn').onclick = async () => {
 
     try {
         if (isLoginMode) {
-            // ВХОД
             const res = await signInWithEmailAndPassword(auth, email, pass);
             
             if (!res.user.emailVerified) {
-                alert("Ваша почта не подтверждена! Проверьте папку 'Входящие' или 'Спам'.");
+                if (confirm("Ваша почта не подтверждена. Отправить письмо с ссылкой еще раз?")) {
+                    await sendEmailVerification(auth.currentUser);
+                    alert("Письмо отправлено! Проверьте почту (входящие и спам).");
+                }
                 await signOut(auth);
                 return;
             }
         } else {
-            // РЕГИСТРАЦИЯ
             if (!nick) return alert("Введите никнейм");
             const res = await createUserWithEmailAndPassword(auth, email, pass);
             
-            // Ставим ник
             await updateProfile(res.user, { displayName: nick });
+            await res.user.reload();
             
-            // Отправляем письмо подтверждения
-            await sendEmailVerification(res.user);
+            try {
+                await sendEmailVerification(auth.currentUser);
+            } catch (sendError) {
+                console.error("Ошибка отправки:", sendError);
+            }
             
-            // Сохраняем данные в БД
             await set(ref(db, 'users/' + res.user.uid), {
                 username: nick,
                 email: email,
                 role: 'user'
             });
 
-            alert("Аккаунт создан! Мы отправили письмо для подтверждения на вашу почту. Пожалуйста, подтвердите её перед входом.");
+            alert("Аккаунт создан! Подтвердите почту перед входом.");
             await signOut(auth);
         }
         
@@ -112,7 +110,6 @@ document.getElementById('auth-confirm-btn').onclick = async () => {
     }
 };
 
-// ВЫХОД
 document.getElementById('logout-btn').onclick = () => {
     signOut(auth).then(() => location.reload());
 };
