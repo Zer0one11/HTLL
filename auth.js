@@ -35,16 +35,29 @@ const authNickInput = document.getElementById('auth-nick');
 
 let isLoginMode = true;
 
-onAuthStateChanged(auth, (user) => {
+onAuthStateChanged(auth, async (user) => {
     if (user) {
         if (!user.emailVerified) {
             authMainBtn.style.display = 'block';
             profileBlock.style.display = 'none';
             return;
         }
+
+        // Пытаемся взять ник из профиля
+        let name = user.displayName;
+
+        // Если в профиле пусто, тянем из БД
+        if (!name) {
+            const { get, ref, child } = window.dbRefs; // убедись, что dbRefs доступны
+            const snapshot = await get(child(ref(window.db), `users/${user.uid}`));
+            if (snapshot.exists()) {
+                name = snapshot.val().username;
+            }
+        }
+
         authMainBtn.style.display = 'none';
         profileBlock.style.display = 'flex';
-        userNameDisplay.innerText = user.displayName || "User";
+        userNameDisplay.innerText = name || "User";
     } else {
         authMainBtn.style.display = 'block';
         profileBlock.style.display = 'none';
