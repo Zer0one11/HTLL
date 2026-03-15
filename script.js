@@ -194,53 +194,57 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.list-button').forEach(b => b.onclick = () => loadList(b.dataset.list));
     document.querySelectorAll('.theme-button').forEach(b => b.onclick = () => applyTheme(b.dataset.theme));
 
-    // 8. РЕКВЕСТЫ
+        // 8. РЕКВЕСТЫ (ФИКС ДЛЯ НЕКРОТИКА И ОСТАЛЬНЫХ)
     const openRequestBtn = document.getElementById('open-request-btn');
     if(openRequestBtn) {
-        openRequestBtn.onclick = () => {
+        openRequestBtn.onclick = async () => {
             const user = window.auth ? window.auth.currentUser : null;
+            
             if (!user) {
                 alert("Сначала войдите в аккаунт.");
                 return;
             }
+
             if (!user.emailVerified) {
-                alert("Подтвердите почту!");
+                alert("Почта не подтверждена! Проверь спам. Если письма нет — перезайди в аккаунт, вылезет окно переотправки.");
                 return;
             }
 
-            // ПРОВЕРКА: Если в localStorage есть ID, но реквестов реально нет
-            // (myReqId берется из состояния в начале скрипта)
+            // Если у юзера сохранен ID, проверяем его реальность в БД
             if (myReqId) {
-                // Проверяем, существует ли такой реквест в БД
-                const reqRef = window.dbRefs.ref(window.db, 'requests/' + myReqId);
-                window.dbRefs.get(reqRef).then((snapshot) => {
+                try {
+                    // Используем динамический импорт или глобальную ссылку на базу
+                    const { get, ref } = window.dbRefs; 
+                    const snapshot = await get(ref(window.db, 'requests/' + myReqId));
+                    
                     if (snapshot.exists()) {
-                        // Реквест реально есть — открываем чат
+                        // Всё ок, реквест есть — открываем чат
                         document.getElementById('request-form-container').style.display = 'none';
                         document.getElementById('chat-section').style.display = 'block';
-                        if (typeof initUserChat === "function") initUserChat(myReqId);
                     } else {
-                        // Реквеста в базе нет — чистим кеш и открываем форму
-                        console.log("Битый ID реквеста удален");
+                        // Реквеста в базе НЕТ (удалили или сброс базы) — чистим мусор
                         localStorage.removeItem('myRequestID');
                         myReqId = null; 
-                        showRequestForm(user);
+                        showForm(user);
                     }
-                });
+                } catch (e) {
+                    console.error("Ошибка проверки реквеста:", e);
+                    showForm(user);
+                }
             } else {
-                showRequestForm(user);
+                showForm(user);
             }
             reqModal.style.display = 'flex';
         };
     }
 
-    // Вынес логику показа формы в отдельную функцию для чистоты
-    function showRequestForm(user) {
+    function showForm(user) {
         document.getElementById('request-form-container').style.display = 'block';
         document.getElementById('chat-section').style.display = 'none';
         const nickInput = document.getElementById('req-nickname');
         if(nickInput) nickInput.value = user.displayName || "";
     }
+
 
     // 9. ЗАПУСК
     setInterval(createSnowflake, 200);
