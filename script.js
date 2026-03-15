@@ -1,4 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
+    // 1. ЭЛЕМЕНТЫ UI
     const listElement = document.getElementById('levelList');
     const snowToggle = document.getElementById('snow-toggle');
     const sakuraToggle = document.getElementById('sakura-toggle');
@@ -10,6 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const opacityRange = document.getElementById('opacityRange');
     const reqModal = document.getElementById('request-modal');
 
+    // 2. СОСТОЯНИЕ
     let currentSnowSize = localStorage.getItem('snowSize') || '5';
     let currentSakuraSize = localStorage.getItem('sakuraSize') || '25';
     let currentOpacity = localStorage.getItem('panelOpacity') || '0.01';
@@ -28,6 +30,7 @@ document.addEventListener('DOMContentLoaded', () => {
         'res/1000452096-removebg-preview.png', 'res/1000452097-removebg-preview.png'
     ];
 
+    // 3. ФОРМАТИРОВАНИЕ И КОПИРОВАНИЕ
     window.copyToClipboard = function(text) {
         navigator.clipboard.writeText(text).then(() => {
             const oldNotif = document.querySelector('.copy-notification');
@@ -52,6 +55,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return str;
     }
 
+    // 4. ПРИМЕНЕНИЕ НАСТРОЕК
     function applyOpacity(val) {
         document.documentElement.style.setProperty('--panel-opacity', val);
         localStorage.setItem('panelOpacity', val);
@@ -70,51 +74,86 @@ document.addEventListener('DOMContentLoaded', () => {
 
     applyOpacity(currentOpacity);
     applyTheme(currentTheme);
-    if(opacityRange) opacityRange.value = currentOpacity;
-    if(snowSizeRange) snowSizeRange.value = currentSnowSize;
-    if(sakuraSizeRange) sakuraSizeRange.value = currentSakuraSize;
-    if(snowToggle) snowToggle.checked = isSnowEnabled;
-    if(sakuraToggle) sakuraToggle.checked = isSakuraEnabled;
 
-    if(snowToggle) snowToggle.onchange = () => {
-        isSnowEnabled = snowToggle.checked;
-        if (isSnowEnabled) { isSakuraEnabled = false; if(sakuraToggle) sakuraToggle.checked = false; }
-        localStorage.setItem('snowEnabled', isSnowEnabled);
-        localStorage.setItem('sakuraEnabled', isSakuraEnabled);
-    };
+    // 5. РЕКВЕСТЫ
+    const openRequestBtn = document.getElementById('open-request-btn');
+    if(openRequestBtn) {
+        openRequestBtn.onclick = async () => {
+            const user = window.auth ? window.auth.currentUser : null;
+            if (!user) { alert("Войдите в аккаунт."); return; }
+            if (!user.emailVerified) { alert("Подтвердите почту!"); return; }
 
-    if(sakuraToggle) sakuraToggle.onchange = () => {
-        isSakuraEnabled = sakuraToggle.checked;
-        if (isSakuraEnabled) { isSnowEnabled = false; if(snowToggle) snowToggle.checked = false; }
-        localStorage.setItem('sakuraEnabled', isSakuraEnabled);
-        localStorage.setItem('snowEnabled', isSnowEnabled);
-    };
-
-    function createSnowflake() {
-        if (!isSnowEnabled || !snowContainer) return;
-        const sf = document.createElement('div');
-        sf.className = 'snowflake';
-        const size = (Math.random() * 3 + Number(currentSnowSize)) + 'px';
-        sf.style.width = size; sf.style.height = size;
-        sf.style.left = Math.random() * 100 + 'vw';
-        sf.style.animation = `snow-fall ${Math.random() * 3 + 4}s linear forwards`;
-        snowContainer.appendChild(sf);
-        setTimeout(() => sf.remove(), 7000);
+            myReqId = localStorage.getItem('myRequestID');
+            if (myReqId) {
+                const { get, ref } = window.dbRefs;
+                const snapshot = await get(ref(window.db, 'requests/' + myReqId));
+                if (snapshot.exists()) {
+                    document.getElementById('request-form-container').style.display = 'none';
+                    document.getElementById('chat-section').style.display = 'block';
+                } else {
+                    localStorage.removeItem('myRequestID');
+                    myReqId = null;
+                    showForm(user);
+                }
+            } else {
+                showForm(user);
+            }
+            reqModal.style.display = 'flex';
+        };
     }
 
-    function createSakura() {
-        if (!isSakuraEnabled || !snowContainer) return;
-        const petal = document.createElement('div');
-        petal.className = 'sakura-petal';
-        petal.style.backgroundImage = `url('${sakuraTextures[Math.floor(Math.random() * sakuraTextures.length)]}')`;
-        const size = (Math.random() * 10 + Number(currentSakuraSize)) + 'px';
-        petal.style.width = size; petal.style.height = size;
-        petal.style.left = Math.random() * 100 + 'vw';
-        petal.style.animation = `sakura-fall ${Math.random() * 5 + 7}s linear forwards`;
-        snowContainer.appendChild(petal);
-        setTimeout(() => petal.remove(), 12000);
+    function showForm(user) {
+        document.getElementById('request-form-container').style.display = 'block';
+        document.getElementById('chat-section').style.display = 'none';
+        const nickInput = document.getElementById('req-nickname');
+        if(nickInput) nickInput.value = user.displayName || "";
     }
 
+    // ОТПРАВКА ФОРМЫ
+    const reqForm = document.getElementById('request-form');
+    if (reqForm) {
+        reqForm.onsubmit = async function(e) {
+            e.preventDefault();
+            
+            const user = window.auth.currentUser;
+            const { ref, push, set } = window.dbRefs;
+
+            try {
+                const newRequestRef = push(ref(window.db, 'requests'));
+                const requestId = newRequestRef.key;
+
+                const requestData = {
+                    id: requestId,
+                    uid: user.uid,
+                    nickname: document.getElementById('req-nickname').value,
+                    levelName: document.getElementById('req-level-name').value,
+                    creator: document.getElementById('req-creator').value,
+                    levelId: document.getElementById('req-id').value,
+                    fps: document.getElementById('req-fps').value,
+                    fv: document.getElementById('req-fv').value || "None",
+                    type: document.getElementById('req-type').value || "None",
+                    list: document.getElementById('req-list').value,
+                    showcase: document.getElementById('req-showcase').value,
+                    status: 'pending',
+                    timestamp: Date.now()
+                };
+
+                await set(newRequestRef, requestData);
+                localStorage.setItem('myRequestID', requestId);
+                
+                alert("Реквест отправлен!");
+                document.getElementById('request-form-container').style.display = 'none';
+                document.getElementById('chat-section').style.display = 'block';
+                
+                if (typeof initUserChat === "function") initUserChat(requestId);
+            } catch (error) {
+                console.error(error);
+                alert("Ошибка при отправке!");
+            }
+        };
+    }
+
+    // 6. ЗАГРУЗКА СПИСКА
     async function loadList(listId) {
         const listMap = { 
             'levels': 'levels.json', 'ppll': 'ppll.json', 'sll': 'sll.json', 
@@ -151,67 +190,54 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (e) { console.error(e); }
     }
 
-    const openRequestBtn = document.getElementById('open-request-btn');
-    if(openRequestBtn) {
-        openRequestBtn.onclick = async () => {
-            const user = window.auth ? window.auth.currentUser : null;
-            if (!user) { alert("Войдите в аккаунт."); return; }
-            if (!user.emailVerified) { alert("Подтвердите почту!"); return; }
-
-            myReqId = localStorage.getItem('myRequestID');
-            if (myReqId) {
-                const { get, ref } = window.dbRefs;
-                const snapshot = await get(ref(window.db, 'requests/' + myReqId));
-                if (snapshot.exists()) {
-                    document.getElementById('request-form-container').style.display = 'none';
-                    document.getElementById('chat-section').style.display = 'block';
-                    if (typeof initUserChat === "function") initUserChat(myReqId);
-                } else {
-                    localStorage.removeItem('myRequestID');
-                    myReqId = null;
-                    showForm(user);
-                }
-            } else { showForm(user); }
-            reqModal.style.display = 'flex';
-        };
+    // 7. ЧАСТИЦЫ (Снег/Сакура)
+    function createSnowflake() {
+        if (!isSnowEnabled || !snowContainer) return;
+        const sf = document.createElement('div');
+        sf.className = 'snowflake';
+        const size = (Math.random() * 3 + Number(currentSnowSize)) + 'px';
+        sf.style.width = size; sf.style.height = size;
+        sf.style.left = Math.random() * 100 + 'vw';
+        sf.style.animation = `snow-fall ${Math.random() * 3 + 4}s linear forwards`;
+        snowContainer.appendChild(sf);
+        setTimeout(() => sf.remove(), 7000);
     }
 
-    function showForm(user) {
-        document.getElementById('request-form-container').style.display = 'block';
-        document.getElementById('chat-section').style.display = 'none';
-        if(document.getElementById('req-nickname')) document.getElementById('req-nickname').value = user.displayName || "";
+    function createSakura() {
+        if (!isSakuraEnabled || !snowContainer) return;
+        const petal = document.createElement('div');
+        petal.className = 'sakura-petal';
+        petal.style.backgroundImage = `url('${sakuraTextures[Math.floor(Math.random() * sakuraTextures.length)]}')`;
+        const size = (Math.random() * 10 + Number(currentSakuraSize)) + 'px';
+        petal.style.width = size; petal.style.height = size;
+        petal.style.left = Math.random() * 100 + 'vw';
+        petal.style.animation = `sakura-fall ${Math.random() * 5 + 7}s linear forwards`;
+        snowContainer.appendChild(petal);
+        setTimeout(() => petal.remove(), 12000);
     }
 
-    window.submitRequest = async function() {
-        const user = window.auth.currentUser;
-        const levelId = document.getElementById('req-level-id').value.trim();
-        const nick = document.getElementById('req-nickname').value.trim();
-        const comment = document.getElementById('req-comment').value.trim();
-
-        if (!levelId) return alert("Введите ID уровня!");
-
-        const { ref, push, set } = window.dbRefs;
-        try {
-            const newRequestRef = push(ref(window.db, 'requests'));
-            const requestId = newRequestRef.key;
-            const requestData = {
-                id: requestId, uid: user.uid, nickname: nick || user.displayName,
-                levelId: levelId, comment: comment, status: 'pending', timestamp: Date.now()
-            };
-            await set(newRequestRef, requestData);
-            localStorage.setItem('myRequestID', requestId);
-            alert("Отправлено!");
-            document.getElementById('request-form-container').style.display = 'none';
-            document.getElementById('chat-section').style.display = 'block';
-            if (typeof initUserChat === "function") initUserChat(requestId);
-        } catch (e) { alert("Ошибка записи!"); console.error(e); }
-    };
-
+    // 8. СОБЫТИЯ
     if(settingsBtn) settingsBtn.onclick = (e) => { e.stopPropagation(); settingsMenu.classList.toggle('active'); };
     document.addEventListener('click', (e) => { if (settingsMenu && !settingsMenu.contains(e.target) && e.target !== settingsBtn) settingsMenu.classList.remove('active'); });
+    
     if(opacityRange) opacityRange.oninput = (e) => applyOpacity(e.target.value);
     if(snowSizeRange) snowSizeRange.oninput = (e) => { currentSnowSize = e.target.value; localStorage.setItem('snowSize', e.target.value); };
     if(sakuraSizeRange) sakuraSizeRange.oninput = (e) => { currentSakuraSize = e.target.value; localStorage.setItem('sakuraSize', e.target.value); };
+    
+    if(snowToggle) snowToggle.onchange = () => {
+        isSnowEnabled = snowToggle.checked;
+        if (isSnowEnabled) { isSakuraEnabled = false; if(sakuraToggle) sakuraToggle.checked = false; }
+        localStorage.setItem('snowEnabled', isSnowEnabled);
+        localStorage.setItem('sakuraEnabled', isSakuraEnabled);
+    };
+
+    if(sakuraToggle) sakuraToggle.onchange = () => {
+        isSakuraEnabled = sakuraToggle.checked;
+        if (isSakuraEnabled) { isSnowEnabled = false; if(snowToggle) snowToggle.checked = false; }
+        localStorage.setItem('sakuraEnabled', isSakuraEnabled);
+        localStorage.setItem('snowEnabled', isSnowEnabled);
+    };
+
     document.querySelectorAll('.list-button').forEach(b => b.onclick = () => loadList(b.dataset.list));
     document.querySelectorAll('.theme-button').forEach(b => b.onclick = () => applyTheme(b.dataset.theme));
     if(document.getElementById('close-modal')) document.getElementById('close-modal').onclick = () => reqModal.style.display = 'none';
