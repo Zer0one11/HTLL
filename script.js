@@ -200,27 +200,47 @@ document.addEventListener('DOMContentLoaded', () => {
         openRequestBtn.onclick = () => {
             const user = window.auth ? window.auth.currentUser : null;
             if (!user) {
-                alert("Чтобы подать реквест, сначала зарегистрируйтесь или войдите в аккаунт.");
+                alert("Сначала войдите в аккаунт.");
                 return;
             }
             if (!user.emailVerified) {
-                alert("Ваша почта не подтверждена! Пожалуйста, проверьте почтовый ящик.");
+                alert("Подтвердите почту!");
                 return;
             }
 
+            // ПРОВЕРКА: Если в localStorage есть ID, но реквестов реально нет
+            // (myReqId берется из состояния в начале скрипта)
             if (myReqId) {
-                document.getElementById('request-form-container').style.display = 'none';
-                document.getElementById('chat-section').style.display = 'block';
+                // Проверяем, существует ли такой реквест в БД
+                const reqRef = window.dbRefs.ref(window.db, 'requests/' + myReqId);
+                window.dbRefs.get(reqRef).then((snapshot) => {
+                    if (snapshot.exists()) {
+                        // Реквест реально есть — открываем чат
+                        document.getElementById('request-form-container').style.display = 'none';
+                        document.getElementById('chat-section').style.display = 'block';
+                        if (typeof initUserChat === "function") initUserChat(myReqId);
+                    } else {
+                        // Реквеста в базе нет — чистим кеш и открываем форму
+                        console.log("Битый ID реквеста удален");
+                        localStorage.removeItem('myRequestID');
+                        myReqId = null; 
+                        showRequestForm(user);
+                    }
+                });
             } else {
-                document.getElementById('request-form-container').style.display = 'block';
-                document.getElementById('chat-section').style.display = 'none';
-                const nickInput = document.getElementById('req-nickname');
-                if(nickInput) nickInput.value = user.displayName || "";
+                showRequestForm(user);
             }
             reqModal.style.display = 'flex';
         };
     }
-    if(document.getElementById('close-modal')) document.getElementById('close-modal').onclick = () => reqModal.style.display = 'none';
+
+    // Вынес логику показа формы в отдельную функцию для чистоты
+    function showRequestForm(user) {
+        document.getElementById('request-form-container').style.display = 'block';
+        document.getElementById('chat-section').style.display = 'none';
+        const nickInput = document.getElementById('req-nickname');
+        if(nickInput) nickInput.value = user.displayName || "";
+    }
 
     // 9. ЗАПУСК
     setInterval(createSnowflake, 200);
