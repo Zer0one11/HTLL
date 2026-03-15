@@ -1,11 +1,8 @@
-document.addEventListener('DOMContentLoaded', () => {
-    // Инициализация состояний
-    let currentSnowSize = localStorage.getItem('snowSize') || '5';
-    let currentSakuraSize = localStorage.getItem('sakuraSize') || '25';
-    let isSnowEnabled = localStorage.getItem('snowEnabled') !== 'false'; 
-    let isSakuraEnabled = localStorage.getItem('sakuraEnabled') === 'true';
+// main.js — Основная логика и эффекты
 
-    // Используем функции из ui.js
+document.addEventListener('DOMContentLoaded', () => {
+    // 1. ИНИЦИАЛИЗАЦИЯ ИНТЕРФЕЙСА
+    // Применяем сохраненные настройки темы и прозрачности сразу
     if (typeof applyTheme === 'function') {
         applyTheme(localStorage.getItem('siteTheme') || 'dark');
     }
@@ -13,17 +10,27 @@ document.addEventListener('DOMContentLoaded', () => {
         applyOpacity(localStorage.getItem('panelOpacity') || '0.01');
     }
 
+    // 2. УПРАВЛЕНИЕ МОДАЛКАМИ
     const openBtn = document.getElementById('open-request-btn');
-    if(openBtn) openBtn.onclick = handleRequestModal;
+    if (openBtn) openBtn.onclick = handleRequestModal;
 
+    const closeReqBtn = document.getElementById('close-modal');
+    if (closeReqBtn) {
+        closeReqBtn.onclick = () => {
+            document.getElementById('request-modal').style.display = 'none';
+        };
+    }
+
+    // 3. ОБРАБОТКА ФОРМЫ РЕКВЕСТА
     const reqForm = document.getElementById('request-form');
-    if(reqForm) {
+    if (reqForm) {
         reqForm.onsubmit = async (e) => {
             e.preventDefault();
             const { ref, push, set } = window.dbRefs;
+            
+            // Генерируем новый ID в Firebase
             const newId = push(ref(window.db, 'requests')).key;
             
-            // КЛЮЧИ ИСПРАВЛЕНЫ (соответствуют админ-панели)
             const data = {
                 id: newId, 
                 uid: window.auth.currentUser.uid,
@@ -41,16 +48,21 @@ document.addEventListener('DOMContentLoaded', () => {
                 hasUnread: false
             };
 
-            await set(ref(window.db, 'requests/' + newId), data);
-            localStorage.setItem('myRequestID', newId);
-            
-            document.getElementById('request-form-container').style.display = 'none';
-            document.getElementById('chat-section').style.display = 'block';
-            initUserChat(newId);
+            try {
+                await set(ref(window.db, 'requests/' + newId), data);
+                localStorage.setItem('myRequestID', newId);
+                
+                // Переключаем интерфейс на чат
+                document.getElementById('request-form-container').style.display = 'none';
+                document.getElementById('chat-section').style.display = 'block';
+                if (typeof initUserChat === 'function') initUserChat(newId);
+            } catch (err) {
+                alert("Ошибка при отправке: " + err.message);
+            }
         };
     }
 
-    // ФИЗИКА СНЕГА И САКУРЫ
+    // 4. ЭФФЕКТЫ ЧАСТИЦ (СНЕГ И САКУРА)
     const snowContainer = document.getElementById('snow-container');
     const sakuraTextures = [
         'res/1000452088-removebg-preview.png', 'res/1000452089-removebg-preview.png', 
@@ -61,27 +73,21 @@ document.addEventListener('DOMContentLoaded', () => {
     ];
 
     function createSnowflake() {
-        // Перепроверяем включение прямо в цикле
-        isSnowEnabled = localStorage.getItem('snowEnabled') !== 'false';
+        // Проверка включения в реальном времени
+        const isSnowEnabled = localStorage.getItem('snowEnabled') !== 'false';
         if (!isSnowEnabled || !snowContainer) return;
         
         const sf = document.createElement('div');
         sf.className = 'snowflake';
-        currentSnowSize = localStorage.getItem('snowSize') || '5';
         
-        const size = (Math.random() * 3 + Number(currentSnowSize)) + 'px';
+        const currentSnowSize = Number(localStorage.getItem('snowSize')) || 5;
+        const size = (Math.random() * 3 + currentSnowSize) + 'px';
+        
         sf.style.width = size; 
         sf.style.height = size;
         sf.style.left = Math.random() * 100 + 'vw';
-        sf.style.position = 'fixed';
-        sf.style.top = '-10px';
-        sf.style.backgroundColor = 'white';
-        sf.style.borderRadius = '50%';
-        sf.style.pointerEvents = 'none';
-        sf.style.zIndex = '9998';
-        sf.style.opacity = Math.random();
+        sf.style.opacity = Math.random() * 0.7 + 0.3;
         
-        // Анимация падения
         const duration = Math.random() * 3 + 4;
         sf.style.animation = `snow-fall ${duration}s linear forwards`;
         
@@ -90,20 +96,20 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function createSakura() {
-        isSakuraEnabled = localStorage.getItem('sakuraEnabled') === 'true';
+        // Проверка включения в реальном времени
+        const isSakuraEnabled = localStorage.getItem('sakuraEnabled') === 'true';
         if (!isSakuraEnabled || !snowContainer) return;
 
         const petal = document.createElement('div');
         petal.className = 'sakura-petal';
-        petal.style.position = 'fixed';
-        petal.style.top = '-20px';
-        petal.style.zIndex = '9998';
-        petal.style.pointerEvents = 'none';
-        petal.style.backgroundImage = `url('${sakuraTextures[Math.floor(Math.random() * sakuraTextures.length)]}')`;
-        petal.style.backgroundSize = 'cover';
         
-        currentSakuraSize = localStorage.getItem('sakuraSize') || '25';
-        const size = (Math.random() * 10 + Number(currentSakuraSize)) + 'px';
+        // Рандомная текстура из списка
+        const texIndex = Math.floor(Math.random() * sakuraTextures.length);
+        petal.style.backgroundImage = `url('${sakuraTextures[texIndex]}')`;
+        
+        const currentSakuraSize = Number(localStorage.getItem('sakuraSize')) || 25;
+        const size = (Math.random() * 10 + currentSakuraSize) + 'px';
+        
         petal.style.width = size; 
         petal.style.height = size;
         petal.style.left = Math.random() * 100 + 'vw';
@@ -115,48 +121,52 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => petal.remove(), duration * 1000);
     }
 
-    // Настройки
-    const settingsBtn = document.getElementById('settings-btn');
-    const settingsMenu = document.getElementById('settings-menu');
-    if(settingsBtn) {
-        settingsBtn.onclick = (e) => { 
-            e.stopPropagation(); 
-            settingsMenu.classList.toggle('active'); 
-        };
-    }
-
-    document.addEventListener('click', () => {
-        if(settingsMenu) settingsMenu.classList.remove('active');
-    });
-
-    if(settingsMenu) {
-        settingsMenu.onclick = (e) => e.stopPropagation();
-    }
-
-    // Обработчики кнопок
-    document.querySelectorAll('.list-button').forEach(b => {
-        b.onclick = () => {
-            if (typeof loadList === 'function') loadList(b.dataset.list);
-        };
-    });
-    
-    document.querySelectorAll('.theme-button').forEach(b => {
-        b.onclick = () => {
-            if (typeof applyTheme === 'function') applyTheme(b.dataset.theme);
-        };
-    });
-
-    if(document.getElementById('close-modal')) {
-        document.getElementById('close-modal').onclick = () => {
-            document.getElementById('request-modal').style.display = 'none';
-        };
-    }
-
-    // Запуск циклов эффектов
+    // Запускаем интервалы (они работают всегда, но функции внутри «молчат», если выключено)
     setInterval(createSnowflake, 200);
     setInterval(createSakura, 350);
 
-    // Загрузка начального списка
+    // 5. МЕНЮ НАСТРОЕК
+    const settingsBtn = document.getElementById('settings-btn');
+    const settingsMenu = document.getElementById('settings-menu');
+
+    if (settingsBtn && settingsMenu) {
+        settingsBtn.onclick = (e) => {
+            e.stopPropagation();
+            settingsMenu.classList.toggle('active');
+
+            // При открытии обновляем значения ползунков под актуальные данные из LS
+            const snowRange = document.getElementById('snow-range');
+            const sakuraRange = document.getElementById('sakura-range');
+            const snowToggle = document.getElementById('snow-toggle');
+            const sakuraToggle = document.getElementById('sakura-toggle');
+
+            if (snowRange) snowRange.value = localStorage.getItem('snowSize') || 5;
+            if (sakuraRange) sakuraRange.value = localStorage.getItem('sakuraSize') || 25;
+            if (snowToggle) snowToggle.checked = localStorage.getItem('snowEnabled') !== 'false';
+            if (sakuraToggle) sakuraToggle.checked = localStorage.getItem('sakuraEnabled') === 'true';
+        };
+
+        // Закрытие меню при клике вне его
+        document.addEventListener('click', () => {
+            settingsMenu.classList.remove('active');
+        });
+        settingsMenu.onclick = (e) => e.stopPropagation();
+    }
+
+    // 6. КНОПКИ ПЕРЕКЛЮЧЕНИЯ СПИСКОВ И ТЕМ
+    document.querySelectorAll('.list-button').forEach(btn => {
+        btn.onclick = () => {
+            if (typeof loadList === 'function') loadList(btn.dataset.list);
+        };
+    });
+
+    document.querySelectorAll('.theme-button').forEach(btn => {
+        btn.onclick = () => {
+            if (typeof applyTheme === 'function') applyTheme(btn.dataset.theme);
+        };
+    });
+
+    // Загружаем список по умолчанию при старте
     if (typeof loadList === 'function') {
         const lastList = localStorage.getItem('currentListId') || 'levels';
         loadList(lastList);
