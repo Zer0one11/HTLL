@@ -1,25 +1,22 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // Настройки из памяти
     let currentSnowSize = localStorage.getItem('snowSize') || '5';
     let currentSakuraSize = localStorage.getItem('sakuraSize') || '25';
     let isSnowEnabled = localStorage.getItem('snowEnabled') !== 'false'; 
     let isSakuraEnabled = localStorage.getItem('sakuraEnabled') === 'true';
 
-    // Применяем начальную тему и прозрачность
     applyTheme(localStorage.getItem('siteTheme') || 'dark');
     applyOpacity(localStorage.getItem('panelOpacity') || '0.01');
 
-    // Кнопка реквеста
     const openBtn = document.getElementById('open-request-btn');
     if(openBtn) openBtn.onclick = handleRequestModal;
 
-    // Форма отправки реквеста
     const reqForm = document.getElementById('request-form');
     if(reqForm) {
         reqForm.onsubmit = async (e) => {
             e.preventDefault();
             const { ref, push, set } = window.dbRefs;
             const newId = push(ref(window.db, 'requests')).key;
+            
             const data = {
                 id: newId, 
                 uid: window.auth.currentUser.uid,
@@ -35,15 +32,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 status: 'pending', 
                 timestamp: Date.now()
             };
+
             await set(ref(window.db, 'requests/' + newId), data);
             localStorage.setItem('myRequestID', newId);
+            
             document.getElementById('request-form-container').style.display = 'none';
             document.getElementById('chat-section').style.display = 'block';
             initUserChat(newId);
         };
     }
 
-    // Снег и Сакура
+    // Эффекты
     const snowContainer = document.getElementById('snow-container');
     const sakuraTextures = ['res/1000452088-removebg-preview.png', 'res/1000452089-removebg-preview.png', 'res/1000452090-removebg-preview.png', 'res/1000452091-removebg-preview.png', 'res/1000452092-removebg-preview.png', 'res/1000452093-removebg-preview.png', 'res/1000452094-removebg-preview.png', 'res/1000452095-removebg-preview.png', 'res/1000452096-removebg-preview.png', 'res/1000452097-removebg-preview.png'];
 
@@ -72,35 +71,14 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => petal.remove(), 12000);
     }
 
-    // Обработчики настроек
     const settingsBtn = document.getElementById('settings-btn');
     const settingsMenu = document.getElementById('settings-menu');
     if(settingsBtn) settingsBtn.onclick = (e) => { e.stopPropagation(); settingsMenu.classList.toggle('active'); };
-
-    const opRange = document.getElementById('opacityRange');
-    if(opRange) opRange.oninput = (e) => applyOpacity(e.target.value);
-
-    const snowToggle = document.getElementById('snow-toggle');
-    if(snowToggle) snowToggle.onchange = () => {
-        isSnowEnabled = snowToggle.checked;
-        if (isSnowEnabled) { isSakuraEnabled = false; document.getElementById('sakura-toggle').checked = false; }
-        localStorage.setItem('snowEnabled', isSnowEnabled);
-        localStorage.setItem('sakuraEnabled', isSakuraEnabled);
-    };
-
-    const sakuraToggle = document.getElementById('sakura-toggle');
-    if(sakuraToggle) sakuraToggle.onchange = () => {
-        isSakuraEnabled = sakuraToggle.checked;
-        if (isSakuraEnabled) { isSnowEnabled = false; document.getElementById('snow-toggle').checked = false; }
-        localStorage.setItem('sakuraEnabled', isSakuraEnabled);
-        localStorage.setItem('snowEnabled', isSnowEnabled);
-    };
 
     document.querySelectorAll('.list-button').forEach(b => b.onclick = () => loadList(b.dataset.list));
     document.querySelectorAll('.theme-button').forEach(b => b.onclick = () => applyTheme(b.dataset.theme));
     if(document.getElementById('close-modal')) document.getElementById('close-modal').onclick = () => document.getElementById('request-modal').style.display = 'none';
 
-    // Запуск
     setInterval(createSnowflake, 200);
     setInterval(createSakura, 350);
     loadList(localStorage.getItem('currentListId') || 'levels');
