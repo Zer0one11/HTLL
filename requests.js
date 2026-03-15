@@ -2,7 +2,6 @@ function initUserChat(reqId) {
     const { ref, onValue, push, set, remove } = window.dbRefs;
     const chatBox = document.getElementById('chat-messages');
 
-    // Очищаем старый слушатель, если он был (Firebase сделает это сам при новом вызове)
     onValue(ref(window.db, `requests/${reqId}/messages`), (snapshot) => {
         chatBox.innerHTML = '';
         if (snapshot.exists()) {
@@ -10,8 +9,10 @@ function initUserChat(reqId) {
                 const msg = childSnapshot.val();
                 const div = document.createElement('div');
                 
-                // Цвет сообщения: админ красный, пользователь зеленый
-                const isAdmin = msg.role === 'admin';
+                // Проверка роли без учета регистра
+                const role = (msg.role || '').toLowerCase();
+                const isAdmin = role === 'admin';
+                
                 div.style.color = isAdmin ? '#ff4444' : '#44ff44';
                 div.style.fontWeight = '900';
                 div.style.marginBottom = '8px';
@@ -28,7 +29,6 @@ function initUserChat(reqId) {
         }
     });
 
-    // Отправка сообщения пользователем
     document.getElementById('send-msg').onclick = async () => {
         const input = document.getElementById('user-msg');
         const text = input.value.trim();
@@ -38,13 +38,12 @@ function initUserChat(reqId) {
             const msgRef = push(ref(window.db, `requests/${reqId}/messages`));
             await set(msgRef, {
                 text: text,
-                role: 'user', // Пользователь всегда отправляет как user
+                role: 'user',
                 timestamp: Date.now()
             });
             input.value = '';
         } catch (e) {
-            alert("Ошибка отправки!");
-            console.error(e);
+            console.error("Ошибка отправки:", e);
         }
     };
 
