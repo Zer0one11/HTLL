@@ -1,18 +1,15 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // 1. ЭЛЕМЕНТЫ UI
     const listElement = document.getElementById('levelList');
     const snowToggle = document.getElementById('snow-toggle');
     const sakuraToggle = document.getElementById('sakura-toggle');
     const snowContainer = document.getElementById('snow-container');
     const settingsBtn = document.getElementById('settings-btn');
     const settingsMenu = document.getElementById('settings-menu');
-    
     const snowSizeRange = document.getElementById('snowSizeRange');
     const sakuraSizeRange = document.getElementById('sakuraSizeRange');
     const opacityRange = document.getElementById('opacityRange');
     const reqModal = document.getElementById('request-modal');
 
-    // 2. СОСТОЯНИЕ
     let currentSnowSize = localStorage.getItem('snowSize') || '5';
     let currentSakuraSize = localStorage.getItem('sakuraSize') || '25';
     let currentOpacity = localStorage.getItem('panelOpacity') || '0.01';
@@ -31,7 +28,6 @@ document.addEventListener('DOMContentLoaded', () => {
         'res/1000452096-removebg-preview.png', 'res/1000452097-removebg-preview.png'
     ];
 
-    // 3. КОПИРОВАНИЕ
     window.copyToClipboard = function(text) {
         navigator.clipboard.writeText(text).then(() => {
             const oldNotif = document.querySelector('.copy-notification');
@@ -47,7 +43,15 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
 
-    // 4. ПРИМЕНЕНИЕ НАСТРОЕК
+    function formatLatex(text) {
+        if (!text || text.toString().toLowerCase() === "none" || text === "") return "None";
+        let str = text.toString();
+        if (str.includes('\\') || str.includes('^') || str.includes('_')) {
+            if (!str.startsWith('$')) return `$${str}$`;
+        }
+        return str;
+    }
+
     function applyOpacity(val) {
         document.documentElement.style.setProperty('--panel-opacity', val);
         localStorage.setItem('panelOpacity', val);
@@ -56,9 +60,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    function applySnowSize(val) { currentSnowSize = val; localStorage.setItem('snowSize', val); }
-    function applySakuraSize(val) { currentSakuraSize = val; localStorage.setItem('sakuraSize', val); }
-    
     function applyTheme(themeName) {
         document.body.className = `theme-${themeName}`;
         localStorage.setItem('siteTheme', themeName);
@@ -77,78 +78,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if(snowToggle) snowToggle.onchange = () => {
         isSnowEnabled = snowToggle.checked;
-        if (isSnowEnabled) {
-            isSakuraEnabled = false;
-            if(sakuraToggle) sakuraToggle.checked = false;
-        }
+        if (isSnowEnabled) { isSakuraEnabled = false; if(sakuraToggle) sakuraToggle.checked = false; }
         localStorage.setItem('snowEnabled', isSnowEnabled);
         localStorage.setItem('sakuraEnabled', isSakuraEnabled);
     };
 
     if(sakuraToggle) sakuraToggle.onchange = () => {
         isSakuraEnabled = sakuraToggle.checked;
-        if (isSakuraEnabled) {
-            isSnowEnabled = false;
-            if(snowToggle) snowToggle.checked = false;
-        }
+        if (isSakuraEnabled) { isSnowEnabled = false; if(snowToggle) snowToggle.checked = false; }
         localStorage.setItem('sakuraEnabled', isSakuraEnabled);
         localStorage.setItem('snowEnabled', isSnowEnabled);
     };
 
-    function formatLatex(text) {
-        if (!text || text.toString().toLowerCase() === "none" || text === "") return "None";
-        let str = text.toString();
-        if (str.includes('\\') || str.includes('^') || str.includes('_')) {
-            if (!str.startsWith('$')) return `$${str}$`;
-        }
-        return str;
-    }
-
-    // 5. ЗАГРУЗКА СПИСКА
-    async function loadList(listId) {
-        const listMap = { 
-            'levels': 'levels.json', 'ppll': 'ppll.json', 'sll': 'sll.json', 
-            'ill': 'ill.json', 'inf': 'inf.json', 'scl': 'scl.json', 'icl': 'icl.json' 
-        };
-        try {
-            const response = await fetch(listMap[listId] + '?t=' + Date.now());
-            const data = await response.json();
-            listElement.innerHTML = '';
-            data.forEach(level => {
-                const li = document.createElement('li');
-                li.className = 'level-item';
-                
-                const botterHtml = (level.fv && level.fv.toLowerCase() !== 'none') 
-                    ? `<li><span class="detail-label">Botter:</span> ${formatLatex(level.fv)}</li>` : '';
-                const typeHtml = (level.type && level.type.toLowerCase() !== 'none') 
-                    ? `<li><span class="detail-label">Type:</span> ${formatLatex(level.type)}</li>` : '';
-
-                li.innerHTML = `
-                    <div class="level-header">
-                        <span class="level-number">#${level.number}</span>
-                        <div class="level-title-group">
-                            <a href="${level.showcase}" target="_blank" class="level-name">${formatLatex(level.name)}</a>
-                            <span class="level-creator">by ${level.creator}</span>
-                        </div>
-                    </div>
-                    <ul class="level-details">
-                        <li><span class="detail-label">ID:</span> ${level.id} <img src="res/copybutton.png" class="copy-icon" onclick="copyToClipboard('${level.id}')"></li>
-                        <li><span class="detail-label">FPS:</span> ${formatLatex(level.fps)}</li>
-                        ${botterHtml}
-                        ${typeHtml}
-                    </ul>`;
-                listElement.appendChild(li);
-            });
-            localStorage.setItem('currentListId', listId);
-            document.querySelectorAll('.list-button').forEach(btn => btn.classList.toggle('active-list', btn.dataset.list === listId));
-            
-            applyOpacity(currentOpacity);
-
-            if (window.MathJax) window.MathJax.typesetPromise();
-        } catch (e) { console.error(e); }
-    }
-
-    // 6. ЧАСТИЦЫ
     function createSnowflake() {
         if (!isSnowEnabled || !snowContainer) return;
         const sf = document.createElement('div');
@@ -156,8 +97,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const size = (Math.random() * 3 + Number(currentSnowSize)) + 'px';
         sf.style.width = size; sf.style.height = size;
         sf.style.left = Math.random() * 100 + 'vw';
-        sf.style.opacity = Math.random();
-        // Используем 110vh чтобы долетало до конца
         sf.style.animation = `snow-fall ${Math.random() * 3 + 4}s linear forwards`;
         snowContainer.appendChild(sf);
         setTimeout(() => sf.remove(), 7000);
@@ -176,64 +115,63 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => petal.remove(), 12000);
     }
 
-    // 7. СОБЫТИЯ
-    if(settingsBtn) settingsBtn.onclick = (e) => { e.stopPropagation(); settingsMenu.classList.toggle('active'); };
-    document.addEventListener('click', (e) => { if (settingsMenu && !settingsMenu.contains(e.target) && e.target !== settingsBtn) settingsMenu.classList.remove('active'); });
+    async function loadList(listId) {
+        const listMap = { 
+            'levels': 'levels.json', 'ppll': 'ppll.json', 'sll': 'sll.json', 
+            'ill': 'ill.json', 'inf': 'inf.json', 'scl': 'scl.json', 'icl': 'icl.json' 
+        };
+        try {
+            const response = await fetch(listMap[listId] + '?t=' + Date.now());
+            const data = await response.json();
+            listElement.innerHTML = '';
+            data.forEach(level => {
+                const li = document.createElement('li');
+                li.className = 'level-item';
+                const botterHtml = (level.fv && level.fv.toLowerCase() !== 'none') ? `<li><span class="detail-label">Botter:</span> ${formatLatex(level.fv)}</li>` : '';
+                const typeHtml = (level.type && level.type.toLowerCase() !== 'none') ? `<li><span class="detail-label">Type:</span> ${formatLatex(level.type)}</li>` : '';
+                li.innerHTML = `
+                    <div class="level-header">
+                        <span class="level-number">#${level.number}</span>
+                        <div class="level-title-group">
+                            <a href="${level.showcase}" target="_blank" class="level-name">${formatLatex(level.name)}</a>
+                            <span class="level-creator">by ${level.creator}</span>
+                        </div>
+                    </div>
+                    <ul class="level-details">
+                        <li><span class="detail-label">ID:</span> ${level.id} <img src="res/copybutton.png" class="copy-icon" onclick="copyToClipboard('${level.id}')"></li>
+                        <li><span class="detail-label">FPS:</span> ${formatLatex(level.fps)}</li>
+                        ${botterHtml}${typeHtml}
+                    </ul>`;
+                listElement.appendChild(li);
+            });
+            localStorage.setItem('currentListId', listId);
+            document.querySelectorAll('.list-button').forEach(btn => btn.classList.toggle('active-list', btn.dataset.list === listId));
+            applyOpacity(currentOpacity);
+            if (window.MathJax) window.MathJax.typesetPromise();
+        } catch (e) { console.error(e); }
+    }
 
-    if(opacityRange) opacityRange.oninput = (e) => { 
-        currentOpacity = e.target.value; 
-        applyOpacity(currentOpacity); 
-    };
-    if(snowSizeRange) snowSizeRange.oninput = (e) => {
-        applySnowSize(e.target.value);
-    };
-    if(sakuraSizeRange) sakuraSizeRange.oninput = (e) => {
-        applySakuraSize(e.target.value);
-    };
-
-    document.querySelectorAll('.list-button').forEach(b => b.onclick = () => loadList(b.dataset.list));
-    document.querySelectorAll('.theme-button').forEach(b => b.onclick = () => applyTheme(b.dataset.theme));
-
-        // 8. РЕКВЕСТЫ (ФИКС ДЛЯ НЕКРОТИКА И ОСТАЛЬНЫХ)
     const openRequestBtn = document.getElementById('open-request-btn');
     if(openRequestBtn) {
         openRequestBtn.onclick = async () => {
             const user = window.auth ? window.auth.currentUser : null;
-            
-            if (!user) {
-                alert("Сначала войдите в аккаунт.");
-                return;
-            }
+            if (!user) { alert("Войдите в аккаунт."); return; }
+            if (!user.emailVerified) { alert("Подтвердите почту!"); return; }
 
-            if (!user.emailVerified) {
-                alert("Почта не подтверждена! Проверь спам. Если письма нет — перезайди в аккаунт, вылезет окно переотправки.");
-                return;
-            }
-
-            // Если у юзера сохранен ID, проверяем его реальность в БД
+            myReqId = localStorage.getItem('myRequestID');
             if (myReqId) {
-                try {
-                    // Используем динамический импорт или глобальную ссылку на базу
-                    const { get, ref } = window.dbRefs; 
-                    const snapshot = await get(ref(window.db, 'requests/' + myReqId));
-                    
-                    if (snapshot.exists()) {
-                        // Всё ок, реквест есть — открываем чат
-                        document.getElementById('request-form-container').style.display = 'none';
-                        document.getElementById('chat-section').style.display = 'block';
-                    } else {
-                        // Реквеста в базе НЕТ (удалили или сброс базы) — чистим мусор
-                        localStorage.removeItem('myRequestID');
-                        myReqId = null; 
-                        showForm(user);
-                    }
-                } catch (e) {
-                    console.error("Ошибка проверки реквеста:", e);
+                const { get, ref } = window.dbRefs;
+                const snapshot = await get(ref(window.db, 'requests/' + myReqId));
+                if (snapshot.exists()) {
+                    document.getElementById('request-form-container').style.display = 'none';
+                    document.getElementById('chat-section').style.display = 'block';
+                    if (typeof initUserChat === "function") initUserChat(myReqId);
+                } else {
+                    localStorage.removeItem('myRequestID');
+                    myReqId = null;
                     showForm(user);
                 }
-            } else {
-                showForm(user);
-            }
+            } else { showForm(user); }
             reqModal.style.display = 'flex';
         };
     }
@@ -241,12 +179,43 @@ document.addEventListener('DOMContentLoaded', () => {
     function showForm(user) {
         document.getElementById('request-form-container').style.display = 'block';
         document.getElementById('chat-section').style.display = 'none';
-        const nickInput = document.getElementById('req-nickname');
-        if(nickInput) nickInput.value = user.displayName || "";
+        if(document.getElementById('req-nickname')) document.getElementById('req-nickname').value = user.displayName || "";
     }
 
+    window.submitRequest = async function() {
+        const user = window.auth.currentUser;
+        const levelId = document.getElementById('req-level-id').value.trim();
+        const nick = document.getElementById('req-nickname').value.trim();
+        const comment = document.getElementById('req-comment').value.trim();
 
-    // 9. ЗАПУСК
+        if (!levelId) return alert("Введите ID уровня!");
+
+        const { ref, push, set } = window.dbRefs;
+        try {
+            const newRequestRef = push(ref(window.db, 'requests'));
+            const requestId = newRequestRef.key;
+            const requestData = {
+                id: requestId, uid: user.uid, nickname: nick || user.displayName,
+                levelId: levelId, comment: comment, status: 'pending', timestamp: Date.now()
+            };
+            await set(newRequestRef, requestData);
+            localStorage.setItem('myRequestID', requestId);
+            alert("Отправлено!");
+            document.getElementById('request-form-container').style.display = 'none';
+            document.getElementById('chat-section').style.display = 'block';
+            if (typeof initUserChat === "function") initUserChat(requestId);
+        } catch (e) { alert("Ошибка записи!"); console.error(e); }
+    };
+
+    if(settingsBtn) settingsBtn.onclick = (e) => { e.stopPropagation(); settingsMenu.classList.toggle('active'); };
+    document.addEventListener('click', (e) => { if (settingsMenu && !settingsMenu.contains(e.target) && e.target !== settingsBtn) settingsMenu.classList.remove('active'); });
+    if(opacityRange) opacityRange.oninput = (e) => applyOpacity(e.target.value);
+    if(snowSizeRange) snowSizeRange.oninput = (e) => { currentSnowSize = e.target.value; localStorage.setItem('snowSize', e.target.value); };
+    if(sakuraSizeRange) sakuraSizeRange.oninput = (e) => { currentSakuraSize = e.target.value; localStorage.setItem('sakuraSize', e.target.value); };
+    document.querySelectorAll('.list-button').forEach(b => b.onclick = () => loadList(b.dataset.list));
+    document.querySelectorAll('.theme-button').forEach(b => b.onclick = () => applyTheme(b.dataset.theme));
+    if(document.getElementById('close-modal')) document.getElementById('close-modal').onclick = () => reqModal.style.display = 'none';
+
     setInterval(createSnowflake, 200);
     setInterval(createSakura, 350);
     loadList(currentListId);
