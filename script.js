@@ -30,7 +30,7 @@ document.addEventListener('DOMContentLoaded', () => {
         'res/1000452096-removebg-preview.png', 'res/1000452097-removebg-preview.png'
     ];
 
-    // 3. ФОРМАТИРОВАНИЕ И КОПИРОВАНИЕ
+    // 3. КОПИРОВАНИЕ И ФОРМАТ
     window.copyToClipboard = function(text) {
         navigator.clipboard.writeText(text).then(() => {
             const oldNotif = document.querySelector('.copy-notification');
@@ -55,7 +55,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return str;
     }
 
-    // 4. ПРИМЕНЕНИЕ НАСТРОЕК
+    // 4. НАСТРОЙКИ
     function applyOpacity(val) {
         document.documentElement.style.setProperty('--panel-opacity', val);
         localStorage.setItem('panelOpacity', val);
@@ -74,8 +74,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     applyOpacity(currentOpacity);
     applyTheme(currentTheme);
+    if(opacityRange) opacityRange.value = currentOpacity;
+    if(snowSizeRange) snowSizeRange.value = currentSnowSize;
+    if(sakuraSizeRange) sakuraSizeRange.value = currentSakuraSize;
+    if(snowToggle) snowToggle.checked = isSnowEnabled;
+    if(sakuraToggle) sakuraToggle.checked = isSakuraEnabled;
 
-    // 5. РЕКВЕСТЫ
+    // 5. ЛОГИКА РЕКВЕСТОВ И ЧАТА
     const openRequestBtn = document.getElementById('open-request-btn');
     if(openRequestBtn) {
         openRequestBtn.onclick = async () => {
@@ -90,6 +95,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (snapshot.exists()) {
                     document.getElementById('request-form-container').style.display = 'none';
                     document.getElementById('chat-section').style.display = 'block';
+                    initUserChat(myReqId);
                 } else {
                     localStorage.removeItem('myRequestID');
                     myReqId = null;
@@ -105,16 +111,14 @@ document.addEventListener('DOMContentLoaded', () => {
     function showForm(user) {
         document.getElementById('request-form-container').style.display = 'block';
         document.getElementById('chat-section').style.display = 'none';
-        const nickInput = document.getElementById('req-nickname');
-        if(nickInput) nickInput.value = user.displayName || "";
+        if(document.getElementById('req-nickname')) document.getElementById('req-nickname').value = user.displayName || "";
     }
 
-    // ОТПРАВКА ФОРМЫ
+    // Отправка формы
     const reqForm = document.getElementById('request-form');
     if (reqForm) {
         reqForm.onsubmit = async function(e) {
             e.preventDefault();
-            
             const user = window.auth.currentUser;
             const { ref, push, set } = window.dbRefs;
 
@@ -144,8 +148,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 alert("Реквест отправлен!");
                 document.getElementById('request-form-container').style.display = 'none';
                 document.getElementById('chat-section').style.display = 'block';
-                
-                if (typeof initUserChat === "function") initUserChat(requestId);
+                initUserChat(requestId);
             } catch (error) {
                 console.error(error);
                 alert("Ошибка при отправке!");
@@ -153,11 +156,56 @@ document.addEventListener('DOMContentLoaded', () => {
         };
     }
 
-    // 6. ЗАГРУЗКА СПИСКА
+    // Инициализация чата
+    function initUserChat(reqId) {
+        const { ref, onValue, push, set, remove } = window.dbRefs;
+        const chatContainer = document.getElementById('chat-messages');
+        const sendBtn = document.getElementById('send-msg');
+        const deleteBtn = document.getElementById('delete-chat-user');
+
+        // Подгрузка сообщений
+        onValue(ref(window.db, `requests/${reqId}/messages`), (snapshot) => {
+            chatContainer.innerHTML = '';
+            if (snapshot.exists()) {
+                snapshot.forEach((child) => {
+                    const msg = child.val();
+                    const div = document.createElement('div');
+                    div.className = msg.role === 'admin' ? 'msg-admin' : 'msg-user';
+                    div.innerText = `${msg.role === 'admin' ? 'Модератор' : 'Вы'}: ${msg.text}`;
+                    chatContainer.appendChild(div);
+                });
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+            }
+        });
+
+        // Отправка сообщения
+        sendBtn.onclick = async () => {
+            const input = document.getElementById('user-msg');
+            if (!input.value.trim()) return;
+            const msgRef = push(ref(window.db, `requests/${reqId}/messages`));
+            await set(msgRef, {
+                text: input.value,
+                role: 'user',
+                timestamp: Date.now()
+            });
+            input.value = '';
+        };
+
+        // Удаление чата юзером
+        deleteBtn.onclick = async () => {
+            if (confirm("Удалить этот реквест навсегда?")) {
+                await remove(ref(window.db, `requests/${reqId}`));
+                localStorage.removeItem('myRequestID');
+                location.reload();
+            }
+        };
+    }
+
+    // 6. ЗАГРУЗКА СПИСКОВ
     async function loadList(listId) {
         const listMap = { 
             'levels': 'levels.json', 'ppll': 'ppll.json', 'sll': 'sll.json', 
-            'ill': 'ill.json', 'inf': 'inf.json', 'scl': 'scl.json', 'icl': 'icl.json' 
+            'ill': 'ill.json', 'inf': 'inf.json', 'scl': 'scl.css', 'icl': 'icl.json' 
         };
         try {
             const response = await fetch(listMap[listId] + '?t=' + Date.now());
@@ -190,7 +238,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (e) { console.error(e); }
     }
 
-    // 7. ЧАСТИЦЫ (Снег/Сакура)
+    // 7. ЧАСТИЦЫ
     function createSnowflake() {
         if (!isSnowEnabled || !snowContainer) return;
         const sf = document.createElement('div');
@@ -216,10 +264,9 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => petal.remove(), 12000);
     }
 
-    // 8. СОБЫТИЯ
+    // 8. СОБЫТИЯ UI
     if(settingsBtn) settingsBtn.onclick = (e) => { e.stopPropagation(); settingsMenu.classList.toggle('active'); };
     document.addEventListener('click', (e) => { if (settingsMenu && !settingsMenu.contains(e.target) && e.target !== settingsBtn) settingsMenu.classList.remove('active'); });
-    
     if(opacityRange) opacityRange.oninput = (e) => applyOpacity(e.target.value);
     if(snowSizeRange) snowSizeRange.oninput = (e) => { currentSnowSize = e.target.value; localStorage.setItem('snowSize', e.target.value); };
     if(sakuraSizeRange) sakuraSizeRange.oninput = (e) => { currentSakuraSize = e.target.value; localStorage.setItem('sakuraSize', e.target.value); };
