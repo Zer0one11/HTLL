@@ -1,5 +1,12 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+import { 
+    getDatabase, 
+    ref, 
+    set, 
+    push, 
+    get, 
+    child 
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 import { 
     getAuth, 
     createUserWithEmailAndPassword, 
@@ -22,12 +29,14 @@ const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 const auth = getAuth(app);
 
+// Глобальные ссылки для script.js
 window.db = db;
 window.auth = auth;
+window.dbRefs = { ref, set, push, get, child }; 
 
 const authMainBtn = document.getElementById('auth-main-btn');
 const profileBlock = document.getElementById('user-profile-block');
-const userNameDisplay = document.getElementById('user-name-display');
+const userNameDisplay = document.getElementById('user-nick-display'); // Исправил ID под твой index.html
 const authModal = document.getElementById('auth-modal');
 const switchBtn = document.getElementById('auth-mode-switch');
 const authTitle = document.getElementById('auth-title');
@@ -38,91 +47,91 @@ let isLoginMode = true;
 onAuthStateChanged(auth, async (user) => {
     if (user) {
         if (!user.emailVerified) {
-            authMainBtn.style.display = 'block';
-            profileBlock.style.display = 'none';
+            if (authMainBtn) authMainBtn.style.display = 'block';
+            if (profileBlock) profileBlock.style.display = 'none';
             return;
         }
 
-        // Пытаемся взять ник из профиля
         let name = user.displayName;
 
-        // Если в профиле пусто, тянем из БД
         if (!name) {
-            const { get, ref, child } = window.dbRefs; // убедись, что dbRefs доступны
-            const snapshot = await get(child(ref(window.db), `users/${user.uid}`));
-            if (snapshot.exists()) {
-                name = snapshot.val().username;
+            try {
+                const snapshot = await get(child(ref(db), `users/${user.uid}`));
+                if (snapshot.exists()) {
+                    name = snapshot.val().username;
+                }
+            } catch (e) {
+                console.error("Ошибка загрузки профиля:", e);
             }
         }
 
-        authMainBtn.style.display = 'none';
-        profileBlock.style.display = 'flex';
-        userNameDisplay.innerText = name || "User";
+        if (authMainBtn) authMainBtn.style.display = 'none';
+        if (profileBlock) profileBlock.style.display = 'flex';
+        if (userNameDisplay) userNameDisplay.innerText = name || "User";
     } else {
-        authMainBtn.style.display = 'block';
-        profileBlock.style.display = 'none';
+        if (authMainBtn) authMainBtn.style.display = 'block';
+        if (profileBlock) profileBlock.style.display = 'none';
     }
 });
 
 if(authMainBtn) authMainBtn.onclick = () => authModal.style.display = 'flex';
 if(document.getElementById('close-auth')) document.getElementById('close-auth').onclick = () => authModal.style.display = 'none';
 
-switchBtn.onclick = () => {
-    isLoginMode = !isLoginMode;
-    authTitle.innerText = isLoginMode ? "Вход" : "Регистрация";
-    authNickInput.style.display = isLoginMode ? "none" : "block";
-    switchBtn.innerText = isLoginMode ? "Нет аккаунта? Регистрация" : "Есть аккаунт? Вход";
-};
+if(switchBtn) {
+    switchBtn.onclick = () => {
+        isLoginMode = !isLoginMode;
+        authTitle.innerText = isLoginMode ? "Вход" : "Регистрация";
+        authNickInput.style.display = isLoginMode ? "none" : "block";
+        switchBtn.innerText = isLoginMode ? "Нет аккаунта? Регистрация" : "Есть аккаунт? Вход";
+    };
+}
 
-document.getElementById('auth-confirm-btn').onclick = async () => {
-    const email = document.getElementById('auth-email').value.trim();
-    const pass = document.getElementById('auth-pass').value.trim();
-    const nick = document.getElementById('auth-nick').value.trim();
+const confirmBtn = document.getElementById('auth-confirm-btn');
+if(confirmBtn) {
+    confirmBtn.onclick = async () => {
+        const email = document.getElementById('auth-email').value.trim();
+        const pass = document.getElementById('auth-pass').value.trim();
+        const nick = document.getElementById('auth-nick').value.trim();
 
-    if (!email || !pass) return alert("Заполните Email и Пароль");
+        if (!email || !pass) return alert("Заполните Email и Пароль");
 
-    try {
-        if (isLoginMode) {
-            const res = await signInWithEmailAndPassword(auth, email, pass);
-            
-            if (!res.user.emailVerified) {
-                if (confirm("Ваша почта не подтверждена. Отправить письмо с ссылкой еще раз?")) {
-                    await sendEmailVerification(auth.currentUser);
-                    alert("Письмо отправлено! Проверьте почту (входящие и спам).");
+        try {
+            if (isLoginMode) {
+                const res = await signInWithEmailAndPassword(auth, email, pass);
+                if (!res.user.emailVerified) {
+                    if (confirm("Почта не подтверждена. Отправить письмо еще раз?")) {
+                        await sendEmailVerification(auth.currentUser);
+                        alert("Письмо отправлено!");
+                    }
+                    await signOut(auth);
+                    return;
                 }
+            } else {
+                if (!nick) return alert("Введите никнейм");
+                const res = await createUserWithEmailAndPassword(auth, email, pass);
+                await updateProfile(res.user, { displayName: nick });
+                await sendEmailVerification(res.user);
+                
+                await set(ref(db, 'users/' + res.user.uid), {
+                    username: nick,
+                    email: email,
+                    role: 'user'
+                });
+
+                alert("Аккаунт создан! Подтвердите почту перед входом.");
                 await signOut(auth);
-                return;
             }
-        } else {
-            if (!nick) return alert("Введите никнейм");
-            const res = await createUserWithEmailAndPassword(auth, email, pass);
-            
-            await updateProfile(res.user, { displayName: nick });
-            await res.user.reload();
-            
-            try {
-                await sendEmailVerification(auth.currentUser);
-            } catch (sendError) {
-                console.error("Ошибка отправки:", sendError);
-            }
-            
-            await set(ref(db, 'users/' + res.user.uid), {
-                username: nick,
-                email: email,
-                role: 'user'
-            });
-
-            alert("Аккаунт создан! Подтвердите почту перед входом.");
-            await signOut(auth);
+            authModal.style.display = 'none';
+            location.reload(); 
+        } catch (e) {
+            alert("Ошибка: " + e.message);
         }
-        
-        authModal.style.display = 'none';
-        location.reload(); 
-    } catch (e) {
-        alert("Ошибка: " + e.message);
-    }
-};
+    };
+}
 
-document.getElementById('logout-btn').onclick = () => {
-    signOut(auth).then(() => location.reload());
-};
+const logoutBtn = document.getElementById('logout-btn');
+if(logoutBtn) {
+    logoutBtn.onclick = () => {
+        signOut(auth).then(() => location.reload());
+    };
+}
