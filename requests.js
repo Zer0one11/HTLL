@@ -2,6 +2,7 @@ function initUserChat(reqId) {
     const { ref, onValue, push, set, remove } = window.dbRefs;
     const chatBox = document.getElementById('chat-messages');
 
+    // ПУТЬ ИСПРАВЛЕН: теперь и пользователь и админ смотрят в requests/reqId/messages
     onValue(ref(window.db, `requests/${reqId}/messages`), (snapshot) => {
         chatBox.innerHTML = '';
         if (snapshot.exists()) {
@@ -9,7 +10,6 @@ function initUserChat(reqId) {
                 const msg = childSnapshot.val();
                 const div = document.createElement('div');
                 
-                // Проверка роли без учета регистра
                 const role = (msg.role || '').toLowerCase();
                 const isAdmin = role === 'admin';
                 
