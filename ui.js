@@ -49,7 +49,6 @@ async function loadList(listId) {
             const li = document.createElement('li');
             li.className = 'level-item';
             
-            // Проверка на наличие Botter и Type
             const botterHtml = (level.fv && level.fv.toLowerCase() !== 'none') ? `<li><span class="detail-label">Botter:</span> ${formatLatex(level.fv)}</li>` : '';
             const typeHtml = (level.type && level.type.toLowerCase() !== 'none') ? `<li><span class="detail-label">Type:</span> ${formatLatex(level.type)}</li>` : '';
 
@@ -73,5 +72,5 @@ async function loadList(listId) {
         document.querySelectorAll('.list-button').forEach(btn => btn.classList.toggle('active-list', btn.dataset.list === listId));
         applyOpacity(localStorage.getItem('panelOpacity') || '0.01');
         if (window.MathJax) window.MathJax.typesetPromise();
-    } catch (e) { console.error("Ошибка загрузки списка:", e); }
+    } catch (e) { console.error("Ошибка загрузки:", e); }
 }
