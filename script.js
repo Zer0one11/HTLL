@@ -51,13 +51,14 @@ document.addEventListener('DOMContentLoaded', () => {
     function applyOpacity(val) {
         document.documentElement.style.setProperty('--panel-opacity', val);
         localStorage.setItem('panelOpacity', val);
-        // Принудительно обновляем все карточки
         document.querySelectorAll('.level-item').forEach(item => {
             item.style.setProperty('background', `rgba(var(--bg-card-raw), ${val})`, 'important');
         });
     }
+
     function applySnowSize(val) { currentSnowSize = val; localStorage.setItem('snowSize', val); }
     function applySakuraSize(val) { currentSakuraSize = val; localStorage.setItem('sakuraSize', val); }
+    
     function applyTheme(themeName) {
         document.body.className = `theme-${themeName}`;
         localStorage.setItem('siteTheme', themeName);
@@ -83,6 +84,7 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.setItem('snowEnabled', isSnowEnabled);
         localStorage.setItem('sakuraEnabled', isSakuraEnabled);
     };
+
     if(sakuraToggle) sakuraToggle.onchange = () => {
         isSakuraEnabled = sakuraToggle.checked;
         if (isSakuraEnabled) {
@@ -116,7 +118,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 const li = document.createElement('li');
                 li.className = 'level-item';
                 
-                // Скрытие пустых полей
                 const botterHtml = (level.fv && level.fv.toLowerCase() !== 'none') 
                     ? `<li><span class="detail-label">Botter:</span> ${formatLatex(level.fv)}</li>` : '';
                 const typeHtml = (level.type && level.type.toLowerCase() !== 'none') 
@@ -141,7 +142,6 @@ document.addEventListener('DOMContentLoaded', () => {
             localStorage.setItem('currentListId', listId);
             document.querySelectorAll('.list-button').forEach(btn => btn.classList.toggle('active-list', btn.dataset.list === listId));
             
-            // Сразу применяем текущую прозрачность к новым карточкам
             applyOpacity(currentOpacity);
 
             if (window.MathJax) window.MathJax.typesetPromise();
@@ -157,7 +157,6 @@ document.addEventListener('DOMContentLoaded', () => {
         sf.style.width = size; sf.style.height = size;
         sf.style.left = Math.random() * 100 + 'vw';
         sf.style.opacity = Math.random();
-        // Анимация падения
         sf.style.animation = `snow-fall ${Math.random() * 3 + 4}s linear forwards`;
         snowContainer.appendChild(sf);
         setTimeout(() => sf.remove(), 7000);
@@ -171,7 +170,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const size = (Math.random() * 10 + Number(currentSakuraSize)) + 'px';
         petal.style.width = size; petal.style.height = size;
         petal.style.left = Math.random() * 100 + 'vw';
-        // Медленное падение и вращение
         petal.style.animation = `sakura-fall ${Math.random() * 5 + 7}s linear forwards`;
         snowContainer.appendChild(petal);
         setTimeout(() => petal.remove(), 12000);
@@ -191,21 +189,39 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.list-button').forEach(b => b.onclick = () => loadList(b.dataset.list));
     document.querySelectorAll('.theme-button').forEach(b => b.onclick = () => applyTheme(b.dataset.theme));
 
-    // РЕКВЕСТЫ
+    // 8. РЕКВЕСТЫ (С ПРОВЕРКОЙ ПОЧТЫ)
     const openRequestBtn = document.getElementById('open-request-btn');
     if(openRequestBtn) {
         openRequestBtn.onclick = () => {
             const user = window.auth ? window.auth.currentUser : null;
+            
             if (!user) {
-                alert("Зарегистрируйтесь, чтобы подать реквест.");
+                alert("Чтобы подать реквест, сначала зарегистрируйтесь или войдите в аккаунт.");
                 return;
+            }
+
+            // Проверка подтверждения почты
+            if (!user.emailVerified) {
+                alert("Ваша почта не подтверждена! Пожалуйста, перейдите по ссылке в письме, которое мы отправили вам при регистрации.");
+                return;
+            }
+
+            if (myReqId) {
+                document.getElementById('request-form-container').style.display = 'none';
+                document.getElementById('chat-section').style.display = 'block';
+                // Здесь должна быть функция initUserChat(myReqId) если она определена
+            } else {
+                document.getElementById('request-form-container').style.display = 'block';
+                document.getElementById('chat-section').style.display = 'none';
+                const nickInput = document.getElementById('req-nickname');
+                if(nickInput) nickInput.value = user.displayName || "";
             }
             reqModal.style.display = 'flex';
         };
     }
     if(document.getElementById('close-modal')) document.getElementById('close-modal').onclick = () => reqModal.style.display = 'none';
 
-    // ЗАПУСК
+    // 9. ЗАПУСК
     setInterval(createSnowflake, 200);
     setInterval(createSakura, 350);
     loadList(currentListId);
