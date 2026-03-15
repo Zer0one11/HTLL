@@ -1,4 +1,3 @@
-// Функции копирования и форматирования
 window.copyToClipboard = function(text) {
     navigator.clipboard.writeText(text).then(() => {
         const oldNotif = document.querySelector('.copy-notification');
@@ -23,7 +22,6 @@ function formatLatex(text) {
     return str;
 }
 
-// Управление внешним видом
 function applyOpacity(val) {
     document.documentElement.style.setProperty('--panel-opacity', val);
     localStorage.setItem('panelOpacity', val);
@@ -35,12 +33,8 @@ function applyOpacity(val) {
 function applyTheme(themeName) {
     document.body.className = `theme-${themeName}`;
     localStorage.setItem('siteTheme', themeName);
-    document.querySelectorAll('.theme-button').forEach(btn => {
-        btn.classList.toggle('active-theme', btn.dataset.theme === themeName);
-    });
 }
 
-// Загрузка JSON списков
 async function loadList(listId) {
     const listElement = document.getElementById('levelList');
     const listMap = { 
@@ -54,6 +48,11 @@ async function loadList(listId) {
         data.forEach(level => {
             const li = document.createElement('li');
             li.className = 'level-item';
+            
+            // Проверка на наличие Botter и Type
+            const botterHtml = (level.fv && level.fv.toLowerCase() !== 'none') ? `<li><span class="detail-label">Botter:</span> ${formatLatex(level.fv)}</li>` : '';
+            const typeHtml = (level.type && level.type.toLowerCase() !== 'none') ? `<li><span class="detail-label">Type:</span> ${formatLatex(level.type)}</li>` : '';
+
             li.innerHTML = `
                 <div class="level-header">
                     <span class="level-number">#${level.number}</span>
@@ -65,6 +64,8 @@ async function loadList(listId) {
                 <ul class="level-details">
                     <li><span class="detail-label">ID:</span> ${level.id} <img src="res/copybutton.png" class="copy-icon" onclick="copyToClipboard('${level.id}')"></li>
                     <li><span class="detail-label">FPS:</span> ${formatLatex(level.fps)}</li>
+                    ${botterHtml}
+                    ${typeHtml}
                 </ul>`;
             listElement.appendChild(li);
         });
