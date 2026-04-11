@@ -1,26 +1,16 @@
 [
   {
     "number": "1",
-    "name": "Not this level again",
-    "creator": "necrotikk",
-    "fps": "\\lambda + \\omega",
-    "id": "GMD",
-    "fv": "flimchik",
-    "type": "Set encoding (Bijection)",
-    "showcase": "https://youtu.be/Z-VtZn8TstA"
-  },
-  {
-    "number": "2",
     "name": "SLOOM 3",
     "creator": "DecidableSet ",
     "fps": "\\lambda",
     "id": "132580582",
     "fv": "DecidableSet ",
     "type": "Buffed supertask ",
-    "showcase": "https://youtu.be/kaoHBhmvwZQ"
+    "showcase": "none"
   },
   {
-    "number": "3",
+    "number": "2",
     "name": "Aleph Omega",
     "creator": "necrotikk",
     "fps": "\\aleph_{\\omega}",
@@ -30,27 +20,7 @@
     "showcase": "none"
   },
   {
-    "number": "4",
-    "name": "w14p88",
-    "creator": "Grender",
-    "fps": "\\omega^{14} +88",
-    "id": "135757645",
-    "fv": "",
-    "type": "supertask",
-    "showcase": ""
-  },
-  {
-    "number": "7",
-    "name": "Injirnity",
-    "creator": "wabur",
-    "fps": "\\omega^3",
-    "id": "135004246",
-    "fv": "mejiwabbur",
-    "type": "Collision Stack + Supertask",
-    "showcase": "Ььь"
-  },
-  {
-    "number": "8",
+    "number": "3",
     "name": "Ochen krutoy lvl",
     "creator": "Dim0n4k & mufffin ",
     "fps": "\\omega + 2^{32}",
@@ -60,7 +30,7 @@
     "showcase": "Ньэ"
   },
   {
-    "number": "9",
+    "number": "4",
     "name": "ICLL Uroven ",
     "creator": "dm4k ",
     "fps": "\\omega",
