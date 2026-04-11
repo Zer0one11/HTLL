@@ -37,7 +37,7 @@
     "id": "128250639",
     "fv": "Zipin233",
     "type": "LPrSS (weak)",
-    "showcase": "нету"
+    "showcase": "https://m.youtube.com/watch?v=jV1XBiHW1xM"
   },
   {
     "number": "5",
@@ -62,12 +62,12 @@
   {
     "number": "7",
     "name": "I love 2",
-    "creator": "necrotikk ",
-    "fps": "f_{\\varepsilon_{0}}(9999)",
+    "creator": "necrotikk",
+    "fps": "f_{\\varepsilon_0}(9999)",
     "id": "129825591",
-    "fv": "Prostoeweewe ",
+    "fv": "Prostoeweewe",
     "type": "PrSS",
-    "showcase": "Пошёл нахуй"
+    "showcase": "https://vt.tiktok.com/ZSu2bb4nP/"
   },
   {
     "number": "8",
@@ -77,7 +77,7 @@
     "id": "128081281",
     "fv": "Osirissssss",
     "type": "PrSS",
-    "showcase": "sam znaesh"
+    "showcase": "https://youtu.be/F-aZZx03CdM"
   },
   {
     "number": "9",
@@ -87,7 +87,7 @@
     "id": "126916757",
     "fv": "Zipin233",
     "type": "PrSS (weak)",
-    "showcase": "нету"
+    "showcase": "https://m.youtube.com/watch?v=-WuDC2OaZFw"
   },
   {
     "number": "10",
@@ -117,7 +117,7 @@
     "id": "127524787",
     "fv": "yebok228228",
     "type": "Reordered ackermann",
-    "showcase": "Ne ebu ne moy lvl"
+    "showcase": "https://youtu.be/UuYFPLbVSwo"
   },
   {
     "number": "13",
@@ -147,7 +147,7 @@
     "id": "132375931",
     "fv": "dm4k",
     "type": "Iterated ackermann ",
-    "showcase": ""
+    "showcase": "https://youtu.be/GWJk1FNB7WM"
   },
   {
     "number": "16",
@@ -191,6 +191,16 @@
   },
   {
     "number": "20",
+    "name": "CYBERLife",
+    "creator": "Xeniss",
+    "fps": "~9\\{9\\}9",
+    "id": "135069138",
+    "fv": "Xeniss",
+    "type": "Cage",
+    "showcase": "https://youtu.be/u-P_DbgRQYc"
+  },
+  {
+    "number": "21",
     "name": "Black trouble",
     "creator": "KryXo & oilo",
     "fps": "~2\\{8\\}6",
@@ -200,7 +210,7 @@
     "showcase": "None"
   },
   {
-    "number": "21",
+    "number": "22",
     "name": "ODNAZDI",
     "creator": "Прячти",
     "fps": "~2 \\uparrow\\uparrow\\uparrow\\uparrow\\uparrow 10",
@@ -210,7 +220,7 @@
     "showcase": "https://vt.tiktok.com/ZSykktC23/"
   },
   {
-    "number": "22",
+    "number": "23",
     "name": "Black lvl",
     "creator": "Fluristpl",
     "fps": "~100 \\uparrow\\uparrow\\uparrow\\uparrow 2^{32}",
@@ -220,7 +230,7 @@
     "showcase": "https://youtu.be/17EgpvfN090?si=_FMO036Va6CAjqcs"
   },
   {
-    "number": "23",
+    "number": "24",
     "name": "JL NEVER CLEAR",
     "creator": "Osirissssss",
     "fps": "~\\ Collatz(837799)",
