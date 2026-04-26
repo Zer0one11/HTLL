@@ -31,6 +31,16 @@
   },
   {
     "number": "4",
+    "name": "SLOOM 5",
+    "creator": "necrotikk",
+    "fps": "\\aleph_1",
+    "id": "138251225",
+    "fv": "none",
+    "type": "Set encoding (Bijection)",
+    "showcase": "Необязательно для слумов"
+  },
+  {
+    "number": "5",
     "name": "Injirnity",
     "creator": "wabur",
     "fps": "\\omega^3",
@@ -40,7 +50,7 @@
     "showcase": "Ььь"
   },
   {
-    "number": "5",
+    "number": "6",
     "name": "Ochen krutoy lvl",
     "creator": "Dim0n4k & mufffin ",
     "fps": "\\omega + 2^{32}",
@@ -50,7 +60,7 @@
     "showcase": "Ньэ"
   },
   {
-    "number": "6",
+    "number": "7",
     "name": "ICLL Uroven ",
     "creator": "dm4k ",
     "fps": "\\omega",
