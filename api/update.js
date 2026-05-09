@@ -9,6 +9,7 @@ export default async function handler(req, res) {
     const allowedUsers = [
         { u: 'HELFZz', p: 'creep000' },
         { u: 'Curruser54', p: '546111' },
+        { u: 'Xeniss', p: '22822828Zz' },
         { u: 'ByHanseLLL', p: '11540hanse' }
     ];
 
