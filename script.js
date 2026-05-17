@@ -51,7 +51,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         return text;
     }
-
     // 5. ЗАГРУЗКА СПИСКА
     async function loadList(listId) {
         const listMap = { 
@@ -65,6 +64,9 @@ document.addEventListener('DOMContentLoaded', () => {
             
             listElement.innerHTML = '';
             data.forEach(level => {
+                // Проверяем: если это список ppll, то пишем TIME, иначе — FPS
+                const labelName = (listId === 'ppll') ? 'TIME:' : 'FPS:';
+
                 const li = document.createElement('li');
                 li.className = 'level-item';
                 li.innerHTML = `
@@ -77,7 +79,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                     <ul class="level-details">
                         <li><span class="detail-label">ID:</span> ${level.id}</li>
-                        <li><span class="detail-label">FPS:</span> ${formatLatex(level.fps)}</li>
+                        <li><span class="detail-label">${labelName}</span> ${formatLatex(level.fps)}</li>
                         ${level.fv ? `<li><span class="detail-label">Botter:</span> ${formatLatex(level.fv)}</li>` : ''}
                         ${level.type ? `<li><span class="detail-label">TYPE:</span> ${level.type}</li>` : ''}
                     </ul>`;
@@ -92,7 +94,6 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error("Ошибка загрузки списка:", e);
         }
     }
-
     // 6. УВЕДОМЛЕНИЯ
     if (myReqId) {
         const checkUnread = () => {
