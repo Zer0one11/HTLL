@@ -8,30 +8,21 @@
     <style>
         :root { --bg-main: #050505; --bg-card: rgba(255, 255, 255, 0.03); --color-text: #ffffff; --accent: #888; --border-white: rgba(255, 255, 255, 0.1); }
         body { font-family: 'Montserrat', sans-serif; background-color: var(--bg-main); color: var(--color-text); margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
-        
-        /* ВКЛАДКИ */
         .admin-tabs { display: flex; gap: 10px; width: 100%; max-width: 900px; margin-bottom: 20px; }
         .tab-btn { flex: 1; padding: 15px; background: #111; border: 1px solid #222; color: #555; cursor: pointer; border-radius: 12px; font-weight: 900; text-transform: uppercase; transition: 0.3s; font-family: 'Oswald'; }
         .tab-btn.active { background: #fff; color: #000; border-color: #fff; }
-
         .container { width: 100%; max-width: 900px; background: var(--bg-card); backdrop-filter: blur(12px); border-radius: 20px; padding: 30px; border: 1px solid rgba(255,255,255,0.05); box-sizing: border-box; }
-        
-        /* РЕДАКТОР */
         .level-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; background: rgba(255,255,255,0.02); padding: 20px; border-radius: 15px; margin-bottom: 20px; border: 1px solid var(--border-white); }
         input, select { width: 100%; box-sizing: border-box; background: rgba(0,0,0,0.5); border: 1px solid var(--border-white); color: #fff; padding: 12px; border-radius: 10px; outline: none; }
         .btn { padding: 12px 20px; border: none; border-radius: 10px; cursor: pointer; font-weight: 700; text-transform: uppercase; font-family: 'Oswald'; }
         .btn-primary { background: #fff; color: #000; }
         .btn-sync { background: #00ff00; color: #000; width: 100%; margin-bottom: 20px; font-weight: 900; }
         .level-row { display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.02); padding: 15px; border-radius: 12px; margin-bottom: 10px; cursor: pointer; }
-
-        /* РЕКВЕСТЫ (ВЕРТИКАЛЬНЫЙ СПИСОК) */
         .req-container { display: flex; flex-direction: column; gap: 20px; }
         .req-list { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 10px; white-space: nowrap; }
         .req-item { min-width: 150px; padding: 15px; background: #111; border: 1px solid #222; border-radius: 12px; cursor: pointer; text-align: center; }
         .req-item.active { background: #fff; color: #000; border-color: #fff; }
         .req-item.unread { border-color: #ff4444; }
-
-        /* ОКНО ЧАТА ПОД СПИСКОМ */
         .chat-view { background: #0a0a0a; border-radius: 20px; padding: 25px; border: 1px solid #222; width: 100%; box-sizing: border-box; }
         .full-info { background: #111; padding: 20px; border-radius: 12px; margin-bottom: 15px; font-size: 0.85rem; line-height: 1.6; border-left: 4px solid #fff; }
         .full-info b { color: #888; text-transform: uppercase; font-size: 0.7rem; display: block; }
@@ -39,7 +30,6 @@
         .msg { max-width: 80%; padding: 10px 15px; border-radius: 10px; font-size: 0.9rem; }
         .msg.admin { background: #fff; color: #000; align-self: flex-end; }
         .msg.user { background: #222; color: #fff; align-self: flex-start; }
-        
         .logout-btn { background: none; border: 1px solid #333; color: #444; cursor: pointer; margin-bottom: 10px; font-size: 10px; }
     </style>
 </head>
@@ -88,12 +78,10 @@
         <div id="section-req" class="container" style="display:none;">
             <div class="req-container">
                 <h3 style="margin-top:0; font-family:'Oswald';">Активные заявки</h3>
-                <div class="req-list" id="fb-req-list">
-                    </div>
+                <div class="req-list" id="fb-req-list"></div>
 
                 <div id="fb-chat-view" class="chat-view" style="display:none;">
-                    <div id="fb-full-info" class="full-info">
-                        </div>
+                    <div id="fb-full-info" class="full-info"></div>
                     <div class="chat-box" id="fb-chat-box"></div>
                     <div style="display:flex; gap:10px;">
                         <input type="text" id="fb-input" placeholder="Введите ответ...">
@@ -122,7 +110,6 @@
     const db = getDatabase(app);
     let activeChatId = null;
 
-    // Смена вкладок
     window.switchTab = (target) => {
         document.getElementById('section-editor').style.display = target === 'editor' ? 'block' : 'none';
         document.getElementById('section-req').style.display = target === 'req' ? 'block' : 'none';
@@ -130,7 +117,6 @@
         document.getElementById('tab-req-btn').classList.toggle('active', target === 'req');
     };
 
-    // Firebase: Список заявок
     onValue(ref(db, 'requests'), (snapshot) => {
         const list = document.getElementById('fb-req-list');
         list.innerHTML = '';
@@ -148,7 +134,6 @@
         activeChatId = req.id;
         document.getElementById('fb-chat-view').style.display = 'block';
         
-        // ВСЯ ИНФОРМАЦИЯ ОТ ЮЗЕРА ПОД СПИСКОМ
         document.getElementById('fb-full-info').innerHTML = `
             <div><b>Игрок / Ник</b> ${req.nickname}</div>
             <div style="margin-top:10px;"><b>Уровень</b> ${req.level} (by ${req.creator})</div>
@@ -189,11 +174,8 @@
 </script>
 
 <script>
-    // ТВОЙ ОРИГИНАЛЬНЫЙ СКРИПТ РЕДАКТОРА
     let currentData = [];
     let sessionUser = "", sessionPass = "";
-    const USERS = [{user:'HELFZz',pass:'creep000'},{user:'Xeniss',pass:'22822828Zz'},{user:'flim',pass:'Gdr.JSON1345'},{user:'Curruser54',pass:'546111'},
-{user:'bomboloni',pass:'1322jksl5'},{user:'ByHanseLLL',pass:'11540hanse'},{user:'decidableset043',pass:'hellonigga1991'}];
     
     window.onload = () => { 
         const u = localStorage.getItem('at_u'), p = localStorage.getItem('at_p'); 
@@ -203,15 +185,27 @@
     function manualLogin() { checkAuth(document.getElementById('login').value, document.getElementById('password').value, false); }
     function logout() { localStorage.clear(); location.reload(); }
 
-    function checkAuth(l, p, isAuto) {
-        const found = USERS.find(u => u.user === l && u.pass === p);
-        if (found) {
-            sessionUser = l; sessionPass = p;
-            localStorage.setItem('at_u', l); localStorage.setItem('at_p', p);
-            document.getElementById('auth-screen').style.display = 'none';
-            document.getElementById('admin-panel').style.display = 'block';
-            loadList();
-        } else if (!isAuto) alert("Ошибка доступа");
+    async function checkAuth(l, p, isAuto) {
+        try {
+            const res = await fetch('/api/update', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'verify', login: l, password: p })
+            });
+            
+            if (res.ok) {
+                sessionUser = l; sessionPass = p;
+                localStorage.setItem('at_u', l); localStorage.setItem('at_p', p);
+                document.getElementById('auth-screen').style.display = 'none';
+                document.getElementById('admin-panel').style.display = 'block';
+                loadList();
+            } else {
+                if (!isAuto) alert("Ошибка доступа: Неверный логин или пароль");
+                localStorage.clear();
+            }
+        } catch (err) {
+            if (!isAuto) alert("Ошибка соединения с сервером");
+        }
     }
 
     async function loadList() {
@@ -237,17 +231,50 @@
 
     function addOrUpdate() {
         const idx = parseInt(document.getElementById('editIndex').value);
-        const newNum = parseInt(document.getElementById('inpNum').value);
+        let newNum = parseInt(document.getElementById('inpNum').value);
+        
+        if (isNaN(newNum)) {
+            newNum = currentData.length + (idx === -1 ? 1 : 0); 
+        }
+
         const level = {
-            number: newNum.toString(), name: document.getElementById('inpName').value,
-            creator: document.getElementById('inpCreator').value, fps: document.getElementById('inpFPS').value,
-            id: document.getElementById('inpID').value, fv: document.getElementById('inpFV').value,
-            type: document.getElementById('inpType').value, showcase: document.getElementById('inpShowcase').value
+            number: newNum.toString(), 
+            name: document.getElementById('inpName').value,
+            creator: document.getElementById('inpCreator').value, 
+            fps: document.getElementById('inpFPS').value,
+            id: document.getElementById('inpID').value, 
+            fv: document.getElementById('inpFV').value,
+            type: document.getElementById('inpType').value, 
+            showcase: document.getElementById('inpShowcase').value
         };
-        if (idx !== -1) currentData.splice(idx, 1);
-        currentData.forEach(item => { if (parseInt(item.number) >= newNum) item.number = (parseInt(item.number) + 1).toString(); });
+
+        if (idx !== -1) {
+            const oldNum = parseInt(currentData[idx].number);
+            
+            if (oldNum === newNum) {
+                currentData[idx] = level;
+                resetForm(); 
+                render();
+                return;
+            }
+
+            currentData.splice(idx, 1);
+            currentData.forEach(item => {
+                if (parseInt(item.number) > oldNum) {
+                    item.number = (parseInt(item.number) - 1).toString();
+                }
+            });
+        }
+
+        currentData.forEach(item => {
+            if (parseInt(item.number) >= newNum) {
+                item.number = (parseInt(item.number) + 1).toString();
+            }
+        });
+
         currentData.push(level); 
-        resetForm(); render();
+        resetForm(); 
+        render();
     }
 
     function editLevel(i) {
@@ -273,7 +300,19 @@
         setTimeout(() => status.innerText = "", 3000);
     }
 
-    function deleteLevel(e, i) { e.stopPropagation(); if (confirm("Удалить?")) { currentData.splice(i, 1); render(); } }
+    function deleteLevel(e, i) { 
+        e.stopPropagation(); 
+        if (confirm("Удалить?")) { 
+            const oldNum = parseInt(currentData[i].number);
+            currentData.splice(i, 1); 
+            currentData.forEach(item => {
+                if (parseInt(item.number) > oldNum) {
+                    item.number = (parseInt(item.number) - 1).toString();
+                }
+            });
+            render(); 
+        } 
+    }
 </script>
 </body>
 </html>
