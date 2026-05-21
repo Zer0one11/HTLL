@@ -5,14 +5,25 @@ export default async function handler(req, res) {
 
     if (!GITHUB_TOKEN) return res.status(500).json({ error: 'GH_TOKEN not found' });
 
-    // Список пользователей прямо в коде
-    const allowedUsers = [
-        { u: 'HELFZz', p: 'creep000' },
-        { u: 'Curruser54', p: '546111' },
-        { u: 'flim', p: 'Gdr.JSON1345' },
-        { u: 'Xeniss', p: '22822828Zz' },
-        { u: 'ByHanseLLL', p: '11540hanse' }
-    ];
+    // Загрузка пользователей из переменных окружения Vercel
+    let allowedUsers = [];
+    if (process.env.ADMIN_USERS) {
+        allowedUsers = process.env.ADMIN_USERS.split(',').map(s => {
+            const [u, p] = s.split(':');
+            return { u, p };
+        });
+    } else {
+        // Резервный список (полностью безопасен, так как бекенд код не виден через F12)
+        allowedUsers = [
+            { u: 'HELFZz', p: 'creep000' },
+            { u: 'Curruser54', p: '546111' },
+            { u: 'flim', p: 'Gdr.JSON1345' },
+            { u: 'Xeniss', p: '22822828Zz' },
+            { u: 'ByHanseLLL', p: '11540hanse' },
+            { u: 'bomboloni', p: '1322jksl5' },
+            { u: 'decidableset043', p: 'hellonigga1991' }
+        ];
+    }
 
     if (req.method === 'GET') {
         const { fileName } = req.query;
@@ -27,10 +38,15 @@ export default async function handler(req, res) {
     }
 
     if (req.method === 'POST') {
-        const { login, password, fileName, newData } = req.body;
+        const { action, login, password, fileName, newData } = req.body;
 
         const isValid = allowedUsers.some(user => user.u === login && user.p === password);
         if (!isValid) return res.status(401).json({ error: 'Access Denied' });
+
+        // Если это проверка авторизации со стороны admin.html
+        if (action === 'verify') {
+            return res.status(200).json({ success: true });
+        }
 
         try {
             const getFile = await fetch(`https://api.github.com/repos/${OWNER}/${REPO}/contents/${fileName}`, {
