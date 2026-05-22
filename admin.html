@@ -4,18 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HTLL | Burmalda Dashboard</title>
-    
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://htll-request-default-rtdb.europe-west1.firebasedatabase.app https://api.github.com;">
-
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&family=Oswald:wght@500&display=swap" rel="stylesheet">
     <style>
-        :root { 
-            --bg-main: #050505; 
-            --bg-card: rgba(255, 255, 255, 0.03); 
-            --color-text: #ffffff; 
-            --accent: #888; 
-            --border-white: rgba(255, 255, 255, 0.1); 
-        }
+        :root { --bg-main: #050505; --bg-card: rgba(255, 255, 255, 0.03); --color-text: #ffffff; --accent: #888; --border-white: rgba(255, 255, 255, 0.1); }
         body { font-family: 'Montserrat', sans-serif; background-color: var(--bg-main); color: var(--color-text); margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
         .admin-tabs { display: flex; gap: 10px; width: 100%; max-width: 900px; margin-bottom: 20px; }
         .tab-btn { flex: 1; padding: 15px; background: #111; border: 1px solid #222; color: #555; cursor: pointer; border-radius: 12px; font-weight: 900; text-transform: uppercase; transition: 0.3s; font-family: 'Oswald'; }
@@ -86,7 +78,7 @@
 
         <div id="section-req" class="container" style="display:none;">
             <div class="req-container">
-                <h3 style="margin-top:0; font-family:'Oswald';">Active requests</h3>
+                <h3 style="margin-top:0; font-family:'Oswald';">Активные заявки</h3>
                 <div class="req-list" id="fb-req-list"></div>
 
                 <div id="fb-chat-view" class="chat-view" style="display:none;">
@@ -96,7 +88,7 @@
                         <input type="text" id="fb-input" placeholder="Введите ответ...">
                         <button class="btn btn-primary" id="fb-send">></button>
                     </div>
-                    <button id="fb-delete-btn" style="background:none; border:none; color:#ff4444; cursor:pointer; font-size:10px; margin-top:15px; font-weight:900;">УДАЛИТЬ ЗАЯВКУ НАВСЕГДА</button>
+                    <button onclick="deleteCurrentChat()" style="background:none; border:none; color:#ff4444; cursor:pointer; font-size:10px; margin-top:15px; font-weight:900;">УДАЛИТЬ ЗАЯВКУ НАВСЕГДА</button>
                 </div>
             </div>
         </div>
@@ -119,7 +111,13 @@
     const db = getDatabase(app);
     let activeChatId = null;
 
-    // Слушатель списка заявок
+    window.switchTab = (target) => {
+        document.getElementById('section-editor').style.display = target === 'editor' ? 'block' : 'none';
+        document.getElementById('section-req').style.display = target === 'req' ? 'block' : 'none';
+        document.getElementById('tab-editor-btn').classList.toggle('active', target === 'editor');
+        document.getElementById('tab-req-btn').classList.toggle('active', target === 'req');
+    };
+
     onValue(ref(db, 'requests'), (snapshot) => {
         const list = document.getElementById('fb-req-list');
         list.innerHTML = '';
@@ -128,7 +126,6 @@
             const div = document.createElement('div');
             div.className = `req-item ${activeChatId === req.id ? 'active' : ''} ${req.hasUnread ? 'unread' : ''}`;
             
-            // Безопасное добавление текста через элементы во избежание XSS
             const b = document.createElement('b'); b.textContent = req.level;
             const br = document.createElement('br');
             const small = document.createElement('small'); small.textContent = req.nickname;
@@ -172,7 +169,6 @@
         linkDiv.appendChild(link);
         infoBox.appendChild(linkDiv);
 
-        // Слушатель сообщений текущего чата (Защищен через textContent)
         onValue(ref(db, `chats/${req.id}`), (snap) => {
             const box = document.getElementById('fb-chat-box');
             box.innerHTML = '';
@@ -180,7 +176,7 @@
                 const m = mSnap.val();
                 const d = document.createElement('div');
                 d.className = `msg ${m.role}`;
-                d.textContent = m.text; // Защита от тегов
+                d.textContent = m.text;
                 box.appendChild(d);
             });
             box.scrollTop = box.scrollHeight;
@@ -195,7 +191,7 @@
         inp.value = '';
     };
 
-    document.getElementById('fb-delete-btn').onclick = async () => {
+    window.deleteCurrentChat = async () => {
         if(confirm("Удалить всё?")) {
             await remove(ref(db, `requests/${activeChatId}`));
             await remove(ref(db, `chats/${activeChatId}`));
@@ -212,13 +208,6 @@
     window.onload = () => { 
         const u = localStorage.getItem('at_u'), p = localStorage.getItem('at_p'); 
         if (u && p) checkAuth(u, p, true); 
-    };
-
-    window.switchTab = (target) => {
-        document.getElementById('section-editor').style.display = target === 'editor' ? 'block' : 'none';
-        document.getElementById('section-req').style.display = target === 'req' ? 'block' : 'none';
-        document.getElementById('tab-editor-btn').classList.toggle('active', target === 'editor');
-        document.getElementById('tab-req-btn').classList.toggle('active', target === 'req');
     };
 
     function manualLogin() { checkAuth(document.getElementById('login').value, document.getElementById('password').value, false); }
@@ -239,11 +228,11 @@
                 document.getElementById('admin-panel').style.display = 'block';
                 loadList();
             } else {
-                if (!isAuto) alert("Ошибка доступа: Неверный логин или пароль");
+                if (!isAuto) alert("Ошибка доступа: Неверные данные");
                 logout();
             }
         } catch (err) {
-            if (!isAuto) alert("Ошибка соединения с сервером");
+            if (!isAuto) alert("Ошибка авторизации на сервере");
         }
     }
 
@@ -258,23 +247,22 @@
         } catch(e) { status.innerText = "ОШИБКА FETCH"; }
     }
 
-    // Безопасный рендеринг через textContent без innerHTML
     function render() {
         const container = document.getElementById('listContainer'); container.innerHTML = '';
-        currentData.sort((a,b) => parseInt(a.number) - parseInt(b.number));
-        
+        currentData.sort((a,b)=>parseInt(a.number)-parseInt(b.number));
         currentData.forEach((item, i) => {
             const row = document.createElement('div'); row.className = 'level-row';
             row.onclick = () => editLevel(i);
             
-            const txt = document.createElement('span');
-            txt.textContent = `#${item.number} ${item.name}`;
+            const txt = document.createElement('div');
+            const b = document.createElement('b'); b.textContent = `#${item.number} `;
+            txt.appendChild(b); txt.appendChild(document.createTextNode(item.name));
             
             const del = document.createElement('button');
             del.className = 'btn';
             del.style = 'background:#ff4444; padding:5px; font-size:10px';
             del.textContent = 'X';
-            del.onclick = (e) => deleteLevel(e, i);
+            del.onclick = (e) => { e.stopPropagation(); deleteLevel(i); };
             
             row.appendChild(txt); row.appendChild(del);
             container.appendChild(row);
@@ -283,39 +271,15 @@
 
     function addOrUpdate() {
         const idx = parseInt(document.getElementById('editIndex').value);
-        let newNum = parseInt(document.getElementById('inpNum').value);
-        
-        if (isNaN(newNum)) {
-            newNum = currentData.length + (idx === -1 ? 1 : 0); 
-        }
-
+        const newNum = parseInt(document.getElementById('inpNum').value);
         const level = {
-            number: newNum.toString(), 
-            name: document.getElementById('inpName').value,
-            creator: document.getElementById('inpCreator').value, 
-            fps: document.getElementById('inpFPS').value,
-            id: document.getElementById('inpID').value, 
-            fv: document.getElementById('inpFV').value,
-            type: document.getElementById('inpType').value, 
-            showcase: document.getElementById('inpShowcase').value
+            number: newNum.toString(), name: document.getElementById('inpName').value,
+            creator: document.getElementById('inpCreator').value, fps: document.getElementById('inpFPS').value,
+            id: document.getElementById('inpID').value, fv: document.getElementById('inpFV').value,
+            type: document.getElementById('inpType').value, showcase: document.getElementById('inpShowcase').value
         };
-
-        if (idx !== -1) {
-            const oldNum = parseInt(currentData[idx].number);
-            if (oldNum === newNum) {
-                currentData[idx] = level;
-                resetForm(); render(); return;
-            }
-            currentData.splice(idx, 1);
-            currentData.forEach(item => {
-                if (parseInt(item.number) > oldNum) item.number = (parseInt(item.number) - 1).toString();
-            });
-        }
-
-        currentData.forEach(item => {
-            if (parseInt(item.number) >= newNum) item.number = (parseInt(item.number) + 1).toString();
-        });
-
+        if (idx !== -1) currentData.splice(idx, 1);
+        currentData.forEach(item => { if (parseInt(item.number) >= newNum) item.number = (parseInt(item.number) + 1).toString(); });
         currentData.push(level); 
         resetForm(); render();
     }
@@ -338,24 +302,13 @@
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ login: sessionUser, password: sessionPass, fileName: document.getElementById('fileSelect').value, newData: currentData })
         });
-        
-        if (res.status === 401) { alert("Сессия истекла или доступ заблокирован"); logout(); return; }
+        if (res.status === 401) { alert("Доступ отклонен бэкендом"); logout(); return; }
         const result = await res.json();
         status.innerText = result.success ? "ГОТОВО!" : "ОШИБКА!";
         setTimeout(() => status.innerText = "", 3000);
     }
 
-    function deleteLevel(e, i) { 
-        e.stopPropagation(); 
-        if (confirm("Удалить уровень?")) { 
-            const oldNum = parseInt(currentData[i].number);
-            currentData.splice(i, 1); 
-            currentData.forEach(item => {
-                if (parseInt(item.number) > oldNum) item.number = (parseInt(item.number) - 1).toString();
-            });
-            render(); 
-        } 
-    }
+    function deleteLevel(i) { if (confirm("Удалить?")) { currentData.splice(i, 1); render(); } }
 </script>
 </body>
 </html>
