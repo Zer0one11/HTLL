@@ -5,7 +5,7 @@ export default async function handler(req, res) {
 
     if (!GITHUB_TOKEN) return res.status(500).json({ error: 'GH_TOKEN not found' });
 
-    // Загрузка пользователей из переменных окружения Vercel
+    // Парсим пользователей из Vercel, либо используем жестко прописанный массив ниже
     let allowedUsers = [];
     if (process.env.ADMIN_USERS) {
         allowedUsers = process.env.ADMIN_USERS.split(',').map(s => {
@@ -13,15 +13,10 @@ export default async function handler(req, res) {
             return { u, p };
         });
     } else {
-        // Резервный список (полностью безопасен, так как бекенд код не виден через F12)
+        // Оставлены только два нужных аккаунта
         allowedUsers = [
-            { u: 'HELFZz', p: 'creep000' },
-            { u: 'Curruser54', p: '546111' },
-            { u: 'flim', p: 'Gdr.JSON1345' },
-            { u: 'Xeniss', p: '22822828Zz' },
-            { u: 'ByHanseLLL', p: '11540hanse' },
-            { u: 'bomboloni', p: '1322jksl5' },
-            { u: 'decidableset043', p: 'hellonigga1991' }
+            { u: 'helfz', p: 'creep000eer' },
+            { u: 'Xeniss', p: '09.11.2001Zz' }
         ];
     }
 
@@ -43,7 +38,6 @@ export default async function handler(req, res) {
         const isValid = allowedUsers.some(user => user.u === login && user.p === password);
         if (!isValid) return res.status(401).json({ error: 'Access Denied' });
 
-        // Если это проверка авторизации со стороны admin.html
         if (action === 'verify') {
             return res.status(200).json({ success: true });
         }
@@ -54,7 +48,6 @@ export default async function handler(req, res) {
             });
             const fileData = await getFile.json();
 
-            // Сохраняем с отступами и корректной обработкой слэшей для LaTeX
             const jsonString = JSON.stringify(newData, null, 2);
             const newContentBase64 = btoa(unescape(encodeURIComponent(jsonString)));
 
