@@ -215,7 +215,7 @@
 
     async function checkAuth(l, p, isAuto) {
         try {
-            const res = await fetch('/api/update', {
+            const res = await fetch('./api/update', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ action: 'verify', login: l, password: p })
@@ -239,7 +239,7 @@
     async function loadList() {
         const status = document.getElementById('statusMsg'); status.innerText = "ЗАГРУЗКА...";
         try {
-            const res = await fetch(`/api/update?fileName=${document.getElementById('fileSelect').value}`);
+            const res = await fetch(`./api/update?fileName=${document.getElementById('fileSelect').value}`);
             if (res.status === 401) { logout(); return; }
             const result = await res.json();
             currentData = JSON.parse(result.content);
@@ -297,10 +297,10 @@
 
     async function saveToGitHub() {
         const status = document.getElementById('statusMsg'); status.innerText = "СОХРАНЕНИЕ...";
-        const res = await fetch('/api/update', {
+        const res = await fetch('./api/update', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ login: sessionUser, password: sessionPass, fileName: document.getElementById('fileSelect').value, newData: currentData })
+            body: JSON.stringify({ action: 'save', login: sessionUser, password: sessionPass, fileName: document.getElementById('fileSelect').value, newData: currentData })
         });
         if (res.status === 401) { alert("Доступ отклонен бэкендом"); logout(); return; }
         const result = await res.json();

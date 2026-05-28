@@ -2,10 +2,16 @@ export default async function handler(req, res) {
     const OWNER = 'Zer0one11';
     const REPO = 'HTLL';
     const GITHUB_TOKEN = process.env.GH_TOKEN;
+    const USER_AGENT = 'HTLL-Update-API';
 
     if (!GITHUB_TOKEN) return res.status(500).json({ error: 'GH_TOKEN not found' });
 
     const ALLOWED_FILES = ['levels.json', 'ppll.json', 'sll.json', 'ill.json', 'inf.json', 'scl.json', 'icl.json'];
+    const GH_HEADERS = {
+        Authorization: `token ${GITHUB_TOKEN}`,
+        Accept: 'application/vnd.github+json',
+        'User-Agent': USER_AGENT,
+    };
 
     // Читаем пользователей из Vercel ADMIN_USERS
     let allowedUsers = [];
@@ -30,10 +36,13 @@ export default async function handler(req, res) {
         }
         try {
             const response = await fetch(`https://api.github.com/repos/${OWNER}/${REPO}/contents/${fileName}?t=${Date.now()}`, {
-                headers: { 'Authorization': `Bearer ${GITHUB_TOKEN}` }
+                headers: GH_HEADERS
             });
             const data = await response.json();
-            const content = decodeURIComponent(escape(atob(data.content)));
+            if (!response.ok || !data.content) {
+                return res.status(response.status || 500).json({ error: data.message || 'GitHub fetch error' });
+            }
+            const content = Buffer.from(data.content, 'base64').toString('utf8');
             return res.status(200).json({ content });
         } catch (e) { return res.status(500).json({ error: e.message }); }
     }
@@ -69,17 +78,20 @@ export default async function handler(req, res) {
 
         try {
             const getFile = await fetch(`https://api.github.com/repos/${OWNER}/${REPO}/contents/${fileName}`, {
-                headers: { 'Authorization': `Bearer ${GITHUB_TOKEN}` }
+                headers: GH_HEADERS
             });
             const fileData = await getFile.json();
+            if (!getFile.ok || !fileData.sha) {
+                return res.status(getFile.status || 500).json({ error: fileData.message || 'GitHub file retrieval error' });
+            }
 
             const jsonString = JSON.stringify(sanitizedData, null, 2);
-            const newContentBase64 = btoa(unescape(encodeURIComponent(jsonString)));
+            const newContentBase64 = Buffer.from(jsonString, 'utf8').toString('base64');
 
             const updateResponse = await fetch(`https://api.github.com/repos/${OWNER}/${REPO}/contents/${fileName}`, {
                 method: 'PUT',
                 headers: {
-                    'Authorization': `Bearer ${GITHUB_TOKEN}`,
+                    ...GH_HEADERS,
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
@@ -92,7 +104,7 @@ export default async function handler(req, res) {
             if (updateResponse.ok) return res.status(200).json({ success: true });
             else {
                 const err = await updateResponse.json();
-                return res.status(500).json({ error: err.message });
+                return res.status(updateResponse.status || 500).json({ error: err.message || 'GitHub update failed' });
             }
         } catch (error) { return res.status(500).json({ error: error.message }); }
     }
