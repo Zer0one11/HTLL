@@ -201,13 +201,18 @@ document.addEventListener('DOMContentLoaded', () => {
             timestamp: Date.now()
         };
 
-        await set(ref(window.db, 'requests/' + rId), data);
-        localStorage.setItem('myRequestID', rId);
-        myReqId = rId; // Обновляем локальную переменную
-        
-        document.getElementById('request-form-container').style.display = 'none';
-        document.getElementById('chat-section').style.display = 'block';
-        initUserChat(rId);
+        try {
+            await set(ref(window.db, 'requests/' + rId), data);
+            localStorage.setItem('myRequestID', rId);
+            myReqId = rId; // Обновляем локальную переменную
+
+            document.getElementById('request-form-container').style.display = 'none';
+            document.getElementById('chat-section').style.display = 'block';
+            initUserChat(rId);
+        } catch (error) {
+            console.error('Ошибка сохранения заявки:', error);
+            alert('Не удалось сохранить заявку. Проверьте консоль и настройки Firebase.');
+        }
     };
 
     // 9. СОБЫТИЯ UI

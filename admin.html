@@ -121,6 +121,14 @@
     onValue(ref(db, 'requests'), (snapshot) => {
         const list = document.getElementById('fb-req-list');
         list.innerHTML = '';
+        if (!snapshot.exists()) {
+            const empty = document.createElement('div');
+            empty.style.padding = '15px';
+            empty.style.color = '#888';
+            empty.textContent = 'Заявок пока нет.';
+            list.appendChild(empty);
+            return;
+        }
         snapshot.forEach((child) => {
             const req = child.val();
             const div = document.createElement('div');
